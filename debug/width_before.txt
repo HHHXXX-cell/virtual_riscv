@@ -1,0 +1,59 @@
+﻿== struct 位宽实算 vs 文档声明 ==
+struct               成员    未解析      实算和 文档声明值                  判定
+ftq_req_t            12      0      141 141                    OK
+ftq_entry_t           0      0        0 149                    NO-TABLE
+fetch_raw_t           8      0       92 92                     OK
+uop_t                28      1      228 251                    UNVERIFIED
+rmap_uop_t            4      4        0 270                    UNVERIFIED
+rob_alloc_t          17      0      140 125                    MISMATCH
+rob_entry_t          18      2      122 122                    UNVERIFIED
+iq_wr_t               0      0        0 181                    NO-TABLE
+iq_entry_t            0      0        0 6                      NO-TABLE
+wb_t                  5      0       80 79                     MISMATCH
+disp_x_t             10      4      106 293                    UNVERIFIED
+br_resolve_t         11      1      103                        UNVERIFIED
+mem_req_t            14      1      126 149                    UNVERIFIED
+mmu_transl_req_t      0      0        0                        NO-TABLE
+miss_req_t            0      0        0                        NO-TABLE
+icache_rsp_t          0      0        0 16,32                  NO-TABLE
+commit_t             13      2      251                        UNVERIFIED
+excp_t                0      0        0                        NO-TABLE
+csr_wr_t              0      0        0 138                    NO-TABLE
+rt_t                 24      0      531 554                    MISMATCH
+
+合计 20 个 struct：可机器核对=2，不符=3，未能核实=15
+
+== 差异明细（返工时逐条消）==
+  ftq_entry_t    L118  实算    0  声明 149          NO-TABLE    差 149
+        └ 本节无逐成员位宽表（只有行内算式），不可机器核对 —— 属 Q1/Q9 待落实项
+  uop_t          L139  实算  228  声明 251          UNVERIFIED  差 23
+        └ 另有 1 个成员宽度无法单值解析，未计入和（需人工定值）
+  rmap_uop_t     L176  实算    0  声明 270          UNVERIFIED  差 270
+        └ 另有 4 个成员宽度无法单值解析，未计入和（需人工定值）
+  rob_alloc_t    L189  实算  140  声明 125          MISMATCH    差 -15
+  rob_entry_t    L213  实算  122  声明 122          UNVERIFIED  差 0
+        └ 另有 2 个成员宽度无法单值解析，未计入和（需人工定值）
+  iq_wr_t        L240  实算    0  声明 181          NO-TABLE    差 181
+        └ 本节无逐成员位宽表（只有行内算式），不可机器核对 —— 属 Q1/Q9 待落实项
+  iq_entry_t     L247  实算    0  声明 6            NO-TABLE    差 6
+        └ 本节无逐成员位宽表（只有行内算式），不可机器核对 —— 属 Q1/Q9 待落实项
+  wb_t           L253  实算   80  声明 79           MISMATCH    差 -1
+  disp_x_t       L265  实算  106  声明 293          UNVERIFIED  差 187
+        └ 另有 4 个成员宽度无法单值解析，未计入和（需人工定值）
+  br_resolve_t   L282  实算  103  声明 -            UNVERIFIED  差 -
+        └ 另有 1 个成员宽度无法单值解析，未计入和（需人工定值）
+  mem_req_t      L298  实算  126  声明 149          UNVERIFIED  差 23
+        └ 另有 1 个成员宽度无法单值解析，未计入和（需人工定值）
+  mmu_transl_req_t L319  实算    0  声明 -            NO-TABLE    差 -
+        └ 本节无逐成员位宽表（只有行内算式），不可机器核对 —— 属 Q1/Q9 待落实项
+  miss_req_t     L329  实算    0  声明 -            NO-TABLE    差 -
+        └ 本节无逐成员位宽表（只有行内算式），不可机器核对 —— 属 Q1/Q9 待落实项
+  icache_rsp_t   L339  实算    0  声明 16,32        NO-TABLE    差 16,32
+        └ 本节无逐成员位宽表（只有行内算式），不可机器核对 —— 属 Q1/Q9 待落实项
+  commit_t       L350  实算  251  声明 -            UNVERIFIED  差 -
+        └ 另有 2 个成员宽度无法单值解析，未计入和（需人工定值）
+  excp_t         L368  实算    0  声明 -            NO-TABLE    差 -
+        └ 本节无逐成员位宽表（只有行内算式），不可机器核对 —— 属 Q1/Q9 待落实项
+  csr_wr_t       L388  实算    0  声明 138          NO-TABLE    差 138
+        └ 本节无逐成员位宽表（只有行内算式），不可机器核对 —— 属 Q1/Q9 待落实项
+  rt_t           L404  实算  531  声明 554          MISMATCH    差 23

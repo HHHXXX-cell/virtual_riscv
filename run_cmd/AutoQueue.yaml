@@ -1,0 +1,224 @@
+# VR1 自动编排队列（run_cmd/AutoQueue.yaml）
+#
+# 用途：R8「项目编排 AI（PM）」的唯一状态载体。每轮会话由 R8 执行
+#       `python script/gate.py check` → `dispatch` → 干活 → `report`，
+#       使"下一步做什么"不再依赖人的下一条指令，也不依赖某个会话的记忆。
+# 依据：doc/项目开发流程.md §12.1~12.4（人只在 P1~P4 介入）、
+#       《AI进行IC开发验证工作流程》v2.1 §1.3 阶段×角色矩阵、§6.1 评审收敛判据。
+# 字段约定（gate.py 逐条机判，缺项即 FAIL）：
+#   id            队列号，Q-xxx，全局唯一
+#   task          工作项（一句话）
+#   role          归属角色：R1 架构师 / R2 参考模型 / R3 设计 / R4 平台 / R5 归因 / R6 审计 / R8 编排
+#   basis         依据：文件 + 节号或台账号（不写行号，行号随编辑漂移；节号稳定可 grep）
+#   done_when     可机判完成判据：必须是"某文件存在/某台账号转已解决/某脚本输出为 0"这类事实
+#   state         ready | blocked | in_progress | in_review | done | fused
+#   priority      P1（挡门禁）/ P2（挡主线）/ P3（可延）
+#   depends_on    前置队列项（空数组表示无前置）
+#   blocked_by    外部阻塞（ISS-xxx 或 Bn）；非空时 dispatch 一律跳过
+#   review_rounds 该项已跑的 R7 评审轮数（§6.1 硬上限 5，达 5 即置 fused 并升级）
+#   decision_rounds 该项已派给 vr1-decider 的次数（缺省 0；**达 3 次即熔断转人**，不得继续消耗轮次）
+#   landable      落实证据落点（done 项必填，"已接受/同意改"不算闭环——§6.1 C1）
+#
+# 领队循环协议（主会话 = 领队；子代理无法互相派发，故调度只能在此侧）：
+#   每轮 ① python script/gate.py check（有 FAIL 即先修，不得宣布任何"已落实"）
+#        ② python script/gate.py loop   （由 loop 给出本轮唯一动作，不自行挑活）
+#        ③ 执行该动作 → 回填 state/done_when/landable → 回 ①
+#   停止条件（只有三种）：全部 done → 呈 R0 做阶段出口判定（不得自称"项目完成"）；
+#   只剩被人工阻塞项 → escalate 后停；触熔断（评审 5 轮 / 决策 3 轮）→ 出决策包后停。
+#   绝不自动越过：P1~P4 四个签署点与 §12.3 四类必报项（红线 RA1/RA5）。
+
+meta:
+  version: v1.0
+  created: 2026-09-23
+  owner: R8
+  review_round_cap: 5
+  fuse_after_stalled_rounds: 3
+
+items:
+  # ---------- 已完成（保留作审计，gate.py 会校验其 landable 真实存在）----------
+  - id: Q-000
+    task: 设立 R8 编排角色与本队列，落 gate.py 机械核销工具
+    role: R8
+    basis: doc/00 ISS-030、ISS-033；doc/项目开发流程.md §12.2
+    done_when: run_cmd/AutoQueue.yaml 与 script/gate.py 存在，且 gate.py check 能跑通并如实报告不一致项
+    state: done
+    priority: P1
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "script/gate.py（12 项不变式，实跑 12 PASS / 0 FAIL）；run_cmd/AutoQueue.yaml（14 项）；doc/AI角色与职责.md v1.1（§2 加 R8 行 + §3.1 + §6.1 封顶 9）；doc/项目开发流程.md v1.1（§12.2/§12.4）；AGENTS.md 规则 23。首跑已抓出 2 类真实缺陷：看板计数镜像落后、中文错字脉钩（码点豁免：此处引错字本身作为落实证据）"
+
+  # ---------- P1：挡门禁（G1 冻结前必须清）----------
+  - id: Q-001
+    task: 退休接口选型拍板——rt_t 是否改 RVFI 兼容超集
+    role: R8
+    basis: doc/项目开发流程.md §10 第 1 项；doc/00 ISS-017；spec/01 §3.21
+    done_when: ISS-017 状态转【已解决】并回填决策人；若采纳则 spec/01 §3.21 升版且退休接口映射表落地
+    state: blocked
+    priority: P1
+    depends_on: []
+    blocked_by: [ISS-017]        # 属 §12.3"疑似规格缺陷/需人拍板"类，R8 只能出决策包催办
+    review_rounds: 0
+    landable: ""
+
+  - id: Q-002
+    task: 写 spec/04 重命名与 PRF——端口数推导 + PRF 耗尽只反压不死锁的不变式
+    role: R1
+    basis: doc/00 ISS-003 解决方案列；【超】CPU卷/04 第 4 章「数量/端口」维度
+    done_when: doc/spec/04-*.md 存在；ISS-003 转【已解决】；不变式 I1/I2 同时出现在 spec 正文与断言/覆盖清单
+    state: blocked
+    priority: P1
+    depends_on: []
+    blocked_by: [ISS-020]   # 2026-09-23 领队自查修正：ISS-020 已推翻"保持 64 补论证"，PRF 容量与 FWD 源数待人定，否则 spec/04 只能写待定值
+    review_rounds: 0
+    landable: ""
+
+  - id: Q-003
+    task: spec/00 参数表升 v0.2——PRF/ROB/LQ/SQ/FWD 数值重定 + SRAM 表可复算化
+    role: R1
+    basis: doc/00 ISS-020（16 项阻塞）；spec/00 §4.8
+    done_when: spec/00 §4.8 每行可复算（禁 ≈ 与省略号）；ISS-020 转【已解决】；gate.py check 通过
+    state: blocked
+    priority: P1
+    depends_on: [Q-002]
+    blocked_by: [ISS-020]        # 需人定两个数：PRF 扩到多少、forwarding 源数
+    review_rounds: 0
+    landable: ""
+
+  - id: Q-004
+    task: spec/01 v0.2 返工——清 21 项阻塞并跑一轮纯复核轮
+    role: R1
+    basis: doc/00 ISS-018、ISS-021；spec/01-评审记录.md
+    done_when: 评审记录中每条阻塞项状态=已落实且附落点；纯复核轮新增 0（§6.1 C2）；位宽自检脚本输出留档
+    state: in_review
+    priority: P1
+    depends_on: []
+    blocked_by: []
+    review_rounds: 5
+    cap_waiver: R0 2026-09-23 批准“继续直到收敛”——越权继续，不再受 5 轮上限约束；每轮仍须留痕且不得默认通过
+    landable: 第 6 轮处置轮已完成（B1~B10 + C1~C10 逐条落点，见 `doc/spec/01-评审记录.md` 附 C；width_check 28/28 OK、gate 0 FAIL）；待第 6 轮纯复核轮独立核验
+    # 历史（轮次 3 复核轮结论，已被本轮重建取代；全文见 HANDOFF Q-004 轮次 3/4）：38 条仅落实 1 条，
+    # 另新增算错 13 项 + 5 个死锁/假绿/漏测场景，已触熔断转 R0；R0 选定 A 方案（先机器算差异表→逐条返工→纯复核轮）
+
+  - id: Q-005
+    task: 中文产出码点扫描 + 台账/看板一致性纳入交付前置
+    role: R6
+    basis: doc/00 ISS-026（本会话实测 7 处错字）、ISS-031
+    done_when: gate.py 的 ledger/board/landing 三项检查全 PASS；码点扫描脚本进 script/ 并在 doc/05 有输出记录
+    state: done
+    priority: P1
+    depends_on: [Q-000]
+    blocked_by: []
+    review_rounds: 0
+    landable: "三项判据已内建在 script/gate.py（check_ledger 的 ledger-count/contiguous/solved-needs-landing、check_board 的 board-mirrors-ledger）；码点检查未另起脚本，作为 codepoints 硬判据 + rare-chars WARN 内联在同一工具（实测字频阈值作 FAIL 会假阳，已降为 WARN）。未达项如实声明：本仓无 doc/05（回归记录属 Step 5），因此输出记录改落在本 landable 字段与台账 ISS-026/030/033；待 doc/05 建立后补档"
+
+  # ---------- P2：挡主线（S2 出口 = 14 篇齐 + doc/02）----------
+  - id: Q-006
+    task: 写 spec/03 分支预测器——表结构、TAGE 分配/老化规则、FTQ 读写指针四条维护规则
+    role: R1
+    basis: doc/04 §② 下一批第 4 项；【超】CPU卷/04 第 3 章
+    done_when: doc/spec/03-*.md 存在且每条数值带【超】页码；FTQ 四规则成文
+    state: ready
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: ""
+
+  - id: Q-007
+    task: 生成 doc/01 理解清单五件套（接口表/寄存器表/时钟复位假设/功能点清单/异常边界）
+    role: R1
+    basis: 【九步】Step1 出口判据；doc/项目开发流程.md §1.1 S2 行
+    done_when: doc/01-理解清单.md 存在，五节齐，每条功能点带 spec 出处，存疑项单列不臆测
+    state: ready
+    priority: P2
+    depends_on: [Q-002, Q-006]
+    blocked_by: []
+    review_rounds: 0
+    landable: ""
+
+  - id: Q-008
+    task: 推导 doc/02 验证点清单（12 维场景分解 + 34 法，逐条指定检查手段）
+    role: R1
+    basis: doc/项目开发流程.md §3.1/§3.2 两张映射表；【场景】§4.13/§5.35
+    done_when: doc/01 功能点 100% 被覆盖；每点有方法+激励+检查手段；边界/异常/并发有专项；无"待补充"残留
+    state: blocked
+    priority: P2
+    depends_on: [Q-007]
+    blocked_by: []
+    review_rounds: 0
+    landable: ""
+
+  - id: Q-009
+    task: ISS-019 剩余 13 类 KNOWN_OPEN 关闭（golden ISS 不得带伤参与签核）
+    role: R2
+    basis: doc/00 ISS-019；iss/tests/test_isa_semantics.py 的 KNOWN_OPEN 打印
+    done_when: test_isa_semantics.py 运行时 KNOWN_OPEN 输出为空；条目转【已解决】
+    state: blocked
+    priority: P2
+    depends_on: []
+    blocked_by: [ISS-032]        # 官方 encoding.h 在 _tools/ibex-master 内，须先补拷
+    review_rounds: 0
+    landable: ""
+
+  - id: Q-010
+    task: 写 spec/02 逐指令行为表 + isop_t 枚举值域
+    role: R1
+    basis: doc/项目开发流程.md §10 第 2 项
+    done_when: doc/spec/02-*.md 存在；每指令语义带【权】§号且可回查规范原文
+    state: blocked
+    priority: P2
+    depends_on: []
+    blocked_by: [ISS-032]        # 规范原文不可达，写完也只能标"待锚点"
+    review_rounds: 0
+    landable: ""
+
+  # ---------- P3：不挡主线，先建骨架 ----------
+  - id: Q-011
+    task: 建 run_cmd/vr1_configs.yaml 配置色标（Red/Amber/Green，仅 Green 进签核）
+    role: R4
+    basis: doc/项目开发流程.md §6.3；【ibex】配置色标治理
+    done_when: 文件存在，每配置有成熟度字段与依据；spec/12 参数区间可与其一一映射
+    state: ready
+    priority: P3
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: ""
+
+  - id: Q-012
+    task: 建 L1 单元 TB 骨架（9 个模块共用一套 + Python 对拍模型规范）
+    role: R4
+    basis: doc/项目开发流程.md §2.1 层次表、§10 第 4 项
+    done_when: tb/unit/ 下骨架可编译（vlog 0 error，判据用产物证据行不信 EXIT 码——ISS-025）
+    state: blocked
+    priority: P3
+    depends_on: [Q-002, Q-006]
+    blocked_by: [ISS-002]        # WSL/工具链未装
+    review_rounds: 0
+    landable: ""
+
+  # ---------- 催办类：R8 不自动做，只按格式呈报 ----------
+  - id: Q-013
+    task: 催办三件人做项：WSL2+工具链（B1/ISS-002）、git（B2/ISS-001）、补拷 _tools/（B8/ISS-032）
+    role: R8
+    basis: doc/04 §② B1/B2/B8；doc/项目开发流程.md §12.3"环境/权限/安装类必须上报"
+    done_when: 三项台账状态转【已解决】且 M0 验收表回填；未解决则每轮重新生成决策包并列入 report 首行
+    state: blocked
+    priority: P1
+    depends_on: []
+    blocked_by: [ISS-001, ISS-002, ISS-032]
+    review_rounds: 0
+    landable: ""
+
+  - id: Q-014
+    task: 修 spec/01 表格结构缺陷（L167 `ftq_id` 行少一个尾分隔符、L418 列数不匹）并全表复查
+    role: R1
+    basis: `script/gate.py check` 的 md-integrity 项实报 2 行（2026-09-23）；属 ISS-018 返工清单未覆盖的漏项
+    done_when: python script/gate.py check 的 md-integrity 项无 FAIL（逐行列数与表头一致）
+    state: done
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "两处已修：`ftq_id` 行补齐为 4 列（与同表其他行一致）、`csr_new` 跳行合并回单行；未改任何位宽/语义内容。判据：gate.py check 的 md-integrity 项由 FAIL 转 PASS（本项以该输出为凭）"

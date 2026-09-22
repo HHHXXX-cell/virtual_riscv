@@ -1,0 +1,22 @@
+﻿== gate check（机械核销）==
+  PASS  ledger-count-待决策       待决策 = 13 一致
+  PASS  ledger-count-处理中       处理中 = 13 一致
+  PASS  ledger-count-已解决       已解决 = 7 一致
+  PASS  ledger-total           合计 33 行一致
+  PASS  ledger-contiguous      通过
+  PASS  solved-needs-date      通过
+  PASS  pending-in-list        通过
+  PASS  solved-needs-landing   通过
+  PASS  board-mirrors-ledger   通过
+  PASS  queue-id-unique        通过
+  PASS  queue-schema           队列 15 项：ready=3 / blocked=8 / 评审中=1 / done=3
+  PASS  codepoints             通过
+  PASS  md-integrity           通过
+  PASS  handoff-exists         通过
+  PASS  handoff-fields         通过
+  PASS  handoff-no-orphan      通过
+  WARN  rare-chars(人工判)        低频字 5 个：苗 狠 淡 隶 帽
+  WARN  width-unverifiable     15 个 struct 无法机器核对（缺成员位宽表或宽度为复合格式）：ftq_entry_t, uop_t, rmap_uop_t, rob_entry_t, iq_wr_t, iq_entry_t, disp_x_t, br_resolve_t, mem_req_t, mmu_transl_req_t, miss_req_t, icache_rsp_t, commit_t, excp_t, csr_wr_t
+  FAIL  width-mismatch         rob_alloc_t 实算140 vs 声明125；wb_t 实算80 vs 声明79；rt_t 实算531 vs 声明554
+---- 16 PASS / 2 WARN / 1 FAIL ----
+R8 纪律：有 FAIL 即不得宣布任何"已落实"；修完重跑，不信任何口头结论。
