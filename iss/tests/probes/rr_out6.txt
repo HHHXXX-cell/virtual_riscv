@@ -1,0 +1,18 @@
+﻿  ★ mret         本仓库=0x30000073  官方=0x30200073 (mask=0xffffffff)
+  ★ sret         本仓库=0x30200073  官方=0x10200073 (mask=0xffffffff)
+  ★ wfi          本仓库=0x30500073  官方=0x10500073 (mask=0xffffffff)
+
+编码对账：71 条，不一致 3 条
+
+== 把官方 0x30200073 (MRET) 送进 VrIss ==
+  官方 MRET                0x30200073 -> !!Python NotImplementedError: SRET：等 doc/spec/10 的 S 态委托冻结后补
+  官方 WFI                 0x10500073 -> exc_v=1 cause=2 mnemonic=''
+  官方 SRET                0x10200073 -> exc_v=1 cause=2 mnemonic=''
+  官方 SFENCE.VMA          0x12000073 -> exc_v=1 cause=2 mnemonic=''
+  FENCE(权威字)             0x0000000f -> exc_v=0 cause=0 mnemonic='fence'
+  FENCE.I(权威字)           0x0000100f -> exc_v=0 cause=0 mnemonic='fence'
+  全 0 字                  0x00000000 -> !!Python NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）
+  beq x0,x0,0（合法自旋）      0x00000063 -> exc_v=0 cause=0 mnemonic='beq'
+  保留：SLLI funct6=100000  0x80449593 -> exc_v=0 cause=0 mnemonic='slli'
+  保留：SLLIW shamt=32      0x0204959b -> exc_v=0 cause=0 mnemonic='slliw'
+  保留：BRANCH funct3=2     0x80a4a063 -> !!Python KeyError: 2

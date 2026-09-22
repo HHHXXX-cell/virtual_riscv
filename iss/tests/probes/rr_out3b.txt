@@ -1,0 +1,46 @@
+﻿=== 1. csrw mstatus, (2<<11) 后 MRET（MPP=2 是保留值）===
+  写入值 x9 = 0x1000 ; WMASK 允许后 mstatus=0x0, MPP=0
+  ['!!Python ValueError: 2 is not a valid Priv']
+  结果 priv=3 records=[('0x1000', 'addi', 0), ('0x1004', 'slli', 0), ('0x1008', 'csrrw', 0)]
+
+=== 2. mtvec MODE 各值 + 中断向量 ===
+  Direct        : 中断后 pc=0x1100  (base=0x1100, base+4*7=0x111c)  记录 instr_str='' is_intr=1
+  Vectored      : 中断后 pc=0x111c  (base=0x1100, base+4*7=0x111c)  记录 instr_str='' is_intr=1
+  MODE=2(保留)    : 中断后 pc=0x111c  (base=0x1100, base+4*7=0x111c)  记录 instr_str='' is_intr=1
+  MODE=3(保留)    : 中断后 pc=0x111c  (base=0x1100, base+4*7=0x111c)  记录 instr_str='' is_intr=1
+
+=== 3. 同步异常在 Vectored 模式下也应跳 base ===
+  ECALL + MODE=Vectored -> pc=0x1100 (期望 0x1100)
+
+=== 4. 被中断指令仍带指令字进 trace，且 seq 双计 ===
+    pc=0x1000 instr=0x00100493 str='' exc_v=1 is_intr=1 gpr=''
+    pc=0x1100 instr=0x30000073 str='mret' exc_v=0 is_intr=0 gpr=''
+    pc=0x1000 instr=0x00100493 str='' exc_v=1 is_intr=1 gpr=''
+    pc=0x1100 instr=0x30000073 str='mret' exc_v=0 is_intr=0 gpr=''
+    seq=4 (真正执行 2 条 ADDI + 1 条中断伪记录)
+
+=== 5. 软件写 mip 造中断 ===
+    records=[('0x1000', 'lui', 0, 0), ('0x1004', 'addi', 0, 0), ('0x1008', 'csrrw', 0, 0), ('0x100c', '', 7, 1), ('0x1100', 'addi', 0, 0), ('0x1104', 'addi', 0, 0)]
+    mip 读回=0x80（软件写 MTIP 被接受，RTL 里 MTIP 只读）
+
+=== 6. satp / medeleg / mcounteren 静默接受 ===
+    无异常
+    satp(0x180) 读回=0xffffffff80000000 medeleg(0x302) 读回=0xffffffff80000000
+    UXL/SATP.MODE=8(Sv39) 被接受，但后续访存仍按物理地址（无任何实现）
+
+=== 7. 读从未写过的页 + tval=0 兜底 ===
+    pc=0x1000 exc_v=0 cause=0 mtval=0x0 该记录进 trace=True
+    pc=0x1004 exc_v=1 cause=5 mtval=0x40002000 该记录进 trace=True
+python : Traceback (most recent call last):
+所在位置 行:1 字符: 281
++ ... obe3b.py -Encoding UTF8; python script\tmp\rr_probe3b.py 2>&1 | Out-F ...
++                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)    ::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "D:\virtual_riscv\script\tmp\rr_probe3b.py", line 94, in <module>
+    r = iss.step()
+  File "d:\virtual_riscv\iss\vriss\machine.py", line 144, in step
+    raise NotImplementedError(
+        "RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）")
+NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）

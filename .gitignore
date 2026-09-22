@@ -1,0 +1,54 @@
+# ---- 仿真工作目录（可随时清理）----
+# 例外：sim/covdb/ 是签核证据区，只保留说明文件本身；
+#       合并后的 ucdb 体积大不入 git，但 make clean 一律不得触碰（见 sim/covdb/README.md）
+sim/*
+!sim/covdb/
+sim/covdb/*
+!sim/covdb/README.md
+
+# ---- 编译产物 ----
+*.o
+*.elf
+*.bin
+*.hex
+*.mem
+*.vvp
+tb_dpi/
+obj_dir/
+*.dat
+
+# ---- ModelSim ----
+transcript
+vsim.ini
+*.wlf
+*.wsf
+work/
+*_opt/
+wlft*/
+crashSim*
+vsim_*Replay*
+
+# ---- 覆盖率中间件（合并后的 ucdb 落在 sim/covdb，属受保护区，不入库）----
+sim/ucdb/
+sim/cov_work/
+*.ucdb
+
+# ---- 回归输出 ----
+out/
+*.log
+!doc/**/*.log
+seed.yaml
+
+# ---- Python ----
+__pycache__/
+*.pyc
+.venv/
+
+# ---- 临时脚本：script/tmp 下用完即删，只保留说明 ----
+script/tmp/*
+!script/tmp/README.md
+
+# ---- 编辑器 ----
+.idea/
+.vscode/
+*.swp

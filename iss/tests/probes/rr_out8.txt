@@ -1,0 +1,11 @@
+﻿riscv-tests 约定：tohost=1 -> PASS；tohost=(testnum<<1)|1 -> FAIL
+  PASS(1)              halt_code=0 cmd_run 的判据 `0 if halt_code==1 else 1` -> exit=1
+  FAIL testnum=1 (3)   halt_code=1 cmd_run 的判据 `0 if halt_code==1 else 1` -> exit=0
+  FAIL testnum=2 (5)   halt_code=2 cmd_run 的判据 `0 if halt_code==1 else 1` -> exit=1
+
+4 字节 sw 到 tohost（RV32 风格 / 半字写）
+  sw 1 -> halted=True halt_code=0
+
+未停机（程序跑飞 / watchdog）时 run() 的返回值
+  run() 直接抛 Python 异常：NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）
+  从不可取指处启动：n=200 len(records)=0 halted=False -> trace 完全为空但 run 正常返回

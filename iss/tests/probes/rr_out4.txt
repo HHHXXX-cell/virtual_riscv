@@ -1,0 +1,42 @@
+﻿=== 8. fault tval 合法为 0 时被兜底成指令字 ===
+    无 Python 异常
+    lw 地址=0：cause=5 mtval=0x0004a503（规范要求 mtval=访问地址 0；实得指令字）
+
+=== 8b. 全 0 指令字（link() 空洞 / 程序尾）===
+    ['!!Python NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）']
+    records=[('0x1000', 'addi', 0)]
+    （0x00000000 低 2 位=00b，不是压缩指令，规范里是非法指令 → 应报 illegal-instr）
+
+=== 9. 编码器范围检查 ===
+  CSRRW(rd=1, csr=0x1234) -> 0x234110f3，指令内 csr 域 = 0x234（无报错，静默截断）
+    ['!!Python NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）']  -> 写 0x234 与 0x1234 是同一个槽: 0x123000
+  LUI(1, 0x123456) -> 0x234560b7，imm20 = 0x23456（无报错，静默截断）
+  ADDI(1,2,0x800)            -> ValueError（正确拦住）
+  SLLI(1,2,64)               -> 0x04011093   ★无报错★
+  ADD(rd=1,rs1=2,rs2=32)     -> 0x020100b3   ★无报错★
+  BEQ(1,2,5) 奇数              -> ValueError（正确拦住）
+  JALR off=0x800             -> ValueError（正确拦住）
+  enc_j(0x1FFFFF)            -> ValueError（正确拦住）
+
+=== 10. signature 窗口写入宽度 ===
+  pc=0x1000 exc_v=0 cause=0 mem_wr=0 sig_writes=[]
+  pc=0x1004 exc_v=1 cause=7 mem_wr=0 sig_writes=[]
+  pc=0x1100 exc_v=0 cause=0 mem_wr=0 sig_writes=[]
+  pc=0x1104 exc_v=0 cause=0 mem_wr=0 sig_writes=[]
+  pc=0x1108 exc_v=0 cause=0 mem_wr=0 sig_writes=[]
+
+=== 11. 4 字节 store 到 tohost（riscv-tests 用 sw）===
+    ['!!Python NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）'] halted=True code=0
+    ['!!Python NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）'] halted=True code=1
+
+=== 12. 非对齐 load / LD 宽度 ===
+python : Traceback (most recent call last):
+所在位置 行:1 字符: 23
++  cd d:\virtual_riscv; python script\tmp\rr_probe4.py 2>&1 | Out-File  ...
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)    ::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "D:\virtual_riscv\script\tmp\rr_probe4.py", line 83, in <module>
+    iss = mk([LUI(9, 0x40000), LD(10, 9, 0), LW(11, 9, 4)], H=(LD(0, 0, 0),) * 40)
+TypeError: mk() got an unexpected keyword argument 'H'

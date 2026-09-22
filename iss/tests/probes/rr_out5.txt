@@ -1,0 +1,63 @@
+﻿== 内存 0x4000_0000 起 = 00 01 02 ... 3f ==
+   [lb@5 应0x05] pc=0x1000 str=lui       exc_v=0 cause=0 mem_size=0 rd=0x40000000 mtval=0x0
+   [lb@5 应0x05] pc=0x1004 str=addi      exc_v=0 cause=0 mem_size=0 rd=0x40000005 mtval=0x0
+   [lb@5 应0x05] pc=0x1008 str=          exc_v=0 cause=0 mem_size=1 rd=0x5 mtval=0x0
+   [lb@5 应0x05] !!Python NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）
+   [lbu@5 应0x05] pc=0x1000 str=lui       exc_v=0 cause=0 mem_size=0 rd=0x40000000 mtval=0x0
+   [lbu@5 应0x05] pc=0x1004 str=addi      exc_v=0 cause=0 mem_size=0 rd=0x40000005 mtval=0x0
+   [lbu@5 应0x05] pc=0x1008 str=          exc_v=1 cause=4 mem_size=0 rd=0x0 mtval=0x40000005
+   [lbu@5 应0x05] pc=0x2000 str=          exc_v=1 cause=1 mem_size=0 rd=0x0 mtval=0x2000
+   [lbu@5 应0x05] pc=0x2000 str=          exc_v=1 cause=1 mem_size=0 rd=0x0 mtval=0x2000
+   [lbu@5 应0x05] pc=0x2000 str=          exc_v=1 cause=1 mem_size=0 rd=0x0 mtval=0x2000
+   [lbu@16 应0x10] pc=0x1000 str=lui       exc_v=0 cause=0 mem_size=0 rd=0x40000000 mtval=0x0
+   [lbu@16 应0x10] pc=0x1004 str=addi      exc_v=0 cause=0 mem_size=0 rd=0x40000010 mtval=0x0
+   [lbu@16 应0x10] pc=0x1008 str=          exc_v=0 cause=0 mem_size=16 rd=0x1716151413121110 mtval=0x0
+   [lbu@16 应0x10] !!Python NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）
+   [lhu@32 应0x2120] pc=0x1000 str=lui       exc_v=0 cause=0 mem_size=0 rd=0x40000000 mtval=0x0
+   [lhu@32 应0x2120] pc=0x1004 str=addi      exc_v=0 cause=0 mem_size=0 rd=0x40000020 mtval=0x0
+   [lhu@32 应0x2120] pc=0x1008 str=          exc_v=0 cause=0 mem_size=32 rd=0x2726252423222120 mtval=0x0
+   [lhu@32 应0x2120] !!Python NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）
+   [lhu@2 应0x0302] pc=0x1000 str=lui       exc_v=0 cause=0 mem_size=0 rd=0x40000000 mtval=0x0
+   [lhu@2 应0x0302] pc=0x1004 str=addi      exc_v=0 cause=0 mem_size=0 rd=0x40000002 mtval=0x0
+   [lhu@2 应0x0302] pc=0x1008 str=          exc_v=1 cause=4 mem_size=0 rd=0x0 mtval=0x40000002
+   [lhu@2 应0x0302] pc=0x2000 str=          exc_v=1 cause=1 mem_size=0 rd=0x0 mtval=0x2000
+   [lhu@2 应0x0302] pc=0x2000 str=          exc_v=1 cause=1 mem_size=0 rd=0x0 mtval=0x2000
+   [lhu@2 应0x0302] pc=0x2000 str=          exc_v=1 cause=1 mem_size=0 rd=0x0 mtval=0x2000
+   [lh@6 应0x0706] pc=0x1000 str=lui       exc_v=0 cause=0 mem_size=0 rd=0x40000000 mtval=0x0
+   [lh@6 应0x0706] pc=0x1004 str=addi      exc_v=0 cause=0 mem_size=0 rd=0x40000006 mtval=0x0
+   [lh@6 应0x0706] pc=0x1008 str=          exc_v=0 cause=0 mem_size=2 rd=0x706 mtval=0x0
+   [lh@6 应0x0706] !!Python NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）
+   [lwu@4 应0x07060504] pc=0x1000 str=lui       exc_v=0 cause=0 mem_size=0 rd=0x40000000 mtval=0x0
+   [lwu@4 应0x07060504] pc=0x1004 str=addi      exc_v=0 cause=0 mem_size=0 rd=0x40000004 mtval=0x0
+   [lwu@4 应0x07060504] pc=0x1008 str=          exc_v=0 cause=0 mem_size=4 rd=0x7060504 mtval=0x0
+   [lwu@4 应0x07060504] !!Python NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）
+
+== 保留的 W 型移位编码：instr[25]=1 (shamt=32) 应非法 ==
+   [slliw sh=32] pc=0x1000 str=addi      exc_v=0 cause=0 mem_size=0 rd=0x1 mtval=0x0
+   [slliw sh=32] pc=0x1004 str=slliw     exc_v=0 cause=0 mem_size=0 rd=0x1 mtval=0x0
+   [slliw sh=32] !!Python NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）
+
+== jal x0,0 自旋（死循环，应停在同一条）==
+   [j0] pc=0x1000 str=jal       exc_v=0 cause=0 mem_size=0 rd=0x0 mtval=0x0
+   [j0] pc=0x1004 str=addi      exc_v=0 cause=0 mem_size=0 rd=0x1 mtval=0x0
+   [j0] pc=0x1008 str=addi      exc_v=0 cause=0 mem_size=0 rd=0x2 mtval=0x0
+   [j0] pc=0x100c str=addi      exc_v=0 cause=0 mem_size=0 rd=0x3 mtval=0x0
+   [j0] !!Python NotImplementedError: RV64C 展开表未实现：等 doc/spec/02 §5 冻结后补（见 iss/README.md §5）
+   [beq x0,x0,0] pc=0x1000 str=beq       exc_v=0 cause=0 mem_size=0 rd=0x0 mtval=0x0
+   [beq x0,x0,0] pc=0x1000 str=beq       exc_v=0 cause=0 mem_size=0 rd=0x0 mtval=0x0
+   [beq x0,x0,0] pc=0x1000 str=beq       exc_v=0 cause=0 mem_size=0 rd=0x0 mtval=0x0
+   [beq x0,x0,0] pc=0x1000 str=beq       exc_v=0 cause=0 mem_size=0 rd=0x0 mtval=0x0
+   [beq x0,x0,0] pc=0x1000 str=beq       exc_v=0 cause=0 mem_size=0 rd=0x0 mtval=0x0
+   [beq x0,x0,0] pc=0x1000 str=beq       exc_v=0 cause=0 mem_size=0 rd=0x0 mtval=0x0
+
+== 未实现 CSR：trace 报出 csr_new，机器里其实没有 ==
+   pc=0x1000 str=lui      csr_wr_en=0 csr_field='' x10=0x0
+   pc=0x1004 str=addi     csr_wr_en=0 csr_field='' x10=0x0
+   pc=0x1008 str=csrrw    csr_wr_en=1 csr_field='0x7f0:0x0000000012345000' x10=0x0
+   pc=0x100c str=csrrs    csr_wr_en=0 csr_field='' x10=0x12345000
+
+== mcycle 写后读回与 trace 自相矛盾 ==
+   pc=0x1000 str=lui      csr_field='' 实际 csrr 读回 x10=0x0
+   pc=0x1004 str=addi     csr_field='' 实际 csrr 读回 x10=0x0
+   pc=0x1008 str=csrrw    csr_field='0xb00:0x000000000000007b' 实际 csrr 读回 x10=0x0
+   pc=0x100c str=csrrs    csr_field='' 实际 csrr 读回 x10=0x4

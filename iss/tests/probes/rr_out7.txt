@@ -1,0 +1,39 @@
+﻿### E1  RV64 SRA == SRL（machine.py:367 用 funct7 & 0x40 作算术标志）
+      输入 x9=0xffffffff80000000 x10=4   期望 SRA=0x0fffffffff8000000>>... =0x0ffffffff80000000/16
+      SRA x11,x9,x10   -> x11=0x0ffffffff8000000
+      SRL x12,x9,x10   -> x12=0x0ffffffff8000000
+      两条结果相同 => SRA 未做算术扩展（正确值 0x0fffffffff8000000 的低 60 位含符号 1）
+
+### E2  规范 SRAI/SRAIW（bit30=1）被判非法指令
+  SRAI x11,x9,4                  bin=0x4044d593 exc_v=1 cause=2  x11=0x0000000000000000
+  SRAIW x11,x9,4                 bin=0x4044d59b exc_v=1 cause=2  x11=0x0000000000000000
+  SRLI x11,x9,4 对照               bin=0x0044d593 exc_v=0 cause=0  x11=0x0ffffffff8000000
+
+### E3  保留编码被当合法执行
+  SLLI funct6=100000 保留          bin=0x80449593 exc_v=0 cause=0  x11=0xfffffff800000000
+  SLLIW instr[25]=1 保留           bin=0x020495bb exc_v=1 cause=2  x9=0x0000000000000001  x11=0x0000000000000000
+  BRANCH funct3=2 保留             bin=0x80a4a063 exc_v=- cause=-   !!Python KeyError: 2
+
+### E4  W 型 M 扩展全被判非法
+  MULW                           bin=0x02a485bb exc_v=1 cause=2  x11=0x0000000000000000
+  DIVW                           bin=0x02a4c5bb exc_v=1 cause=2  x11=0x0000000000000000
+  DIVUW                          bin=0x02a4d5bb exc_v=1 cause=2  x11=0x0000000000000000
+  REMW                           bin=0x02a4e5bb exc_v=1 cause=2  x11=0x0000000000000000
+  REMUW                          bin=0x02a4f5bb exc_v=1 cause=2  x11=0x0000000000000000
+
+### E5  jal x0,0 死循环失效
+  jal x0,0 + 4 条加法               bin=0x00148493 exc_v=0 cause=0  x9=0x0000000000000004
+
+### E6  LBU/LHU 访问宽度错（machine.py:287）
+  LBU @0x40000005 应 0x05         bin=0x0004c503 exc_v=1 cause=4  x10=0x0000000000000000
+  LBU @0x40000010 应 0x10         bin=0x0004c503 exc_v=0 cause=0  x10=0x1716151413121110
+  LHU @0x40000020 应 0x2120       bin=0x0004d503 exc_v=0 cause=0  x10=0x2726252423222120
+  LB @0x40000006 对照 应 6          bin=0x00048503 exc_v=0 cause=0  x10=0x0000000000000006
+
+### E7  MRET()/SRET() 编码
+      本仓库 MRET()=0x30000073  SRET()=0x30200073
+      riscv-tests encoding.h: MATCH_MRET=0x30200073  MATCH_SRET=0x10200073
+  执行本仓库 MRET()                   bin=0x30000073 exc_v=0 cause=0  
+
+### E8  ECALL 也算退休、也加 minstret
+      records=1 seq(=minstret 读回)=1 mcause=11 mepc=0x1000 trace 行={'pc': '00001000', 'instr': '', 'gpr': '', 'csr': '', 'binary': '00000073', 'mode': 'PRV_M', 'instr_str': '', 'operand': ''}
