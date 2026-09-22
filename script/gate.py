@@ -41,6 +41,16 @@ VALID_STATE = {'ready', 'blocked', 'in_progress', 'in_review', 'done', 'fused'}
 REVIEW_CAP = 5
 
 
+def _qint(v):
+    """队列字段取整。parse_queue 一律返回字符串，故旧代码里的 isinstance(x, int) 恒假——
+    这会让 queue-review-cap / queue-attempts-cap 两项判据变成**永不触发的死代码**
+    （第 6 轮复核 BLK-16 实测指出）。此处统一转换，无法转换返回 None（由调用方决定口径）。"""
+    try:
+        return int(str(v).strip())
+    except Exception:
+        return None
+
+
 def read(p):
     return io.open(p, encoding='utf-8', errors='replace').read()
 
@@ -187,8 +197,8 @@ def check_queue(rep):
             rep.fail('queue-schema', '%s 缺字段 %s' % (qid, lack))
         if i.get('state') not in VALID_STATE:
             rep.fail('queue-state', '%s state=%r 非法' % (qid, i.get('state')))
-        rr = i.get('review_rounds', 0)
-        if isinstance(rr, int) and rr > REVIEW_CAP:
+        rr = _qint(i.get('review_rounds'))
+        if rr is not None and rr > REVIEW_CAP:
             # 轮次上限是红线，但**可以由人越权**：须带 cap_waiver（写明谁在何时批准）；
             # 无人批准就不得越过——“继续直到收敛”这类指令必须留痕，不能靠口头。
             if str(i.get('cap_waiver', '')).strip():
@@ -197,8 +207,8 @@ def check_queue(rep):
                 rep.fail('queue-review-cap', '%s 评审 %d 轮 > 上限 %d（§6.1 应已 fused 并升级）'
                          % (qid, rr, REVIEW_CAP))
         # 派发失败（空返回/取消/超时）可自动重派，但不得超过 2 次；第 3 次必须转人
-        at = i.get('attempts')
-        if isinstance(at, int) and at >= 3 and i.get('state') not in ('blocked', 'fused'):
+        at = _qint(i.get('attempts'))
+        if at is not None and at >= 3 and i.get('state') not in ('blocked', 'fused'):
             rep.fail('queue-attempts-cap',
                      '%s attempts=%d ≥3 但仍为 %s（失败重派上限 2 次，到限须置 blocked/fused 转人）'
                      % (qid, at, i.get('state')))

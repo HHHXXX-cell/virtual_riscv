@@ -94,7 +94,7 @@ items:
     priority: P1
     depends_on: []
     blocked_by: []
-    review_rounds: 5
+    review_rounds: 6
     cap_waiver: R0 2026-09-23 批准“继续直到收敛”——越权继续，不再受 5 轮上限约束；每轮仍须留痕且不得默认通过
     landable: 第 6 轮处置轮已完成（B1~B10 + C1~C10 逐条落点，见 `doc/spec/01-评审记录.md` 附 C；width_check 28/28 OK、gate 0 FAIL）；待第 6 轮纯复核轮独立核验
     # 历史（轮次 3 复核轮结论，已被本轮重建取代；全文见 HANDOFF Q-004 轮次 3/4）：38 条仅落实 1 条，

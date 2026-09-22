@@ -93,3 +93,17 @@
   - 机判: `width_check.py` = 28 个 struct（含新增 `csrq_entry_t` 88 bit）**可机器核对 28 / 不符 0 / 未能核实 0**；`gate.py check` = 17 PASS / 1 WARN / 0 FAIL；新增 `cap_waiver` 机制（无人批准时越限仍 FAIL）与 `attempts`（失败重派 ≤2 次）判据
   - 未完成: 附 C 全部处置均为**作者自证**，必须由第 6 轮纯复核轮独立核验；S1（操作数读点口径）待 `spec/04`
   - 下一手: 派 vr1-auditor 跑第 6 轮纯复核轮（重点：B1~B10 是否真改 + 有无新增；不得再信“落点列”）
+
+- [Q-004] 角色=vr1-auditor 日期=2026-09-23 轮次=6（纯复核轮）
+  - 产物: 无文件改动（只读）。报告摘要已入 `doc/spec/01-评审记录.md` 附 D（BLK-01~17 / CLR-01~08 / SUS-01）
+  - 依据: `doc/spec/01`/`doc/spec/00`/`doc/05`/`AutoQueue.yaml`/`HANDOFF` 原文；对作者自报机判做了静态自洽与实算核对（未重跑）
+  - 机判: 旧问题已改 13 / 部分 7 / 未改 0；**另报阻塞 17**。已修 15（含 BLK-16 工具死代码、BLK-09 BP1 方向反、BLK-13 L1I 算不平、BLK-01/02/03 csrq 三缺口）；余 BLK-06（清栈动作入表）与 BLK-08（win_base_pc 产生点/entry_offset/slot16 规则）待下轮；CLR-05/06 部分待下轮
+  - 未完成: SUS-01（读点口径）仍转 `spec/04`；第 6 轮复核后重跑验证：`width_check` 28/28 OK、`gate` **18 PASS / 1 WARN / 0 FAIL**，其中 `queue-review-cap-waiver` 首次实打成 PASS ⇒ 死代码修复已正向验证
+  - 下一手: 领队补完 BLK-06/BLK-08 与 CLR-03/04 登记后，派第 7 轮纯复核轮（收敛判据：新增 0 且旧问题全改）
+
+- [Q-004] 角色=leader 日期=2026-09-23 轮次=7（处置轮·第 6 轮修正）
+  - 产物: `script/gate.py` 新增 `_qint()`（修死代码 BLK-16）+ `attempts` 重派上限判据；`doc/spec/01` 修 BLK-01/02/03/04/05/07/09/10/11/12/14/17 与 A13/A6 重写；`doc/spec/00` 修 BLK-13（L1I）与 MMIO/ROB 数值；`doc/05` 补 R-002 修正句 + R-004
+  - 依据: 评审记录附 D；R0 “继续直到收敛”
+  - 机判: `width_check` 28 个 struct 可机器核对 28 / 不符 0 / 未能核实 0；`gate check` 18 PASS / 1 WARN / 0 FAIL；`queue-review-cap-waiver` 打出 PASS（越权核销生效）
+  - 未完成: BLK-06（checkpoint 清栈动作要进 §5.2 表）、BLK-08（`win_base_pc` 产生者/`ftq.entry_offset` 改名/`slot16_*` 两情形规则）、CLR-03/04 登记补齐、CLR-05/06
+  - 下一手: 补齐上述四项后跑第 7 轮纯复核轮（本轮不再改产物）
