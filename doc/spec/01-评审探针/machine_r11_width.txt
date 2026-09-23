@@ -1,0 +1,33 @@
+== struct 位宽实算 vs 文档声明 ==
+struct               成员    未解析      实算和 文档声明值                  判定
+ftq_req_t            12      0      143 143                    OK
+ftq_entry_t           3      0      145 145                    OK
+fetch_raw_t           8      0       92 92                     OK
+uop_t                28      0      239 239                    OK
+rmap_uop_t            9      0      322 322                    OK
+rob_alloc_t          19      0      143 143                    OK
+rob_entry_t          20      0      138 138                    OK
+iq_wr_t              27      0      226 226                    OK
+iq_entry_t            5      0       27 27                     OK
+wb_t                  5      0       80 80                     OK
+disp_x_t             16      0      328 328                    OK
+br_resolve_t         12      0      149 149                    OK
+mem_req_t            15      0      143 143                    OK
+mmu_transl_req_t      9      0       67 67                     OK
+mmu_transl_rsp_t     10      0       78 78                     OK
+miss_req_t            8      0       63 63                     OK
+fill_t                9      0      139 139                    OK
+mshr_wake_t           4      0        9 9                      OK
+icache_rsp_t          9      0      338 338                    OK
+dcache_rsp_t          6      0       87 87                     OK
+commit_t             14      0      350 350                    OK
+excp_t               18      0      177 177                    OK
+ret_ctrl_t            8      0       49 49                     OK
+csr_wr_t              5      0       81 81                     OK
+csrq_entry_t          6      0      152 152                    OK
+x_complete_t          4      0       79 79                     OK
+ls_complete_t         5      0       21 21                     OK
+rt_t                 25      0      543 543                    OK
+
+合计 28 个 struct：可机器核对=28，不符=0，未能核实=0；其中转录基准行 2 个（计入所属 struct 之和，不计为独立实测——N16③）
+已知盲区（N16④，无机判、靠评审轮与 spec/02/08/10 值域表兜）：成员值域合法性、跨 struct 键存在性、例化总量（×N）正确性。
