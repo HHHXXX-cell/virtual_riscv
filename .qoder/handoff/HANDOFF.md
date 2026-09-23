@@ -332,3 +332,10 @@
   - 机判: `python script/width_check.py` = 28 个 struct 可机器核对 28／不符 0／未能核实 0（转录基准行 2）；`python script/gate.py check` 收尾复跑＝---- 24 PASS / 1 WARN / 0 FAIL ----
   - 未完成: ① T-04-5b（余 `spec/00` §4.4 行注落文）与 5c/5d 维持缺项 ② `S 写口`/`E 写口` 是否随 A9 更名未自裁 ③ 本片未经评审 ④ 转派：`doc/00` L31/L34/L51、`iss/README.md` L55、`iss/tools/trace_compare.py` L10/L64 的旧名引用（非本片写面）；⑤ 收尾复核注：末次 `gate check`＝---- 24 PASS / 1 WARN / 0 FAIL ----（FAIL＝无；WARN＝rare-chars(人工判)        低频字 1 个：（低频字））
   - 下一手: R8 核销并按《驱动计划》取队首；送审时复核三处改名分类、`spec/02` 自引用与 `spec/04`「由 A9 闭合」声明
+
+- [D-7] 角色=verifier 日期=2026-09-23 轮次=1（平台骨架·ModelSim-only 片）
+  - 产物: `filelist/tb.f`（3 编译单元，不含 rtl/）；`tb/vr1_uvm/` 新增 7 件：`vr1_pkg.sv`／`vr1_if.sv`／`vr1_top_tb.sv`／`vr1_env.sv`／`vr1_agent.sv`／`vr1_scoreboard.sv`／`vr1_smoke_test.sv`；`run_cmd/vr1_flow.do`＋`run_cmd/vr1_smoke.tcl`；`doc/05` 新增 R-054（原拟 R-050，已被并行会话占用，按派发词顺延）；本条记录
+  - 依据: 派发词 D-7；`doc/spec/01` §3.13~§3.21（接口族）与 §5.1；`AGENTS.md` §2／§3.1；ADR-5 判据口径；证据日志 `sim/run_r4_d7/vlog_compile.log`、`sim/run_r4_d7/vlog_uvm_src.log`、`sim/run_r4_d7/gate_check_r050.log`
+  - 机判: vlog 实跑（仓库根，沙箱 `sim/run_r4_d7/`）：tb.f 编译＝`-- Compiling` 3 行＋段末 `Errors: 0, Warnings: 1`（warn=vlog-159 良性）；UVM 1.2 源码编译 1 单元、`Errors: 0`；`gate.py check` 输出见 `sim/run_r4_d7/gate_check_r050.log` 末行
+  - 未完成: ① `vopt`／`vsim` 未实跑（无 DUT），`+UVM_TESTNAME=vr1_smoke_test` 运行路径未验证 ② `vr1_if` 占位信号待接口冻结回填 ③ **本机实测**：vlog 不支持 `-ntb_opts`（vlog-1902）⇒ `AGENTS.md` §3.1 口径需修订（实测改用 `+incdir+<uvm src>`，UVM 预编译库经 built-in 解析）；`vmap mtiUvm` 首试 EACCES 未复现 ④ 首跑在仓库根生成 `modelsim.ini`——已删除确认不在仓；`sim/run_r4_d7/` 内留 INI 副本与日志（可清理沙箱） ⑤ 本片未经评审
+  - 下一手: R8 核销并按《驱动计划》取队首；建议将 ③ 登 `doc/00`（平台类）并修订 `AGENTS.md` §3.1 命令位形；DUT 接入后补跑 `vopt`／`vsim`（含 watchdog 与 UVM 报告判据）
