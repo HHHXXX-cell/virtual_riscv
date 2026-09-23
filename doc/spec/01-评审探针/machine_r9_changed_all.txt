@@ -1,0 +1,232 @@
+== 改动集（增量复核轮的复核面，doc/项目开发流程.md §9.4）：基线 = HEAD ==
+改动文件：
+  .qoder/agents/vr1-auditor.md                   +13/-5，2 处 hunk
+      节：工作流
+      节：硬约束
+  .qoder/handoff/HANDOFF.md                      +50/-0，1 处 hunk
+      节：(篇首)
+  doc/00-问题记录.md                                 +16/-12，8 处 hunk
+      节：台账
+      节：待决策清单（需人拍板，AI 不自行推进）
+      节：状态总览
+  doc/04-验证进度.md                                 +4/-4，3 处 hunk
+      节：④ 评审状态
+      节：近期进度（工作项 + 完成情况 + 产出物路径）
+      节：阻塞 / 挂起项（等什么 + 恢复动作）
+  doc/05-回归记录.md                                 +5/-1，2 处 hunk
+      节：(篇首)
+  doc/spec/00-总体规格.md                            +19/-5，8 处 hunk
+      节：10. 未决与风险登记（详见 `doc/00-问题记录.md`）
+      节：4.3 译码 / 重命名 / 分发
+      节：4.8 SRAM 位量估算（只做算术，不做面积断言——本机无工艺与综合工具）
+      节：6. 接口冻结清单（Review G1 的评审对象）
+      节：7. F/D 二期预留（一期必须做到的形式要求）
+      节：9. 度量口径（性能目标不作硬承诺，但定义必须唯一）
+  doc/spec/01-流水线与寄存器接口.md                       +106/-65，56 处 hunk
+      节：(篇首)
+      节：1.1 级号与职责
+      节：2. 类型与位宽约定
+      节：3.1 `ftq_req_t` — `BP3 → FTQ`（写，1/拍）
+      节：3.10 `wb_t` — 结果写回与唤醒广播（6 条/拍）
+      节：3.11 `disp_x_t` — `IQ → 执行单元`（6 条/拍）
+      节：3.12 `br_resolve_t` — `BRU → 冲刷控制`（1 条/拍）
+      节：3.13 `mem_req_t` — `LSU/IF → L1D/L1I`（含 `mmu_transl_*` 的下游请求形态）
+      节：3.2 `ftq_entry_t` — `FTQ → IF`（读，≤1/拍）
+      节：3.21 `rt_t` — 退休 trace（`P17` 输出，验证平台唯一真值接口）
+      节：3.3 `fetch_raw_t` — `IBUF → D`（每拍至多 16 个候选槽，`D` 级消费 ≤4 条）
+      节：3.5 `rmap_uop_t` — `R → S`（4 条/拍）
+      节：3.6 `rob_alloc_t` — `S → ROB`（4 条/拍）
+      节：3.7 `rob_entry_t`（ROB 存储位域，128 项）
+      节：3.8 `iq_wr_t` — `S → IQ×3`（4 条/拍，带组选）
+      节：4. 反压与停顿
+      节：5.1 触发源（4 类）
+      节：5.2 恢复点表（每级各拍必须做的动作，逐字冻结）
+      节：5.3 冲刷与反压的交互
+      节：6. 顶层端口表（`vr1_core`）
+      节：7. 断言（`spec/01` 侧，SVA 写法遵循 `spec/11`）
+      节：8.1 机器可核项（本轮实跑，输出已留档）
+      节：8.2 人判项（机器看不到，须评审轮核查）
+      节：`csrq_entry_t` — CSR 写队列（`R` 级入队 → 提交拍出队）
+      节：`dcache_rsp_t` — L1D → LSU（数据返回）
+      节：`fill_t` — L2 → L1（行填充）
+      节：`icache_rsp_t` — L1I → IF（取指返回）
+      节：`mmu_transl_req_t` — `LSU/IF → MMU`（请求）
+      节：`mmu_transl_rsp_t` — `MMU → LSU/IF`（回填）
+      节：`ret_ctrl_t` — MRET/SRET 返回控制（49 bit）
+  doc/spec/01-评审记录.md                            +192/-0，1 处 hunk
+      节：下轮待办（已入 §8.2 清单与 HANDOFF）
+  doc/项目开发流程.md                                  +75/-0，1 处 hunk
+      节：9.4 评审收敛两档制（增量复核轮 + 终局全量复核轮）【R0 2026-09-23 定】
+  run_cmd/AutoQueue.yaml                         +29/-10，11 处 hunk
+      节：(篇首)
+  script/gate.py                                 +206/-8，9 处 hunk
+      节：(篇首)
+  script/width_check.py                          +31/-9，12 处 hunk
+      节：(篇首)
+  未入版本控制的新增文件 18 个（diff 看不到其内容，须并入复核面）：
+      "doc/spec/01-\350\257\204\345\256\241\346\216\242\351\222\210/snapshot_r9_spec00.md"
+      "doc/spec/01-\350\257\204\345\256\241\346\216\242\351\222\210/snapshot_r9_spec01.md"
+      rtl/vr1/cache/.gitkeep
+      rtl/vr1/core/.gitkeep
+      rtl/vr1/ctrl/.gitkeep
+      rtl/vr1/exu/.gitkeep
+      rtl/vr1/frontend/.gitkeep
+      rtl/vr1/include/.gitkeep
+      rtl/vr1/issue/.gitkeep
+      rtl/vr1/lsu/.gitkeep
+      rtl/vr1/mmu/.gitkeep
+      rtl/vr1/rename/.gitkeep
+      …其余 6 个
+被改标识符 → 引用闭包（命中处数；**＝1 即"只在被改处出现、别处不引用"**，逐条问生产者/消费者是否断链；全表）：
+  ckpt_held_vec                1  01-流水×1                       ← 闭包未展开
+  commit_fl_ret_vec            1  01-流水×1                       ← 闭包未展开
+  entry_offset                 1  01-流水×1                       ← 闭包未展开
+  entry_pc                     1  01-流水×1                       ← 闭包未展开
+  entry_vld2                   1  01-流水×1                       ← 闭包未展开
+  exc_t                        1  00-总体×1                       ← 闭包未展开
+  ptw_fill_valid               1  01-流水×1                       ← 闭包未展开
+  ptw_ftq_id                   1  01-流水×1                       ← 闭包未展开
+  rd_is_new                    1  01-流水×1                       ← 闭包未展开
+  rollback_fl_ret_vec          1  01-流水×1                       ← 闭包未展开
+  tlb_write_en                 1  01-流水×1                       ← 闭包未展开
+  vr1_cexpand                  1  00-总体×1                       ← 闭包未展开
+  vr1_exu_int                  1  00-总体×1                       ← 闭包未展开
+  width_check                  1  01-流水×1                       ← 闭包未展开
+  csr                         65  00-总体×12 01-流水×53           
+  old                         36  00-总体×5 01-流水×31            
+  paddr                       36  00-总体×1 01-流水×35            
+  pc                          36  00-总体×5 01-流水×31            
+  data                        31  00-总体×3 01-流水×28            
+  check                       29  00-总体×5 01-流水×24            
+  valid                       29  00-总体×4 01-流水×25            
+  ftq_id                      26  00-总体×1 01-流水×25            
+  rob_id                      26  01-流水×26                    
+  code                        18  00-总体×1 01-流水×17            
+  needs_ckpt                  17  00-总体×1 01-流水×16            
+  err                         16  01-流水×16                    
+  imm                         16  01-流水×16                    
+  csrq                        15  00-总体×2 01-流水×13            
+  is_c                        14  00-总体×1 01-流水×13            
+  rd_paddr                    14  01-流水×14                    
+  ckpt_id                     13  00-总体×1 01-流水×12            
+  instr                       13  00-总体×5 01-流水×8             
+  type                        13  01-流水×13                    
+  rsp                         12  00-总体×6 01-流水×6             
+  uop_t                       12  00-总体×7 01-流水×5             
+  cycle                       11  00-总体×4 01-流水×7             
+  excp_t                      11  00-总体×4 01-流水×7             
+  slot                        11  00-总体×1 01-流水×10            
+  target                      11  01-流水×11                    
+  rt_t                        10  00-总体×4 01-流水×6             
+  wb_t                        10  00-总体×6 01-流水×4             
+  csr_wr_t                     9  00-总体×3 01-流水×6             
+  dst_kind                     9  00-总体×1 01-流水×8             
+  commit_t                     8  00-总体×3 01-流水×5             
+  exc_v                        8  01-流水×8                     
+  mispred                      8  00-总体×1 01-流水×7             
+  old_paddr                    8  01-流水×8                     
+  req_id                       8  01-流水×8                     
+  rob_alloc_t                  8  00-总体×3 01-流水×5             
+  src_val                      8  00-总体×1 01-流水×7             
+  bp_upd_id                    7  01-流水×7                     
+  csr_old                      7  01-流水×7                     
+  disp_x_t                     7  00-总体×5 01-流水×2             
+  ftq_req_t                    7  00-总体×3 01-流水×4             
+  ipend                        7  00-总体×3 01-流水×4             
+  is_intr                      7  01-流水×7                     
+  mem_req_t                    7  00-总体×5 01-流水×2             
+  mmu_transl_                  7  00-总体×3 01-流水×4             
+  priv                         7  01-流水×7                     
+  rs1_val                      7  01-流水×7                     
+  vr1_csr                      7  00-总体×2 01-流水×5             
+  br_resolve_t                 6  00-总体×3 01-流水×3             
+  cls                          6  01-流水×6                     
+  err_code                     6  01-流水×6                     
+  exc_code                     6  01-流水×6                     
+  iq_wr_t                      6  00-总体×3 01-流水×3             
+  wdata_sel                    6  01-流水×6                     
+  br_mark                      5  01-流水×5                     
+  icache_rsp                   5  00-总体×3 01-流水×2             
+  icache_rsp_t                 5  00-总体×3 01-流水×2             
+  ipend_t                      5  00-总体×3 01-流水×2             
+  is_sret                      5  01-流水×5                     
+  new_alloc                    5  01-流水×5                     
+  old_val                      5  00-总体×1 01-流水×4             
+  ret_ctrl_t                   5  00-总体×1 01-流水×4             
+  src_kind                     5  01-流水×5                     
+  dcache_rsp_t                 4  00-总体×2 01-流水×2             
+  err_pos                      4  01-流水×4                     
+  fetch_raw_t                  4  00-总体×3 01-流水×1             
+  fill_t                       4  00-总体×2 01-流水×2             
+  finish                       4  01-流水×4                     
+  free_list_empty              4  01-流水×4                     
+  freelist_stall               4  00-总体×1 01-流水×3             
+  ftq_entry_t                  4  00-总体×3 01-流水×1             
+  fwd_hit                      4  00-总体×1 01-流水×3             
+  instret                      4  00-总体×3 01-流水×1             
+  is_mem                       4  01-流水×4                     
+  mshr_wake_t                  4  00-总体×2 01-流水×2             
+  new_paddr                    4  01-流水×4                     
+  nib                          4  00-总体×1 01-流水×3             
+  pre_exc                      4  01-流水×4                     
+  rd_data                      4  01-流水×4                     
+  rmap_uop_t                   4  00-总体×3 01-流水×1             
+  rob_entry_t                  4  00-总体×1 01-流水×3             
+  rob_head_t                   4  00-总体×3 01-流水×1             
+  rob_near_full                4  01-流水×4                     
+  seq_t                        4  01-流水×4                     
+  ckpt_holder_vec              3  01-流水×3                     
+  csr_new                      3  01-流水×3                     
+  exc_vld                      3  01-流水×3                     
+  fdirty                       3  00-总体×1 01-流水×2             
+  ibuf_wr_t                    3  00-总体×3                     
+  imm_kind                     3  01-流水×3                     
+  iq_slot                      3  00-总体×1 01-流水×2             
+  ls_complete_t                3  00-总体×1 01-流水×2             
+  mem_rdata                    3  01-流水×3                     
+  miss_req_t                   3  00-总体×2 01-流水×1             
+  mmu_transl_req_t             3  00-总体×1 01-流水×2             
+  rd_arch                      3  01-流水×3                     
+  rollback_busy                3  01-流水×3                     
+  seq_of_ftq                   3  00-总体×1 01-流水×2             
+  spec_id                      3  01-流水×3                     
+  win_base_pc                  3  01-流水×3                     
+  x_complete_t                 3  00-总体×2 01-流水×1             
+  bp_upd_t                     2  00-总体×2                     
+  br_mispred                   2  00-总体×1 01-流水×1             
+  br_retire                    2  00-总体×1 01-流水×1             
+  csrq_entry_t                 2  01-流水×2                     
+  dispatch_grant_needs_rd      2  01-流水×2                     
+  exc_pkt                      2  01-流水×2                     
+  flush_all_t                  2  00-总体×2                     
+  fp_dirty                     2  00-总体×1 01-流水×1             
+  freelist_ret_t               2  00-总体×2                     
+  ftqid_t                      2  01-流水×2                     
+  l1d_miss                     2  00-总体×1 01-流水×1             
+  lq_alloc_t                   2  00-总体×2                     
+  lq_full                      2  01-流水×2                     
+  mem_addr                     2  01-流水×2                     
+  mem_wdata                    2  01-流水×2                     
+  mmu_transl_rsp_t             2  00-总体×1 01-流水×1             
+  mstatus_t                    2  00-总体×2                     
+  perf_freelist_stall_cycles   2  01-流水×2                     
+  ptw_mem_req_t                2  00-总体×2                     
+  ptw_spec_id                  2  01-流水×2                     
+  r_alloc_grant                2  01-流水×2                     
+  rd_idx                       2  01-流水×2                     
+  redirect_t                   2  00-总体×2                     
+  riscv_spec                   2  00-总体×2                     
+  robptr_t                     2  01-流水×2                     
+  rollback_cycles              2  00-总体×1 01-流水×1             
+  satp_t                       2  00-总体×2                     
+  slot16_start                 2  01-流水×2                     
+  slot16_vld                   2  01-流水×2                     
+  sq_alloc_t                   2  00-总体×2                     
+  sq_full                      2  01-流水×2                     
+  trap_req_t                   2  00-总体×2                     
+  vr1_ifetch                   2  00-总体×1 01-流水×1             
+  vr1_l1i                      2  00-总体×1 01-流水×1             
+  vr1_rob                      2  00-总体×2                     
+  x_csr_rd                     2  00-总体×2                     
+  （另 19 个 token 在各规格篇正文中 0 命中——多为队列字段/工具子命令/只出现在评审记录里的词，不参与闭包判定；列出来只会淹掉真信号）
+提示：本清单只界定**复核面下界**（§9.4 来源①），不替代语义推演。①"未展开"项必须逐条分流再定级——可能是真断链（改了 A 而别处不引用），也可能是模块名/未写篇目持有的端口（属 §9.4 来源③ 的复述），还可能是改名留痕；②缺失型缺陷（"该写的动作没写"，如 N1）不在本集内，须由终局全量轮覆盖（上限 5 次）。

@@ -10,10 +10,13 @@
 子命令：
   check      跑全部不变式，任一 FAIL 退出码 1（R8 每轮开工第一件事）
   dispatch   取队首可执行项，打印归属角色 + 完成判据
+  changed    生成"改动集"（改动节 + 被改标识符的引用闭包），供增量复核轮当复核面（§9.4）
+             默认只列真信号（未展开项 + ≥10 的枢纽项），全表加 `--all`
   report     队列与门禁看板摘要
   escalate   把某条台账项打成"≤5 选项决策包"呈 R0（《AI进行IC开发验证工作流程》§5 格式）
 
-依据：doc/项目开发流程.md §12.1~12.4；《AI进行IC开发验证工作流程》v2.1 §6.1（评审收敛）；
+依据：doc/项目开发流程.md §9.4（评审收敛两档制）、§12.1~12.4；
+      《AI进行IC开发验证工作流程》v2.1 §6.1（评审收敛）；
       doc/AI角色与职责.md §2（角色与写边界）、§6.1（角色数封顶）。
 """
 import io
@@ -39,6 +42,8 @@ REQ_FIELDS = ['id', 'task', 'role', 'basis', 'done_when', 'state', 'priority',
               'depends_on', 'blocked_by', 'review_rounds']
 VALID_STATE = {'ready', 'blocked', 'in_progress', 'in_review', 'done', 'fused'}
 REVIEW_CAP = 5
+FULL_ROUND_CAP = 5      # §9.4：终局全量复核轮上限，到限 fused 转 R0
+CHANGED_PREFIXES = ('doc/', 'iss/', 'rtl/', 'tb/', 'sw/', 'script/', 'run_cmd/', '.qoder/')
 
 
 def _qint(v):
@@ -123,6 +128,15 @@ def check_ledger(rep):
     # 4) 待决策状态必须出现在待决策清单
     miss = [k for k, v in rows.items() if '待决策' in v.get('state', '') and k not in pend_ids]
     rep.res('pending-in-list', miss, '状态=待决策但未列入待决策清单：%s' % ['ISS-' + m for m in miss])
+    # 4b) 反向：清单里不得留已闭环项（清单语义＝待拍板的决策点，闭环后须移出）
+    stale = []
+    for k in sorted(pend_ids):
+        v = rows.get(k)
+        if v is None:
+            stale.append('ISS-%s(台账无此行)' % k)
+        elif '已解决' in v.get('state', ''):
+            stale.append('ISS-%s(已解决)' % k)
+    rep.res('pending-list-stale', stale, '待决策清单仍列已闭环项：%s' % stale)
     # 5) 处置必须"已落实"：已解决项的解决方案/时间须有落点线索（含 ISS/§/文件扩展名/脚本名）
     thin = []
     for k, v in rows.items():
@@ -212,6 +226,20 @@ def check_queue(rep):
             rep.fail('queue-attempts-cap',
                      '%s attempts=%d ≥3 但仍为 %s（失败重派上限 2 次，到限须置 blocked/fused 转人）'
                      % (qid, at, i.get('state')))
+        # §9.4：终局全量复核轮上限 5 次。语义＝**已消耗**的全量轮数；已达 5 即不得再加轮，
+        # 须置 fused 并 escalate 转 R0。与 review_rounds 同源：人可越权（须带 cap_waiver 写明谁在何时批准），
+        # 无批文一律 FAIL——不许靠"再跑一轮看看"把上限磨掉。
+        fr = _qint(i.get('full_rounds'))
+        if fr is not None and fr >= FULL_ROUND_CAP and i.get('state') not in ('done', 'blocked', 'fused'):
+            if str(i.get('cap_waiver', '')).strip():
+                rep.ok('queue-full-round-cap-waiver', '%s 全量轮已用 %d/%d，越权继续（%s）'
+                       % (qid, fr, FULL_ROUND_CAP, str(i['cap_waiver'])[:60]))
+            else:
+                rep.fail('queue-full-round-cap',
+                         '%s 全量复核轮已用 %d/%d（§9.4：应已 fused 并 escalate 转 R0）'
+                         % (qid, fr, FULL_ROUND_CAP))
+        elif fr is not None:
+            rep.ok('queue-full-round-cap', '%s 全量轮 %d/%d（未达限）' % (qid, fr, FULL_ROUND_CAP))
         for d in i.get('depends_on', []) or []:
             if d not in ids:
                 rep.fail('queue-deps', '%s 依赖不存在的 %s' % (qid, d))
@@ -399,8 +427,8 @@ def check_width(rep):
         rep.fail('width-check-run', '调用失败：%s' % e)
         return
     bad = ['%s 实算%d vs 声明%s' % (r['struct'], r['sum_computed'], ','.join(map(str, r['claims'])))
-           for r in rows if r['verdict'] == 'MISMATCH']
-    unver = [r['struct'] for r in rows if r['verdict'] in ('UNVERIFIED', 'NO-TABLE')]
+           for r in rows if r['verdict'] in ('MISMATCH', 'TITLE-MISMATCH')]
+    unver = [r['struct'] for r in rows if r['verdict'] in ('UNVERIFIED', 'NO-TABLE', 'NO-CLAIM')]
     rep.res('width-mismatch', bad, '；'.join(bad))
     if unver:
         rep.warn('width-unverifiable', '%d 个 struct 无法机器核对（缺成员位宽表或宽度为复合格式）：%s'
@@ -517,6 +545,165 @@ def cmd_escalate(argv):
     return 0
 
 
+# ---------------------------------------------------------------- 改动集（§9.4 增量复核轮的复核面）
+HUNK_RE = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@')
+HEAD_RE = re.compile(r'^(#{2,6})\s+(.+?)\s*$')
+SYM_BT = re.compile(r'`([^`\n]{2,40})`')
+# (?![./]) 是关键：否则 `riscv_spec_full.txt`、`gate.py` 会被切成标识符 `riscv_spec_full`，
+# 报成"闭包未展开＝断链候选"——那是工具自造假阳（同一类错误见 ISS-026 的单字级形近字表）。
+SYM_ID = re.compile(r'\b([a-z][a-z0-9_]*_[a-z0-9_]+)\b(?![./\w])')
+
+
+def _git(args):
+    import subprocess
+    try:
+        return subprocess.run(['git'] + args, cwd=ROOT, capture_output=True, text=True,
+                              encoding='utf-8', errors='replace', timeout=90)
+    except (OSError, subprocess.SubprocessError) as e:
+        return None
+
+
+def _heading_index(path):
+    """当前文本的 (行号, 节号/标题) 递增表——把 diff 的 hunk 位置映射回**节号**。
+    取证一律用节号而非行号：行号随编辑漂移，下一轮就得重新定位一遍（§9.4 第 3 条）。"""
+    idx = []
+    try:
+        for ln, line in enumerate(read(path).splitlines(), 1):
+            m = HEAD_RE.match(line)
+            if m:
+                idx.append((ln, m.group(2)))
+    except OSError:
+        pass
+    return idx
+
+
+def _section_at(idx, lineno):
+    cur = '(篇首)'
+    for ln, title in idx:
+        if ln <= lineno:
+            cur = title
+        else:
+            break
+    return cur
+
+
+def cmd_changed(argv):
+    """改动集 ＝ 改动节 ∪ 被改标识符在全文的引用闭包。
+
+    为什么由机器生成而非作者自报：本项目最大的一类缺陷**住在没改的那一侧**（断链/缺失型，
+    如 N9/N10/X1——被改的 struct 有了新字段，未改的承载方却从不引用它），
+    而作者自报已有前科（第 7 轮抓到"自报待办四项中三项半未落地"）。"""
+    rev = next((a for a in argv if not a.startswith('-')), 'HEAD')
+    show_all = '--all' in argv
+    p = _git(['-c', 'core.quotePath=false', 'diff', '-U0', '--no-color', rev, '--']
+             + list(CHANGED_PREFIXES))
+    if p is None:
+        print('git 不可调用 → 改动集无法生成。**不得据此认为"无改动"**（§9.4）。')
+        return 2
+    if p.returncode != 0:
+        print('git diff 非零退出，改动集不可信：%s' % p.stderr.strip()[:200])
+        return 2
+    files, cur, syms = {}, None, {}
+    for line in p.stdout.splitlines():
+        if line.startswith('+++ b/'):
+            cur = line[6:].strip()
+            files.setdefault(cur, {'add': 0, 'del': 0, 'hunks': []})
+            continue
+        if cur is None:
+            continue
+        m = HUNK_RE.match(line)
+        if m:
+            files[cur]['hunks'].append(int(m.group(1)))
+            continue
+        if line.startswith('+') and not line.startswith('+++'):
+            body = line[1:]
+            files[cur]['add'] += 1
+        elif line.startswith('-') and not line.startswith('---'):
+            body = line[1:]
+            files[cur]['del'] += 1
+        else:
+            continue
+        if not cur.startswith('doc/'):
+            continue          # 标识符闭包只对规格/文档有意义；脚本与队列另列，不参与闭包
+        found = set()
+        for s in SYM_BT.findall(body):
+            if '/' in s:
+                continue                      # 路径与文件名不是接口标识符
+            for t in SYM_ID.findall(s) + ([s.strip()] if re.match(r'^[a-z][a-z0-9_]*$', s.strip()) else []):
+                found.add(t)
+        for t in SYM_ID.findall(body):
+            found.add(t)
+        for t in found:
+            syms[t] = syms.get(t, 0) + 1
+    ut = _git(['ls-files', '--others', '--exclude-standard', '--'] + list(CHANGED_PREFIXES))
+    untracked = ut.stdout.splitlines() if ut and ut.returncode == 0 else []
+
+    if not files and not untracked:
+        print('改动集：相对 %s **无改动**。若你确知本轮动过手，先查 git 状态，勿直接宣布"本轮无改动面"。' % rev)
+        return 0
+    if len(syms) < 8:
+        print('⚠ 自检：本轮仅提取到 %d 个标识符，低于可信阈值 8——扫描可能不完整'
+              '（diff 为空/编码/路径前缀漏配），输出按**不可信**处理。' % len(syms))
+
+    specdir = os.path.join(ROOT, 'doc', 'spec')
+    # 闭包语料 ＝ **规格篇正文**（`NN-*.md`），**不含评审记录/探针**：后者是叙事件，把它的提及计进命中数两头失真——
+    # 既会把 `cap_waiver`/`fused` 这类队列词报成"断链候选"，也会让"只在评审记录里被提过、规格正文里没有生产者"
+    # 的真断链被抬到 hits≥2 而漏报。闭包问的是"规格里谁生产/谁消费"，不是"谁写过这个词"。
+    corpus = [os.path.join(specdir, f) for f in sorted(os.listdir(specdir))
+              if re.match(r'^\d{2}-.*\.md$', f) and '评审' not in f] if os.path.isdir(specdir) else []
+    print('== 改动集（增量复核轮的复核面，doc/项目开发流程.md §9.4）：基线 = %s ==' % rev)
+    print('改动文件：')
+    for f, v in sorted(files.items()):
+        print('  %-46s +%d/-%d，%d 处 hunk' % (f, v['add'], v['del'], len(v['hunks'])))
+        idx = _heading_index(os.path.join(ROOT, f.replace('/', os.sep)))
+        for sec in sorted({_section_at(idx, ln) for ln in v['hunks']}):
+            print('      节：%s' % sec)
+    if untracked:
+        print('  未入版本控制的新增文件 %d 个（diff 看不到其内容，须并入复核面）：' % len(untracked))
+        for f in untracked[:12]:
+            print('      %s' % f)
+        if len(untracked) > 12:
+            print('      …其余 %d 个' % (len(untracked) - 12))
+
+    def label(f):
+        # 只用数字前缀会让 `01-流水线…` 与 `01-评审记录` 撞成同一个 "01"，闭包命中数无法归位——
+        # 这里取"编号 + 标题前两字"，保证同篇号的不同文件可区分。
+        b = os.path.basename(f)
+        return b.split('.')[0][:len(b.split('-')[0]) + 3]
+    rows = []
+    for s in sorted(syms):
+        hits, where = 0, []
+        for f in corpus:
+            c = read(f).count(s)
+            if c:
+                hits += c
+                where.append('%s×%d' % (label(f), c))
+        rows.append((s, hits, ' '.join(where)))
+    keep = [(s, h, w) for s, h, w in rows if h >= 1]
+    off = len(rows) - len(keep)
+    # 输出瘦身（2026-09-23）：真信号只有两类——"未展开"（hits≤1，可能断链）与枢纽项（多处引用）；
+    # 中间档多为同篇复用词。实测全表 149 行 token 里真信号仅 14 行，全列会把真信号淹掉（ISS-026 同型教训）。
+    HUB = 10
+    shown = sorted([r for r in keep if show_all or r[1] <= 1 or r[1] >= HUB],
+                   key=lambda r: (r[1] > 1, -r[1]))
+    mid = len(keep) - len(shown)
+    print('被改标识符 → 引用闭包（命中处数；**＝1 即"只在被改处出现、别处不引用"**，逐条问生产者/消费者是否断链；'
+          '%s）：' % ('全表' if show_all else '默认只列"未展开"与 ≥%d 的枢纽项' % HUB))
+    for s, hits, where in shown:
+        print('  %-26s %3d  %-28s%s' % (s, hits, where, '  ← 闭包未展开' if hits <= 1 else ''))
+    if mid:
+        print('  （中间档 %d 个 token 命中 2~%d 次未列出：多为同篇复用词，但**"未列出"≠"已判无问题"**，'
+              '取全表加 `--all`）' % (mid, HUB - 1))
+    if off:
+        print('  （另 %d 个 token 在各规格篇正文中 0 命中——多为队列字段/工具子命令/只出现在评审记录里的词，'
+              '不参与闭包判定；列出来只会淹掉真信号）' % off)
+    print('提示：本清单只界定**复核面下界**（§9.4 来源①），不替代语义推演。'
+          '①"未展开"项必须逐条分流再定级——可能是真断链（改了 A 而别处不引用），'
+          '也可能是模块名/未写篇目持有的端口（属 §9.4 来源③ 的复述），还可能是改名留痕；'
+          '②缺失型缺陷（"该写的动作没写"，如 N1）不在本集内，须由终局全量轮覆盖（上限 %d 次）。' % FULL_ROUND_CAP)
+    return 0
+
+
 ROLE2AGENT = {'R1': 'vr1-designer / vr1-planner', 'R2': 'vr1-verifier', 'R3': 'vr1-designer',
               'R4': 'vr1-verifier', 'R5': 'vr1-verifier（取证已并入验证）',
               'R6': 'vr1-auditor（模式 P）', 'R7': 'vr1-auditor（模式 T）', 'R8': '主会话（领队）'}
@@ -544,10 +731,21 @@ def cmd_loop(_):
                 or str(i.get('cap_waiver', '')).strip())]      # 人批准的越权，允许继续
     if rev:
         i = rev[0]
-        print('评审未收敛，本轮唯一动作：派 vr1-auditor（模式 T）对 %s 跑%s' %
-              (i['id'], '纯复核轮（§6.1 C2：只查旧问题是否真改 + 有无新增，本轮不得改产物）'
-               if int(i.get('review_rounds', 0) or 0) >= 1 else '评审轮'))
-        print('已跑 %s 轮，上限 %d；到限即置 fused 并 escalate，不得默认通过（RA5）。' %
+        fr = _qint(i.get('full_rounds')) or 0
+        print('评审未收敛。按 doc/项目开发流程.md §9.4 两档制，本轮唯一动作（档位由上一轮状态决定，勿自行选档）：')
+        print('  ① **增量复核轮**（默认）：派 vr1-auditor（模式 T）只查「%s」——'
+              '上轮旧问题是否真改 + 改动集及其引用闭包内有无新增；不得改产物。' % i['id'])
+        print('     复核面由 `python script/gate.py changed` 生成，须连同 '
+              '`gate.py check`、`width_check.py` 输出一并写进派发词（评审者无执行工具，不给它跑脚本的权限）。')
+        print('  ② 增量轮已"新增 0" → 本轮改派**终局全量复核轮**（读整篇，判 §6.1 C2 对全篇成立），'
+              '并把该项 full_rounds 加 1。')
+        print('  ③ 全量轮已用 %d/%d：到限仍不收敛即置 fused 并 `gate.py escalate` 转 R0，不得默认通过（RA5）。'
+              % (fr, FULL_ROUND_CAP))
+        if str(i.get('cap_waiver', '')).strip():
+            print('     **本项已持越权批文**（%s）——上限不挡继续；但批文不是免检：'
+                  '每轮仍须留痕，且"新增 0"未达成前不得宣布收敛、不得申请关闭。'
+                  % str(i['cap_waiver']).strip())
+        print('  （另：作者侧 review_rounds=%s，R7 轮次上限 %d，越权须带 cap_waiver）' %
               (i.get('review_rounds'), REVIEW_CAP))
         return 0
 
@@ -589,7 +787,7 @@ def cmd_loop(_):
     return 3
 
 
-CMDS = {'check': cmd_check, 'dispatch': cmd_dispatch, 'report': cmd_report,
+CMDS = {'check': cmd_check, 'dispatch': cmd_dispatch, 'changed': cmd_changed, 'report': cmd_report,
         'loop': cmd_loop, 'escalate': cmd_escalate}
 
 

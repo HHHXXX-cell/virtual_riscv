@@ -86,7 +86,10 @@ def parse():
         h = HEAD3.match(line) or HEAD4.match(line)
         if h:
             cur = {'name': h.group(1), 'head': ln, 'head_txt': line.strip(),
-                   'members': [], 'claims': [], 'sum_expr': None}
+                   'members': [], 'claims': [], 'sum_expr': None,
+                   'title_claims': [int(x.replace(',', ''))
+                                    for x in re.findall(r'(\d[\d,]*)\s*bit', line)],
+                   'baseline': 0}
             structs.append(cur)
             continue
         if cur is None:
@@ -103,6 +106,8 @@ def parse():
                 continue
             if c[2].strip('`* ') in ('位宽', '宽度'):      # 表头行（如 `| 变化 | 位宽 | 说明 |`）
                 continue
+            if fname.startswith('='):                     # 转录基准行（`＝ uop_t 全字段复用`）
+                cur['baseline'] += 1
             w, note = member_width(c[2], P)
             cur['members'].append({'field': fname, 'declared': c[2], 'width': w,
                                    'note': note, 'line': ln})
@@ -131,22 +136,30 @@ def main():
         bad = [m for m in s['members'] if m['width'] is None]
         total = sum(m['width'] for m in ok)
         claims = sorted({c['value'] for c in s['claims']})
+        tclaims = sorted({c for c in s.get('title_claims', [])})
         # 判定口径：有成员宽度未能解析时，不得判 OK——“看起来相等”很可能是漏算凑出来的
         # （实测例：rob_entry_t 成员和 122 + 2 个未解析 = 135，与 R7 报的值一致；若不去重
         #  这个未解析就会造出一个假 PASS，比人算错更危险）。
+        # N16②：无任何合计声明（正文合计行与标题声明皆无）不再静默计入“可核对”，
+        #         判 NO-CLAIM 并入“未能核实”——删掉合计行即可造假的路已被封。
+        # N16①：标题里的位宽数（如「ret_ctrl_t（48 bit）」）与表格实算不一致判 TITLE-MISMATCH，
+        #         BLK-11 类“标题与合计并存两个数”从此有机判。
         if not s['members']:
             verdict = 'NO-TABLE'
         elif bad:
             verdict = 'UNVERIFIED'
-        elif not claims:
+        elif not claims and not tclaims:
             verdict = 'NO-CLAIM'
-        elif claims == [total]:
+        elif claims and tclaims and claims != tclaims:
+            verdict = 'TITLE-MISMATCH'
+        elif (claims or tclaims) == [total]:
             verdict = 'OK'
         else:
             verdict = 'MISMATCH'
         rows.append({'struct': s['name'], 'head_line': s['head'], 'members': len(s['members']),
+                     'baseline': s.get('baseline', 0),
                      'resolved': len(ok), 'unresolved': len(bad), 'sum_computed': total,
-                     'claims': claims, 'verdict': verdict})
+                     'claims': claims, 'title_claims': tclaims, 'verdict': verdict})
         if only and s['name'] != only:
             continue
     if '--json' in sys.argv:
@@ -158,14 +171,23 @@ def main():
     for r in rows:
         if only and r['struct'] != only:
             continue
+        claim_txt = ','.join(map(str, r['claims']))
+        if r['title_claims'] and r['title_claims'] != r['claims']:
+            claim_txt += '/标题:%s' % ','.join(map(str, r['title_claims']))
         print('%-16s %6d %6d %8d %-22s %s' % (r['struct'], r['members'], r['unresolved'],
-                                               r['sum_computed'], ','.join(map(str, r['claims'])),
+                                               r['sum_computed'], claim_txt or '-',
                                                r['verdict']))
-    mis = [r for r in rows if r['verdict'] in ('MISMATCH', 'UNVERIFIED', 'NO-TABLE')]
-    print('\n合计 %d 个 struct：可机器核对=%d，不符=%d，未能核实=%d'
+    mis = [r for r in rows if r['verdict'] in ('MISMATCH', 'TITLE-MISMATCH', 'UNVERIFIED',
+                                               'NO-TABLE', 'NO-CLAIM')]
+    nb = sum(r['baseline'] for r in rows)
+    print('\n合计 %d 个 struct：可机器核对=%d，不符=%d，未能核实=%d；其中转录基准行 %d 个'
+          '（计入所属 struct 之和，不计为独立实测——N16③）'
           % (len(rows), len(rows) - len(mis),
-             len([r for r in rows if r['verdict'] == 'MISMATCH']),
-             len([r for r in rows if r['verdict'] in ('UNVERIFIED', 'NO-TABLE')])))
+             len([r for r in rows if r['verdict'] in ('MISMATCH', 'TITLE-MISMATCH')]),
+             len([r for r in rows if r['verdict'] in ('UNVERIFIED', 'NO-TABLE', 'NO-CLAIM')]),
+             nb))
+    print('已知盲区（N16④，无机判、靠评审轮与 spec/02/08/10 值域表兜）：成员值域合法性、'
+          '跨 struct 键存在性、例化总量（×N）正确性。')
     if mis:
         print('\n== 差异明细（返工时逐条消）==')
         for r in mis:

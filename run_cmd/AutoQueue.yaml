@@ -16,6 +16,9 @@
 #   depends_on    前置队列项（空数组表示无前置）
 #   blocked_by    外部阻塞（ISS-xxx 或 Bn）；非空时 dispatch 一律跳过
 #   review_rounds 该项已跑的 R7 评审轮数（§6.1 硬上限 5，达 5 即置 fused 并升级）
+#   full_rounds   该项**已消耗**的终局全量复核轮数（§9.4 硬上限 5；达 5 未收敛须 fused 转 R0。
+#                 人可越权继续，但须在 cap_waiver 写明谁在何时批准，否则 gate 判 FAIL）
+#   cap_waiver    人批准的越权批文原文（缺省无）；有它时 review/full 两项轮次上限改打 *-waiver PASS
 #   decision_rounds 该项已派给 vr1-decider 的次数（缺省 0；**达 3 次即熔断转人**，不得继续消耗轮次）
 #   landable      落实证据落点（done 项必填，"已接受/同意改"不算闭环——§6.1 C1）
 #
@@ -94,9 +97,12 @@ items:
     priority: P1
     depends_on: []
     blocked_by: []
-    review_rounds: 6
+    review_rounds: 9
+    # §9.4：已消耗的**全量轮**数（第 3/5/6/7/8 轮的全篇纯复核，附件 B/D/E/G 各计一轮）。
+    # 已达上限 5 仍不收敛 ⇒ 本应 fused 转 R0；现由下方 cap_waiver 越权继续，机判打 queue-full-round-cap-waiver。
+    full_rounds: 5
     cap_waiver: R0 2026-09-23 批准“继续直到收敛”——越权继续，不再受 5 轮上限约束；每轮仍须留痕且不得默认通过
-    landable: 第 6 轮处置轮已完成（B1~B10 + C1~C10 逐条落点，见 `doc/spec/01-评审记录.md` 附 C；width_check 28/28 OK、gate 0 FAIL）；待第 6 轮纯复核轮独立核验
+    landable: 第 6 轮处置（B1~B10 + C1~C10）入附 C；**第 7 轮纯复核结果入附 E：收敛不成立**（旧问题未闭环 6：BLK-08/11/12 未改、BLK-06/10/15 部分；新增 17 项含 12 阻塞；上一轮自报待办四项中三项半未落地）；另指机判盲区四点（N16）与取证链缺口（CLR/SUS 无逐条正文）⇒ **未收敛，不得关闭**。**第 8 轮处置入附 F（2026-09-23，v0.3）**：附 E 全部 23 项处置完成——栈机制重构（融合条目/提交弹栈 A14/SP_ck 重置）、冲刷与回填键闭合（ftq_id/req_id）、nib 5 bit、seq_of_ftq 删、slot16_start 移出、csrq 补 old_val、uimm 零扩展、rt_t 四路来源 + PRF_RD_PORTS=18、中断注入接口、A2 补 R 级门控、ret_ctrl_t 49、PERF 定死；spec/00 同步（§4.3/§4.8/§7.3/§9/§6/§10）；width_check N16①②③ 修补实跑 28/28 OK；gate 18 PASS / 1 WARN / 0 FAIL（doc/05 R-005）；ISS-037 登记（iss/README 三处归 R2）；S1/SUS-01 与 HIST_DEPTH/ROLLBACK_MAX 转 spec/04。**第 8 轮纯复核入附 G：仍未收敛**（旧 27/32 已改、3 部分；新增 10 项含阻塞 2）；**第 9 轮处置已落地**（N-01 三元快照 FL_ck 回池 / N-02 队头门控 / N-03~N-10 / N15③ / X5 残留，机判 28/28 OK、18 PASS / 0 FAIL，mtime 核查评审者零写入——doc/05 R-006）；**待第 9 轮纯复核判 §6.1 C2，其输入须增列 doc/00 ISS-013/037 两行**。**第 9 轮增量复核入附 H（七来源并集档）：仍未收敛**——附 G-2 的 13 项处置判 11 已改 / 1 部分（N-04 walk 槽 15 跨窗）/ 1 关联项部分（N17① 计数对账），N10/N15/X5/X6 判已改或通过；**新增阻塞 2（H-01 `rd_paddr` 上游断链——`disp_x_t` 无 paddr 域；H-02 walk 槽 15 跨窗重取几何不可实现）+ 需澄清 5（H-03 机判计数对账 / H-04 新字段位宽与命名绑定留白 / H-05 csrq 两写口与门控检查点 / H-06 断言内部信号名归属 / H-07「该篇待建」标注口径）**；闭包 14 项分流完（13 留痕类 + `rd_is_new`→`new_alloc` 命名绑定 1）；mtime 核查评审者零写入。**第 10 轮处置输入 = 附 H 的 H-01~H-07 + N-04 部分 + N17① 残余**
     # 历史（轮次 3 复核轮结论，已被本轮重建取代；全文见 HANDOFF Q-004 轮次 3/4）：38 条仅落实 1 条，
     # 另新增算错 13 项 + 5 个死锁/假绿/漏测场景，已触熔断转 R0；R0 选定 A 方案（先机器算差异表→逐条返工→纯复核轮）
 
@@ -154,10 +160,10 @@ items:
     role: R2
     basis: doc/00 ISS-019；iss/tests/test_isa_semantics.py 的 KNOWN_OPEN 打印
     done_when: test_isa_semantics.py 运行时 KNOWN_OPEN 输出为空；条目转【已解决】
-    state: blocked
+    state: ready
     priority: P2
     depends_on: []
-    blocked_by: [ISS-032]        # 官方 encoding.h 在 _tools/ibex-master 内，须先补拷
+    blocked_by: []             # 2026-09-23 解阻：`_tools/` 已补拷且经全库路径核查（ISS-032 关闭）
     review_rounds: 0
     landable: ""
 
@@ -166,10 +172,10 @@ items:
     role: R1
     basis: doc/项目开发流程.md §10 第 2 项
     done_when: doc/spec/02-*.md 存在；每指令语义带【权】§号且可回查规范原文
-    state: blocked
+    state: ready
     priority: P2
     depends_on: []
-    blocked_by: [ISS-032]        # 规范原文不可达，写完也只能标"待锚点"
+    blocked_by: []             # 2026-09-23 解阻：规范提取件已可达且经原文复验（ISS-032 关闭）
     review_rounds: 0
     landable: ""
 
@@ -200,14 +206,14 @@ items:
 
   # ---------- 催办类：R8 不自动做，只按格式呈报 ----------
   - id: Q-013
-    task: 催办三件人做项：WSL2+工具链（B1/ISS-002）、git（B2/ISS-001）、补拷 _tools/（B8/ISS-032）
+    task: 催办人做项：WSL2 + 工具链安装（B1/ISS-002，含 M0 验收表回填）；~~git（B2/ISS-001）~~ 与 ~~补拷 `_tools/`（B8/ISS-032）~~ 均已闭环
     role: R8
-    basis: doc/04 §② B1/B2/B8；doc/项目开发流程.md §12.3"环境/权限/安装类必须上报"
-    done_when: 三项台账状态转【已解决】且 M0 验收表回填；未解决则每轮重新生成决策包并列入 report 首行
+    basis: doc/04 §② B1；doc/项目开发流程.md §12.3“环境/权限/安装类必须上报”
+    done_when: ISS-002 台账状态转【已解决】且 M0 验收表 7/7 回填；未解决则每轮重新生成决策包并列入 report 首行
     state: blocked
     priority: P1
     depends_on: []
-    blocked_by: [ISS-001, ISS-002, ISS-032]
+    blocked_by: [ISS-002]   # 2026-09-23：ISS-001 已关闭（git 2.52.0 实测可用 + 每轮基线纪律入 §9.4）、ISS-032 已关闭（_tools/ 已补拷并验证）
     review_rounds: 0
     landable: ""
 
@@ -222,3 +228,16 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "两处已修：`ftq_id` 行补齐为 4 列（与同表其他行一致）、`csr_new` 跳行合并回单行；未改任何位宽/语义内容。判据：gate.py check 的 md-integrity 项由 FAIL 转 PASS（本项以该输出为凭）"
+
+  - id: Q-015
+    task: 落地“评审收敛两档制”（§9.4）：流程定义 + 评审者算术义务切分 + 机器改动集工具
+    role: R8
+    basis: 人 2026-09-23 指令（“要落地的话是三处”、全量轮上限 5 后转人决策、“每轮开工先提交 git 基线，复核 AI 可据 git diff 判增加核查位置、核查位置还能从之前核查记录得到”）；doc/00 ISS-038；8 轮不收敛实测（阻塞计数 21→10→17→15 非单调）
+    done_when: ① `doc/项目开发流程.md` §9.4 含两档定义 / 复核面七来源并集 / 基线纪律 / 上限与出口 ② `.qoder/agents/vr1-auditor.md` 硬约束不再自相矛盾（机判已覆盖者抽查复算 ≥5，未覆盖者一律实算）③ `gate.py changed` 可用、`check` 的 full_rounds 上限与 pending-list-stale 两项判据生效
+    state: done
+    priority: P1
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    full_rounds: 0
+    landable: "三处已落：① `doc/项目开发流程.md` §9.4 新增（两档表 + 顺序固定 + 复核面七来源并集 + 每轮 git 基线纪律 + 全量轮上限 5 与 cap_waiver 口径）② `.qoder/agents/vr1-auditor.md` 硬约束改为算术义务两分（机判已覆盖者抽查复算 ≥5 项含转录基准行与标题位宽；未覆盖者一律实算；取证一律文件+节号）③ `script/gate.py` 新增 `changed` 子命令（改动节 + 被改标识符的规格篇引用闭包）与 `queue-full-round-cap(-waiver)`、`pending-list-stale` 判据。判据：`changed` 实跑输出 v0.3 的改动节与闭包（spec/01 +106/−65、spec/00 +19/−5、评审记录 +144/−0；**14 个标识符未展开**——首测报 3 系闭包语料误含评审记录所致的假阴，已修，见 doc/05 R-007 更正注）；`gate.py check` 21 PASS / 1 WARN / 0 FAIL（留档 doc/05 R-007）。**第 2 批（同日）**：§9.4 复核面表 3 行扩为**七来源**（④机判未决项 ⑤上轮自报诚实边界 ⑥转派项 ⑦缺失型＝仅全量轮可覆盖）并修本节改动集口径的自相矛盾（定案：机算＋作者只能加不能减）；`changed` 默认只列真信号（231→123 行）、`--all` 取全表；`vr1-auditor.md` 工作流同步七来源与 ④ 分流义务（留档 doc/05 R-008）"
