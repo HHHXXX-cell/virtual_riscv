@@ -723,6 +723,10 @@ def cmd_loop(_):
     if live:
         i = live[0]
         print('继续未完成的 %s（%s）：%s' % (i['id'], i.get('role'), i.get('task')))
+        if i.get('review_rounds'):
+            # §9.4：处置轮的 diff 基线须在开工前提交，否则下一轮增量复核无基线可用
+            print('  §9.4 提醒：本轮若为处置轮，开工前先提交 git 基线（提交信息标「%s r<n> 基线」），'
+                  '再动正文；基线之后的两点差异即下一轮增量复核的复核面。' % i['id'])
         print('完成后回填 state 与 landable，再跑 check。不得中途改派他项。')
         return 0
 
