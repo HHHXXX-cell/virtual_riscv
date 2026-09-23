@@ -432,8 +432,9 @@ def check_doc05_numbers(rep):
         if n in seen:
             dup.append('%s 重号（行 %d）' % (n, ln))
         seen.add(n)
+    # 只抓"R- 后不是三位数字"的畸形态（如 R-%03d）；'…备注' 类是合法的注记行，跳过
     bad_fmt = [l.split('|')[1].strip() for l in read(p).splitlines()
-               if l.startswith('| R-') and not re.match(r'\| R-\d{3} \|', l)]
+               if re.match(r'\| R-(?!\d)', l) and '备注' not in l]
     dup += ['格式非法：%s' % x for x in bad_fmt]
     rep.res('doc05-numbering', dup, 'R 编号无重号且格式合法（共 %d 条）' % len(seen))
 
