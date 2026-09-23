@@ -36,7 +36,7 @@ ABS_RE = re.compile(r"[A-Za-z]:\\\\?(?:[^\s`'\"|,，。；：）)、]+\\)*[^\s`'
 
 # AGENTS.md §2 声明的项目内骨架目录（换机/压缩拷贝会丢空目录，必须能自复）
 SKELETON = [
-    "doc/spec", "debug",
+    "doc/spec", "doc/verify", "doc/process", "doc/design", "doc/review", "debug",
     "rtl/vr1/frontend", "rtl/vr1/rename", "rtl/vr1/issue", "rtl/vr1/exu",
     "rtl/vr1/lsu", "rtl/vr1/mmu", "rtl/vr1/cache", "rtl/vr1/ctrl",
     "rtl/vr1/core", "rtl/vr1/include",
@@ -127,7 +127,7 @@ def skeleton_state(fix: bool) -> list[tuple[str, bool, bool, bool]]:
         if has_ph and not os.listdir(p):
             if fix:
                 io.open(os.path.join(p, ".gitkeep"), "w", encoding="utf-8", newline="").write(
-                    "# git/GitHub 不收空目录，本文件唯一作用是占位（见 doc/00 ISS-036）。\n")
+                    "# git/GitHub 不收空目录，本文件唯一作用是占位（见 doc/process/00 ISS-036）。\n")
                 has_ph = True
             else:
                 has_ph = False

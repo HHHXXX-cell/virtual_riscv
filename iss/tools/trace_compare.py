@@ -2,11 +2,11 @@
 """两份 trace CSV 的逐指令比对器（RTL-vs-ISS 与 ISS-vs-ISS 共用）。
 
 判据口径（务必读）：
-- 默认比对列 `pc,binary,gpr,csr`。`csr` 取**写后新值**（与 Spike commit log 同口径，doc/00 ISS-013）。
+- 默认比对列 `pc,binary,gpr,csr`。`csr` 取**写后新值**（与 Spike commit log 同口径，doc/process/00 ISS-013）。
 - `instr_str`/`operand` **默认不比对**：反汇编文本是工具自定义的（Spike 与 vriss 的助记符、
   操作数排布不同），拿它当判据会制造大量假 mismatch。要开需显式 `--with-asm`。
 - `--final-only` 是 riscv-dv `compare_final_value_only` 的对应物，**只允许按 testlist 白名单启用，
-  每次启用必须记 `doc/05-回归记录.md`**（红线 R6：放宽比对视同 Review 级变更）。
+  每次启用必须记 `doc/verify/05-回归记录.md`**（红线 R6：放宽比对视同 Review 级变更）。
 - 长度不等、或第 N 条起 pc 不对齐 → 先报"流断裂"，按回归终止判据 T1/T5 处置，不逐条硬比。
 """
 from __future__ import annotations
@@ -55,7 +55,7 @@ def compare(path_a: str, path_b: str, cols: list[str], final_only: bool,
                 bad += 1
         print(f"[trace_compare] final-only 模式：{len(a)} vs {len(b)} 条，"
               f"gpr={len(ga)}/{len(gb)} csr={len(ca)}/{len(cb)}，mismatch={bad}")
-        print("!! 该模式为比对放宽，须在 doc/05 记录启用原因（红线 R6）")
+        print("!! 该模式为比对放宽，须在 doc/verify/05 记录启用原因（红线 R6）")
         return 1 if bad else 0
 
     n = min(len(a), len(b))

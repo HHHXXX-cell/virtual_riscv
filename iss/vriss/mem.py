@@ -1,7 +1,7 @@
 """存储器/总线模型：稀疏页 + PMA 区域表 + MMIO 设备 + signature 握手截获。
 
 对应规格：`doc/spec/00` §4.6/§4.7（PMA 与总线）、`doc/spec/09`（缓存与总线，待成稿）。
-非对齐**不建模成硬件拆包**——一期 `MISALIGNED_EN=0`，直接抛 `Fault`（doc/00 ISS-010）。
+非对齐**不建模成硬件拆包**——一期 `MISALIGNED_EN=0`，直接抛 `Fault`（doc/process/00 ISS-010）。
 """
 from __future__ import annotations
 

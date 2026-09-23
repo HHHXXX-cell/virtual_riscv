@@ -34,12 +34,12 @@ import re
 import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-LEDGER = os.path.join(ROOT, 'doc', '00-问题记录.md')
-BOARD = os.path.join(ROOT, 'doc', '04-验证进度.md')
+LEDGER = os.path.join(ROOT, 'doc', 'process', '00-问题记录.md')
+BOARD = os.path.join(ROOT, 'doc', 'verify', '04-验证进度.md')
 QUEUE = os.path.join(ROOT, 'run_cmd', 'AutoQueue.yaml')
 HANDOFF = os.path.join(ROOT, '.qoder', 'handoff', 'HANDOFF.md')
 
-# 坏词表：每条必须能指到一次真实事故（doc/00 ISS-026 / ISS-033），无出处者不得入表——
+# 坏词表：每条必须能指到一次真实事故（doc/process/00 ISS-026 / ISS-033），无出处者不得入表——
 # 本表初版曾收“跳页同偏”“帐台”两条凭印象写的条目，跑一次即发现“跳页同偏”其实是
 # ISS-020 正文的合法用词，属工具自造的假阳。**单字级**形近字表已证明不可用（会把“脉冲”误报）。
 # 同理“计数脉”也已删除：它在 spec/01 里是“计数脉冲”这种正确用词的前三个字。
@@ -297,8 +297,9 @@ def char_freq():
         return FREQ_BASE[0]
     fr = {}
     roots = []
-    if os.path.isdir(os.path.dirname(LEDGER)):
-        roots.append(os.path.dirname(LEDGER))
+    docroot = os.path.join(ROOT, 'doc')   # 语料根恒为 doc/ 全树（台账迁移后不得缩到 doc/process/）
+    if os.path.isdir(docroot):
+        roots.append(docroot)
     try:
         kb = 'D:\\' + [d for d in os.listdir('D:\\') if d.startswith('IC')][0]
         roots.append(kb)
@@ -322,13 +323,13 @@ def char_freq():
 
 def scanned_docs():
     """需校字符完整性与表格结构的文档（含交接记录本身—它也会写错字）。"""
-    files = [os.path.join(ROOT, 'doc', f) for f in sorted(os.listdir(os.path.join(ROOT, 'doc')))
-             if f.endswith('.md')]
+    files = []
+    for dp, dns, fns in os.walk(os.path.join(ROOT, 'doc')):
+        dns[:] = [d for d in dns if not d.endswith('评审探针')]   # 探针＝冻结证据，不入判据面
+        files += [os.path.join(dp, f) for f in sorted(fns) if f.endswith('.md')]
+    files.sort()
     files += [os.path.join(ROOT, f) for f in ('AGENTS.md', 'README.md')]
     files += role_agent_files()
-    spec = os.path.join(ROOT, 'doc', 'spec')
-    if os.path.isdir(spec):
-        files += [os.path.join(spec, f) for f in sorted(os.listdir(spec)) if f.endswith('.md')]
     hd = os.path.join(ROOT, '.qoder', 'handoff')
     if os.path.isdir(hd):
         files += [os.path.join(hd, f) for f in sorted(os.listdir(hd)) if f.endswith('.md')]
@@ -420,9 +421,9 @@ def check_redlines(rep):
 
 
 def check_doc05_numbers(rep):
-    """doc/05 回归记录不得重号（2026-09-23 实测曾出现 R-032/R-033 各一对：并行会话与领队先后追加所致）。
+    """doc/verify/05 回归记录不得重号（2026-09-23 实测曾出现 R-032/R-033 各一对：并行会话与领队先后追加所致）。
     只判重号；序号因"补录/后移"本就非严格升序（R-014/R-037/R-038 为例外），故不判倒序。"""
-    p = os.path.join(ROOT, 'doc', '05-回归记录.md')
+    p = os.path.join(ROOT, 'doc', 'verify', '05-回归记录.md')
     seen, dup = set(), []
     for ln, line in enumerate(read(p).splitlines(), 1):
         m = re.match(r'\| (R-\d{3})\s*\|', line)
@@ -709,8 +710,8 @@ def cmd_changed(argv):
             continue
         if cur is None:
             continue
-        # 标识符抽取的**来源**与闭包**语料**必须同类：只取规格篇正文（`doc/spec/NN-*.md`，排除
-        # 评审记录/探针）。两条理由：① 记录类文本（`doc/00`/`doc/04`/`doc/05`）是叙事件，其中
+        # 标识符抽取的**来源**与闭包**语料**必须同类：只取规格篇正文（`doc/spec/NN-*.md`；
+        # 评审件已迁 `doc/review/`，此处靠路径天然隔离，下方排除式是防御性保留）。两条理由：① 记录类文本（`doc/process/00`/`doc/verify/0[45]`）是叙事件，其中
         # 引述的示例词（如描述缺陷时写到的 `clk_i`/`from`）会被当成"被改标识符"，凭空制造假未展开项；
         # ② 更致命的是反向——记录里提过一次的标识符会把规格正文里**只有 1 处**的真孤儿抬到 hits≥2
         # 而漏报（与第 7 轮"语料误含评审记录致假阴"同根因，该轮修了计数侧、本轮补上抽取侧）。
@@ -823,16 +824,16 @@ GATEDIR = os.path.join(ROOT, 'script', 'gate')
 BASE_JSON = os.path.join(GATEDIR, 'integrity_baseline.json')
 WINDOW_STATE = os.path.join(GATEDIR, 'window_state.json')
 BASE_DIRS = ['rtl', 'sim/covdb', 'iss', 'sw', 'filelist', 'run_cmd', 'tb']
-BASE_GLOBS = [os.path.join('doc', 'spec', '*-评审探针')]
-# 每轮必改件（doc/00|04|05、HANDOFF、队列、评审记录）不入长基线——否则每轮必报 MODIFIED，
+BASE_GLOBS = [os.path.join('doc', 'review', '*-评审探针')]
+# 每轮必改件（doc/process/00、doc/verify/04|05、HANDOFF、队列、评审记录）不入长基线——否则每轮必报 MODIFIED，
 # 基线的判别力会被日常记录噪音淹没（与 ISS-026"全表列 token 淹掉真信号"同型）。
 BASE_EXCLUDE_RE = re.compile(r'(^|/)AutoQueue\.yaml$|(^|/)HANDOFF\.md$'
-                             r'|^doc/0[045]-|(^|/)评审记录\.md$')
+                             r'|^doc/(?:process/00|verify/0[45])-|(^|/)评审记录\.md$')
 # 工具自身状态件不算第三方改动、且每次运行自我改写——两制扫描均排除（否则自我引用假阳）。
 TOOL_STATE = ('script/gate/window_state.json', 'script/gate/integrity_baseline.json')
 SKIP_DIRS = {'.git', '__pycache__'}
 SNAP_RULE = ('长基线刷新硬规则（ADR-4/B5）：仅处置轮开工写产物前每轮 ≤1 次；评审轮与 FAIL 轮后禁刷；'
-             '只折"已进复核面"的改动集；执行者＝R8；独立提交＋doc/05 留痕（旧→新指纹、折入集出处）；'
+             '只折"已进复核面"的改动集；执行者＝R8；独立提交＋doc/verify/05 留痕（旧→新指纹、折入集出处）；'
              '作不出折入集出处即作废回滚。')
 
 
@@ -914,7 +915,7 @@ def cmd_snapshot(argv):
     reason = argv[argv.index('--reason') + 1] if ('--reason' in argv and
                                                   argv.index('--reason') + 1 < len(argv)) else ''
     if refresh and not reason.strip():
-        print('--refresh 必须随 --reason（折入集出处：如 doc/05:R-0xx 行 / 提交号 / 评审结论）；'
+        print('--refresh 必须随 --reason（折入集出处：如 doc/verify/05:R-0xx 行 / 提交号 / 评审结论）；'
               '作不出出处即不得刷新。拒绝执行。')
         print(SNAP_RULE)
         return 2
@@ -932,8 +933,8 @@ def cmd_snapshot(argv):
             prev = None
     doc = {'tool': 'script/gate.py snapshot（ADR-4 / ISS-024）',
            'generated_at': _now_iso(), 'reason': reason,
-           'scan_dirs': [d + '/' for d in BASE_DIRS] + ['doc/spec/*-评审探针/'],
-           'exclude': '每轮必改件不入长基线：doc/00|04|05-*、HANDOFF.md、AutoQueue.yaml、*评审记录*.md',
+           'scan_dirs': [d + '/' for d in BASE_DIRS] + ['doc/review/*-评审探针/'],
+           'exclude': '每轮必改件不入长基线：doc/process/00、doc/verify/04|05、HANDOFF.md、AutoQueue.yaml、*评审记录*.md',
            'file_count': len(files),
            'prev_fingerprint': prev.get('fingerprint') if isinstance(prev, dict) else None,
            'fingerprint': _files_fingerprint(files), 'files': files}
@@ -946,7 +947,7 @@ def cmd_snapshot(argv):
     print('  目录集：%s' % '、'.join(doc['scan_dirs']))
     print('  文件数 %d ；指纹 %s' % (len(files), doc['fingerprint']))
     if prev is not None:
-        print('  旧→新指纹：%s → %s（须独立提交并把本行贴进 doc/05）'
+        print('  旧→新指纹：%s → %s（须独立提交并把本行贴进 doc/verify/05）'
               % (prev.get('fingerprint'), doc['fingerprint']))
     print('  写盘：%s' % os.path.relpath(BASE_JSON, ROOT).replace(os.sep, '/'))
     return 0
@@ -1062,7 +1063,7 @@ def cmd_loop(_):
     """给出本轮唯一动作。退出码：0=有可执行动作，3=必须停下等人，4=全部完成待 R0 出口判定。"""
     items = parse_queue()
     if not items:
-        print('队列为空：领队先按 doc/项目开发流程.md §10 与 doc/04 播种。')
+        print('队列为空：领队先按 doc/项目开发流程.md §10 与 doc/verify/04 播种。')
         return 3
     done = {str(i['id']) for i in items if i.get('state') == 'done'}
 
@@ -1118,7 +1119,7 @@ def cmd_loop(_):
 
     pend = [i for i in items if i.get('state') != 'done']
     if not pend:
-        print('队列已清空。下一步不是"项目完成"：请领队汇总 doc/07/08/09 与台账闭环情呈 R0 做阶段出口判定。')
+        print('队列已清空。下一步不是"项目完成"：请领队汇总 doc/verify/07/08/09 与台账闭环情呈 R0 做阶段出口判定。')
         return 4
 
     blockers = sorted({b for i in pend for b in (i.get('blocked_by') or [])})

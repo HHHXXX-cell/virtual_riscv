@@ -76,7 +76,7 @@ class RetireRecord:
         return f"{ABI_NAMES[self.rd_idx]}:0x{self.rd_data:016x}"
 
     def csr_field(self) -> str:
-        """与 Spike commit log 同口径：报**写入后的新值**（doc/00 ISS-013）。"""
+        """与 Spike commit log 同口径：报**写入后的新值**（doc/process/00 ISS-013）。"""
         if not self.csr_wr_en:
             return ""
         return f"0x{self.csr_addr:03x}:0x{self.csr_new:016x}"

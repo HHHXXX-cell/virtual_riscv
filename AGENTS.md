@@ -25,10 +25,10 @@
     不再一律标 `待锚点`（红线 R20 仍要求"关键结论必绑锚点"，只是锚点现已可用）。
   - 设计空间与选型依据：`D:\IC验证知识库\Verilog与CPU设计知识库\CPU卷\04-高性能超标量CPU精读.md`
 - **验证阶段**（AI 每次会话结束前更新此项）：
-  **Step 1 理解规格**（进行中——spec 为自产文档，`doc/01` 以 `doc/spec/` 已定稿篇目为输入滚动生成；
+  **Step 1 理解规格**（进行中——spec 为自产文档，`doc/verify/01` 以 `doc/spec/` 已定稿篇目为输入滚动生成；
   `doc/spec/` 已成 2/14 篇）
   **2026-09-22 的“已暂停/待换机”状态已失效**：工程已在新机继续，知识库 md 笔记可用，
-  但 `_tools/` 漏拷（ISS-032）；工具链与 git 仍未装（ISS-001/002）。**当前权威进度看 `doc/04` 看板**，
+  但 `_tools/` 漏拷（ISS-032）；工具链与 git 仍未装（ISS-001/002）。**当前权威进度看 `doc/verify/04` 看板**，
   待办与阻塞由 `run_cmd/AutoQueue.yaml` + `script/gate.py` 驱动（规则 23）。
 - **基线状态**：**未基线**
   - 基线触发点预告（满足其一即可由人宣布）：① Review G1 接口冻结签署；② UVM 平台 smoke 用例通过。
@@ -46,11 +46,13 @@
 ```
 virtual_riscv/
 ├── AGENTS.md          # 本文件
-├── doc/               # 00-问题记录 / 01-理解清单 / 02-验证点清单 / 03-验证计划 / 04-验证进度
-│   │                  # 05-回归记录 / 06-缺陷归因 / 07-覆盖率报告 / 08-验证报告
-│   │                  # 09-一致性与收敛检查 / 10-基线记录 / 环境搭建.md / 交接说明.md
-│   │                  # 项目开发流程.md（阶段/门禁/度量/管理，本表上位约束）
-│   └── spec/          # ★ 规格书 00~14（本项目第一阶段主体交付）
+├── doc/               # 项目开发流程.md（阶段/门禁/度量/管理，本表上位约束）/ AI角色与职责.md
+│   │                  # 环境搭建.md / 交接说明.md（治理类留顶层）
+│   ├── spec/          # ★ 规格书 00~14（设计承诺，本项目第一阶段主体交付）
+│   ├── design/        # 设计侧非规格产物（ADR 汇总 / 接口冻结记录 / 模块实现说明；预留）
+│   ├── verify/        # 验证产物 01-理解清单 ~ 10-基线记录（九步流水线；03/04/05 已成）
+│   ├── review/        # 评审记录与评审探针（按篇目编号：01-评审记录.md / 01-评审探针/）
+│   └── process/       # 00-问题记录.md（台账：五类问题闭环；R4 唯一落点）
 ├── debug/             # debug 分析文档（七段骨架，见《问题分析方法论》§4A）
 ├── rtl/vr1/           # DUT：frontend/ rename/ issue/ exu/ lsu/ mmu/ cache/ ctrl/ core/ include/
 ├── tb/vr1_uvm/        # UVM 平台与用例（AI 工作区）
@@ -86,7 +88,7 @@ set MTI=D:\modeltech64_2020.4\win64
 
 :: 覆盖率：逐用例 ucdb 不可相加，必须批级合并后再判定
 %MTI%\vcover merge -out sim/covdb/<batch>.ucdb sim/ucdb/*.ucdb
-%MTI%\vcover report -cvg -detail sim/covdb/<batch>.ucdb -output doc/07-<batch>.txt
+%MTI%\vcover report -cvg -detail sim/covdb/<batch>.ucdb -output doc/verify/07-<batch>.txt
 ```
 
 ### 3.2 WSL2 Ubuntu（编译 / ISS 互检 / 高速仿真）—— 尚未安装，命令见 `doc/环境搭建.md`
@@ -99,13 +101,13 @@ spike --log-commits --isa=rv64imac_zicsr_zifencei --priv=m -l <out>.o   # 需带
 verilator --cc --exe --build -j 4 --trace-fst -CFLAGS -O2 -f filelist/rtl.f          # 长跑回归与性能
 ```
 
-> **口径提醒（doc/00 ISS-010）**：一期 `MISALIGNED_EN=0`——硬件不支持非对齐访存，
+> **口径提醒（doc/process/00 ISS-010）**：一期 `MISALIGNED_EN=0`——硬件不支持非对齐访存，
 > 因此 Spike **不得带 `--misaligned`**；两侧口径必须一致，否则非对齐激励会伪装成 DUT bug。
 
 ### 3.3 激励生成（riscv-dv，本地副本）
 
 - 生成器根：`D:\IC验证知识库\_tools\riscv-dv-master`（`simulator.yaml` **无 ModelSim 条目**，
-  需自加 `modelsim` 条或走 `pygen` 纯 Python 路线；已登记 doc/00 ISS-004）。
+  需自加 `modelsim` 条或走 `pygen` 纯 Python 路线；已登记 doc/process/00 ISS-004）。
 - target：`run_cmd/riscv_dv_target/rv64gc_vr1/`（`riscv_core_setting.sv` 逐字段照 `doc/spec/00` 参数表填）。
 
 ### 3.4 已知工具坑位
@@ -121,13 +123,13 @@ verilator --cc --exe --build -j 4 --trace-fst -CFLAGS -O2 -f filelist/rtl.f     
 
 | 项 | 阈值 | 口径 |
 |---|---|---|
-| 功能覆盖率 | **100%** | `doc/02-验证点清单.md` 中每条覆盖率项，批级合并后 Σhits/Σ目标 bins |
+| 功能覆盖率 | **100%** | `doc/verify/02-验证点清单.md` 中每条覆盖率项，批级合并后 Σhits/Σ目标 bins |
 | 代码覆盖率 | **≥ 90%** | `vcover report` 的 Statements / Branches / Conditions / FSMs **逐项**；waiver 从分母扣除且逐条人批 |
 | 回归 | **0 UVM_ERROR / 0 UVM_FATAL** | 全部用例通过；稳定性 ≥ **2** 轮同配置 0 新 FAIL |
 | 一致性 | ISS-vs-ISS + RTL-vs-ISS | 逐指令 trace 比对 0 mismatch；`compare_final_value_only` 仅按 testlist 白名单启用 |
 | 合规 | riscv-tests rv64ui/um/ua/uc **100%**；riscv-arch-test **≥ 95%** | arch-test 作 ~70% 起点（《标准协议验证经验》口径） |
-| 缺陷 | `doc/06` 每条闭环 | 修复复验通过或有明确处置结论 |
-| 台账 | `doc/00` 无「待决策/处理中」残留 | 已解决条目均回填【已解决】+ 时间 + 方案摘要 |
+| 缺陷 | `doc/verify/06` 每条闭环 | 修复复验通过或有明确处置结论 |
+| 台账 | `doc/process/00` 无「待决策/处理中」残留 | 已解决条目均回填【已解决】+ 时间 + 方案摘要 |
 
 **循环时间盒（SMART 之 T）**
 
@@ -141,9 +143,9 @@ verilator --cc --exe --build -j 4 --trace-fst -CFLAGS -O2 -f filelist/rtl.f     
 红线 R1「rtl/ 只读」在**基线前**按如下口径执行，不得自行放宽：
 
 - **规格与接口冻结（Review G1）之前**：`rtl/vr1/**` 是**设计产出物**，AI 可在人的明确指令下编写，
-  每次改动必须输出 diff 摘要并登记 `doc/00`（分类=文档/流程按实际归类）。
+  每次改动必须输出 diff 摘要并登记 `doc/process/00`（分类=文档/流程按实际归类）。
 - **Review G1 签署接口冻结之后**：`rtl/` 立即转为**只读**（回归为纯验证活动）；发现疑似设计缺陷
-  只输出缺陷记录（`doc/00` 分类=代码 + 独立缺陷单），停止报告，**修复 RTL 永远是人在人明确指令下
+  只输出缺陷记录（`doc/process/00` 分类=代码 + 独立缺陷单），停止报告，**修复 RTL 永远是人在人明确指令下
   的单独动作，不属于验证流水线**。
 - **基线（= G1 与 Step4 smoke 通过二者取先）之后**：任何 `rtl/` 或 `tb/` 改动一律先分析报告待批（R5）。
 
@@ -151,18 +153,18 @@ verilator --cc --exe --build -j 4 --trace-fst -CFLAGS -O2 -f filelist/rtl.f     
 
 1. **【红线 R1】DUT 不动**：口径见 §5.1；冻结/基线后任何情况不自动修改 `rtl/`，疑似设计问题只记录。
 2. **【红线 R2】问题处置分级**：基线前——平台/验证代码问题（编译错误、脚本、checker 自身错误）
-   **直接解决无需停止**，但必须记 `doc/00`；**设计/规格类问题**（`doc/spec/` 的取舍与缺陷）按
+   **直接解决无需停止**，但必须记 `doc/process/00`；**设计/规格类问题**（`doc/spec/` 的取舍与缺陷）按
    2026-09-23 口径（`doc/项目开发流程.md` §12.2/§12.3）**由决策 AI 自决并留 ADR，不停止主线**；
    仅**放宽/判定口径类、无复核手段的✅陈述、环境权限类**停止自动验证、输出问题报告、等待决策。
    基线后——按 R5。
-3. **【红线 R3】过程可追溯**：每步产出落盘 `doc/01~10`；执行的命令、随机种子、结果全记 `doc/05`；
+3. **【红线 R3】过程可追溯**：每步产出落盘 `doc/verify/01~10`；执行的命令、随机种子、结果全记 `doc/verify/05`；
    任何结论可回溯到具体 log 行 / 波形时刻 / 代码行，"口头结论"不算完成。
-4. **【红线 R4】问题闭环**：五类（平台/代码/文档/流程/验证代码）发现即登记 `doc/00`；解决后在
+4. **【红线 R4】问题闭环**：五类（平台/代码/文档/流程/验证代码）发现即登记 `doc/process/00`；解决后在
    **原条目**回填【已解决】+ 时间 + 方案摘要；Sign-off 前台账必须全闭环。
 5. **【红线 R5】基线后先批后改**：平台/RTL 改动 → 分析影响 → 输出改动报告（改什么/为什么/影响面/
    需回归范围）→ 等批准 → 才动手。批准的修改验证中，平台问题直接修（记录照做），其他问题停止报告。
 6. **【红线 R6】禁止改检查器让结果通过**：禁止放宽 scoreboard 容差、注释/删除断言、降级 ERROR、
-   弱化约束。`compare_final_value_only` 之类的比对放宽**只能按 testlist 白名单启用，每次启用记 doc/00**。
+   弱化约束。`compare_final_value_only` 之类的比对放宽**只能按 testlist 白名单启用，每次启用记 doc/process/00**。
 7. **【红线 R7】禁止刷覆盖率**：waiver/exclude_bins 逐条附理由并经人批；禁删 bins、改采样条件、
    加无意义 cover 抬数。
 8. **【红线 R8】通过判定必须有显式证据**：trace 比对通过 / 断言通过 / 覆盖率采样命中至少其一；
@@ -173,20 +175,20 @@ verilator --cc --exe --build -j 4 --trace-fst -CFLAGS -O2 -f filelist/rtl.f     
     ——每套 runner 必须独占 `sim/run_<runner_id>/` 沙箱，否则互抢致 FAIL_ENV（2026-09-19 XDH 实测教训）。
     回归终止判据：AB1 连续 ≥2 例编译/加载失败 → 批中止；AB5 完成 ≥5 例且 UVM_FATAL 占比 ≥10% → 批中止；
     AB6 单用例 watchdog 超时或批累计超 R9 上限 → 批中止。中止时已跑结果保留有效，summary 尾行标
-    `REGRESSION_ABORTED + 原因`，退出码非 0，判据号记 `doc/05`。
-    **旧名对照（F5 改名，2026-09-23，见 `doc/05` R-049）**：批中止判据旧名 `T1`/`T5`/`T6` → 新名 `AB1`/`AB5`/`AB6`（翻选触发族见 `spec/01` `PT1`/`PT2`；`spec/02` `T-n` 族不变）。
+    `REGRESSION_ABORTED + 原因`，退出码非 0，判据号记 `doc/verify/05`。
+    **旧名对照（F5 改名，2026-09-23，见 `doc/verify/05` R-049）**：批中止判据旧名 `T1`/`T5`/`T6` → 新名 `AB1`/`AB5`/`AB6`（翻选触发族见 `spec/01` `PT1`/`PT2`；`spec/02` `T-n` 族不变）。
 11. **产出落盘**：每步产出写 `doc/` 对应文件，下一步以上一步文件为输入；会话结束前更新本文件
-    §1「验证阶段」与「基线状态」，并同步 `doc/04` 看板（事件驱动更新：状态变更即记 / 用户收尾指令 /
+    §1「验证阶段」与「基线状态」，并同步 `doc/verify/04` 看板（事件驱动更新：状态变更即记 / 用户收尾指令 /
     里程碑完成 / 上下文压缩兜底）。
 12. **知识库路由**：语法/机制/工程写法有争议先查 `AI索引.md` 定位，结论注明出处（库名/文件/卡片号）；
     SV 语义以《SV标准LRM知识库》仲裁。
 13. **diff 可见**：每次代码改动输出修改点摘要，禁止静默重写已有组件。
 14. **检查器严审**：scoreboard 比对逻辑与 SVA 断言的新增/修改，必须先展示设计思路待确认。
-15. **种子管理**：所有随机种子记 `doc/05`；随机失败先用同种子复现再修，修复后先复验出错种子再进回归。
+15. **种子管理**：所有随机种子记 `doc/verify/05`；随机失败先用同种子复现再修，修复后先复验出错种子再进回归。
 16. **循环纪律**：Step 5~8 未达 §4 标准必须继续循环；循环中按 R2 分级处置；连续 3 轮无进展停下汇报。
 17. **纪律补充**：三同步（验证点清单-用例-文档映射同步更新，禁两张皮）；规格升版必重过 Requirement
     Review；force/backdoor 只用于调试定位，正式判定必须前门 + 显式检查；**禁止顺手重构无关代码**
-    （无关问题只记 doc/00）；检查器真实 bug 修复也须登记说明。
+    （无关问题只记 doc/process/00）；检查器真实 bug 修复也须登记说明。
 18. **不跳步**：跳过工作流任何验收标准前必须显式说明并征得同意。
 19. **【角色边界】每活动只有一个 A，跨角色只读**：详见 `doc/AI角色与职责.md` §2/§3。
     不得代写他人职责范围内的产物；对抗评审子代理（R7）不得读作者当轮上下文、不得下“通过”结论。
@@ -199,12 +201,12 @@ verilator --cc --exe --build -j 4 --trace-fst -CFLAGS -O2 -f filelist/rtl.f     
     残余风险由 R0 人签署 + 锚点兜底。
 22. **【角色边界机械化】写禁令不靠声明**：子代理（R6/R7）声称“只读”时，每轮结束后必须跑
     “仓库清单比对＋**内容指纹（md5:size）窗口**”（`python script/gate.py rocheck --window <ISO>`，
-    扫描面含 `script/tmp/` 等忽略区）核查并记入 `doc/05`；纯 mtime 差异单列 `MTIME-ONLY(INFO)`、
+    扫描面含 `script/tmp/` 等忽略区）核查并记入 `doc/verify/05`；纯 mtime 差异单列 `MTIME-ONLY(INFO)`、
     不作改动判据；**新增/删除恒计入**；**评审探针与输出不得留在 `script/tmp/`
-    等忽略区**，必须归入受版本控制的证据目录（`iss/tests/probes/`、`doc/spec/*-评审探针/`）。
+    等忽略区**，必须归入受版本控制的证据目录（`iss/tests/probes/`、`doc/review/*-评审探针/`）。
     长基线 `script/gate/integrity_baseline.json` 的刷新有硬规则：只走
     `python script/gate.py snapshot --refresh --reason <折入集出处>`——仅处置轮开工写产物前每轮 ≤1 次；
-    评审轮与 FAIL 轮后禁刷；只折“已进复核面”的改动集；执行者＝R8；独立提交＋`doc/05` 留痕
+    评审轮与 FAIL 轮后禁刷；只折“已进复核面”的改动集；执行者＝R8；独立提交＋`doc/verify/05` 留痕
     （旧→新指纹、折入集出处）；作不出出处即作废回滚。
     本轮已实测发生一次违反（34 个新建文件，无既有文件被改），见 ISS-022。
 
@@ -215,10 +217,10 @@ verilator --cc --exe --build -j 4 --trace-fst -CFLAGS -O2 -f filelist/rtl.f     
     `role` 字段切换角色执行；`done_when` 未满足不得置 done（不凭口头声明）。**硬停机**：撞 `doc/项目开发流程.md`
     §12.1 的 P1~P4、§12.3 必报项（三类）、评审 5 轮上限（§6.1）、红线 R9/R10 资源上限时，一律停下并用
     `escalate` 生成 ≤5 条选项决策包呈人，**不得自决、不得默认通过**（知识库红线 RA1、RA3；本文件规则 20 同源）。
-    **R8 不接管任何角色的 A**，只写 `run_cmd/AutoQueue.yaml`、`doc/04` 状态列与台账镜像行、`doc/05` 调度留痕段；
-    R8 自身受 R6 审计。设立依据与失效举证见 `doc/00` ISS-033。
+    **R8 不接管任何角色的 A**，只写 `run_cmd/AutoQueue.yaml`、`doc/verify/04` 状态列与台账镜像行、`doc/verify/05` 调度留痕段；
+    R8 自身受 R6 审计。设立依据与失效举证见 `doc/process/00` ISS-033。
 
-> **红线记号（RA 系列）说明**（2026-09-23 加，登记 `doc/00` ISS-048）：RA 系列出自知识库
+> **红线记号（RA 系列）说明**（2026-09-23 加，登记 `doc/process/00` ISS-048）：RA 系列出自知识库
 > 《AI进行IC开发验证工作流程》§8，**只有 RA1~RA4 四条**——RA1 自治决策不进入关键节点／
 > RA2 升级须走完 L1+L2 并留痕／RA3 默认策略只许用于非破坏可回退事项（不可回退事项必须等人
 > 明确选择）／RA4 审计发现不得删除。**本项目不新设额外的 RA 红线**（2026-09-23 R0 决定：

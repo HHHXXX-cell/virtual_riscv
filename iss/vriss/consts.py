@@ -4,7 +4,7 @@
 - 异常/中断编码：特权规范卷 II §3.1.15 Table 105/106（本地 `_tools\\extracted\\riscv_spec\\riscv_spec_full.txt`）
 - signature 握手：`_tools\\riscv-dv-master\\src\\riscv_signature_pkg.sv`（逐值照抄语义，未自创）
 - CSR 地址：特权规范卷 II §2.2 Table 96 之 M/S 子集
-- 非对齐一律报 fault：`doc/spec/00` §2 与 `MISALIGNED_EN=0`（doc/00 ISS-010）
+- 非对齐一律报 fault：`doc/spec/00` §2 与 `MISALIGNED_EN=0`（doc/process/00 ISS-010）
 """
 from __future__ import annotations
 

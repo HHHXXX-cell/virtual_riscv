@@ -29,7 +29,7 @@ python -m vriss run --bin prog.bin --base 0x40000000 --reset-pc 0x1000 --csv pro
 
 # 两份 trace 比对
 python iss/tools/trace_compare.py sim/rtl.csv sim/prog.csv
-python iss/tools/trace_compare.py vriss.csv spike.csv --final-only   # 放宽，须登记 doc/05
+python iss/tools/trace_compare.py vriss.csv spike.csv --final-only   # 放宽，须登记 doc/verify/05
 ```
 
 ## 3. trace 字段映射（规格 ↔ CSV，唯一权威表）
@@ -86,7 +86,7 @@ python iss/tools/trace_compare.py vriss.csv spike.csv --final-only   # 放宽，
 
 ## 6. 纪律
 
-- ISS 属**验证代码**：它的 bug 直接修，但必须记 `doc/00`（红线 R2/R4）。
+- ISS 属**验证代码**：它的 bug 直接修，但必须记 `doc/process/00`（红线 R2/R4）。
 - **禁止**为了让 RTL 通过而改 ISS 行为（红线 R6）；两边分歧必须先归因（谁与规范不符）。
-- `--final-only` 之类的比对放宽，只允许按 testlist 白名单启用，每次启用记 `doc/05`（红线 R6）。
+- `--final-only` 之类的比对放宽，只允许按 testlist 白名单启用，每次启用记 `doc/verify/05`（红线 R6）。
 - 镜像只有一份：`Image.to_bytes()` 与 `to_readmemh()` 必须来自同一次构建（`AGENTS.md` §3.4 坑 2）。

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-r"""ISS 语义回归测试 —— 逐条钉住 R7 独立评审（doc/00 ISS-019）的实测缺陷。
+r"""ISS 语义回归测试 —— 逐条钉住 R7 独立评审（doc/process/00 ISS-019）的实测缺陷。
 
 分工：`test_smoke.py` 证明"一条程序能跑通"，本文件证明"具体指令的规范语义正确"。
 **两者都通过 ≠ ISS 可信**：本文件只覆盖**已修**部分，未修项集中在末尾 `KNOWN_OPEN`
@@ -238,7 +238,7 @@ def main() -> int:
     print(f"[semantics] 本文件只覆盖**已修**部分；仍有 {len(KNOWN_OPEN)} 类已知未修问题：")
     for k in KNOWN_OPEN:
         print("   -", k)
-    print("→ 上述项关闭前，ISS 不得作为 golden model 参与任何签核判定（doc/00 ISS-019）。")
+    print("→ 上述项关闭前，ISS 不得作为 golden model 参与任何签核判定（doc/process/00 ISS-019）。")
     return 1 if bad else 0
 
 

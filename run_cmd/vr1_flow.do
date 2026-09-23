@@ -9,7 +9,7 @@
 #   a) ModelSim 会话内： do run_cmd/vr1_flow.do
 #   b) 命令行：          vsim -64 -c -do "source run_cmd/vr1_flow.do" -l sim/run_r4_d7/flow.log
 # 沙箱：库/日志/INI 一律落 sim/run_<runner_id>/（红线 R10；本文件用 run_r4_d7）
-# 状态：D-7 片只实跑 vlib/vmap/vlog 三段（证据见 doc/05 R-050）；
+# 状态：D-7 片只实跑 vlib/vmap/vlog 三段（证据见 doc/verify/05 R-050）；
 #       vopt/vsim 两段待 DUT 接入后实跑，**未跑前不得视为已验证**。
 #==============================================================================
 
