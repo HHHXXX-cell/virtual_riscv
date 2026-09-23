@@ -252,3 +252,124 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: **第 1 批已完成并落盘（doc/05 R-017）**：ADR-1 ISS-039 选 A（xw_carry 跨窗拼接）、ADR-2 ISS-041 选 A/A′（门控并入 P9 + 构造性上界 + 丢弃两分类，新增断言 A15~A18+A19）、ADR-3 ISS-045 删 slot16_vld（icache_rsp_t 338→322）——均已落 spec/01（§1.1/§3.10/§3.16/§3.19/§7）与 spec/00 §10，提交 974531a；锚点为规范提取件（一级）+ cv32e40p/ibex 双参考核源码。**第 2 批（ISS-003/007/012/017）已派发（后台 vr1-decider）**；余 ISS-024/025/026/027/028（工具/平台类）待第三批。ADR 属设计取舍且含接口位宽变更 ⇒ 已注明须进 §9.5 评审 list ④ 段。派发时用 vr1-decider（隶属 R1 判定面，无写权限——落地由领队/作者角色代执行）；决策范围含 ISS-039（槽 15 跨窗恢复机制，A/B/C/D 见台账行）与 ISS-041（W 级停放语义、csrq 规则 4 迟到写）两项已推迟项——新口径下二者可先出 ADR，G1 前仍须闭合回写
+  - id: Q-017
+    task: 写 spec/05 时序与流水级细节（含 F2 `xw_carry` mux 时序专项——ADR-1 下游义务）
+    role: R1
+    basis: spec/03 成稿+ADR-1（ISS-039）下游义务；计划轮 W-4→W-5 序
+    done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/04 §② 计划快照）；每篇独立走 §9.4 两档复核
+    state: ready
+    priority: P2
+    depends_on: [Q-002]
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+  - id: Q-018
+    task: 写 spec/06 访存与 cache 层次
+    role: R1
+    basis: 计划轮篇序 05→06
+    done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/04 §② 计划快照）；每篇独立走 §9.4 两档复核
+    state: ready
+    priority: P2
+    depends_on: [Q-017]
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+  - id: Q-019
+    task: 写 spec/07 forwarding（G1 高风险篇：单拍可实现性）
+    role: R1
+    basis: 计划轮篇序 06→07；G1 高风险必人读
+    done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/04 §② 计划快照）；每篇独立走 §9.4 两档复核
+    state: ready
+    priority: P2
+    depends_on: [Q-018]
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+  - id: Q-020
+    task: 写 spec/10 特权与 CSR（G1 高风险篇；含锁定 1.13 的"规范版本声明"三段式——ISS-007 ADR）
+    role: R1
+    basis: 计划轮"10 提前过 08/09"；ISS-007 ADR 下游义务
+    done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/04 §② 计划快照）；每篇独立走 §9.4 两档复核
+    state: ready
+    priority: P2
+    depends_on: [Q-019]
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+  - id: Q-021
+    task: 写 spec/08 访存一致性/VM（Sv39）
+    role: R1
+    basis: 计划轮篇序 10→08
+    done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/04 §② 计划快照）；每篇独立走 §9.4 两档复核
+    state: ready
+    priority: P2
+    depends_on: [Q-020]
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+  - id: Q-022
+    task: 写 spec/09 L1I/L1D 与取指粒度（含 `slot16_vld` 回退点对照——ISS-045 条件）
+    role: R1
+    basis: 计划轮篇序 08→09；ISS-045 条件②
+    done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/04 §② 计划快照）；每篇独立走 §9.4 两档复核
+    state: ready
+    priority: P2
+    depends_on: [Q-021]
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+  - id: Q-023
+    task: 写 spec/11 SVA 与 lint 规则（落 §7 断言 A1~A20 的语句与绑定）
+    role: R1
+    basis: 计划轮篇序 09→11；A20 编号在此汇总
+    done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/04 §② 计划快照）；每篇独立走 §9.4 两档复核
+    state: ready
+    priority: P2
+    depends_on: [Q-022]
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+  - id: Q-024
+    task: 写 spec/12 参数与配置区间（与 Q-011 色标联动）
+    role: R1
+    basis: 计划轮篇序 11→12
+    done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/04 §② 计划快照）；每篇独立走 §9.4 两档复核
+    state: ready
+    priority: P2
+    depends_on: [Q-023]
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+  - id: Q-025
+    task: 写 spec/13 周期模型（含 ISS-012 的 C/f 核验与 T1/T2 判定）
+    role: R1
+    basis: 计划轮篇序 12→13；ISS-012 ADR 下游义务
+    done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/04 §② 计划快照）；每篇独立走 §9.4 两档复核
+    state: ready
+    priority: P2
+    depends_on: [Q-024]
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+  - id: Q-026
+    task: 写 spec/14 接口冻结记录（含 §9.5 四段评审 list 首版——G1 材料）
+    role: R1
+    basis: 计划轮篇序 13→14；G1 签署物
+    done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/04 §② 计划快照）；每篇独立走 §9.4 两档复核
+    state: ready
+    priority: P2
+    depends_on: [Q-025]
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+  - id: Q-027
+    task: 平台 smoke 前置骨架（ModelSim-only 部分：tb 骨架 + filelist/tb.f + do/tcl 模板）
+    role: R4
+    basis: 计划轮 W-9；M3 路径
+    done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/04 §② 计划快照）；每篇独立走 §9.4 两档复核
+    state: ready
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
