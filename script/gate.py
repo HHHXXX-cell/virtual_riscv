@@ -18,6 +18,7 @@
              默认只列真信号（未展开项 + ≥10 的枢纽项），全表加 `--all`
   report     队列与门禁看板摘要
   escalate   把某条台账项打成"≤5 选项决策包"呈 R0（《AI进行IC开发验证工作流程》§5 格式）
+  attempts   派发失败计数（ISS-053）：attempts <Q-id> [--reset]；达 3 自动 blocked 转人
 
 依据：doc/项目开发流程.md §9.4（评审收敛两档制）、§12.1~12.4；
       《AI进行IC开发验证工作流程》v3.0 §6.1（评审收敛；该节 2026-09-23 由 v3.0 新建）；
@@ -267,6 +268,12 @@ def check_queue(rep):
                 rep.fail('queue-block', '%s 的 blocked_by 指向不存在台账项 %s' % (qid, b))
         if i.get('state') == 'done' and not str(i.get('landable', '')).strip():
             rep.fail('queue-landing', '%s 标 done 但 landable 为空（C1：无落点不算闭环）' % qid)
+    # ISS-053：attempts>0 却仍留 ready（“计了失败却仍在待派”）→ WARN 提醒人工确认；
+    # 非 FAIL：可能是计完手动重派成功后再回 ready，须人判，不自动改状态。
+    att = ['%s(attempts=%s)' % (x.get('id'), x.get('attempts'))
+           for x in items if (_qint(x.get('attempts')) or 0) > 0 and x.get('state') == 'ready']
+    if att:
+        rep.warn('queue-attempts-ready', '计了派发失败数却仍在待派（人工确认：转人 or 重派）：%s' % ', '.join(att))
     rep.ok('queue-schema', '队列 %d 项：ready=%d / blocked=%d / 评审中=%d / done=%d'
            % (len(items),
               sum(1 for i in items if i.get('state') == 'ready'),
@@ -587,6 +594,7 @@ def cmd_dispatch(_):
     rest = [i.get('id') for i in cand[1:]]
     if rest:
         print('后续可自决项：%s' % ', '.join(rest))
+    print('（若本次派发失败——空返回/超时/被拒——请执行 `python script/gate.py attempts %s` 递增）' % it.get('id'))
     return 0
 
 
@@ -1126,8 +1134,101 @@ def cmd_loop(_):
     return 3
 
 
+# ---------------------------------------------------------------- 派发失败计数（ISS-053 实装）
+def _queue_block(lines, qid):
+    """qid 所在项的行区间 [start, end)：`- id:` 行 → 下一 `- id:` 行；找不到返回 (None, None)。"""
+    marks = []
+    for j, l in enumerate(lines):
+        m = re.match(r'^\s*-\s*id\s*:\s*(\S+)\s*$', l.rstrip('\r\n'))
+        if m:
+            marks.append((j, m.group(1)))
+    for k, (j, v) in enumerate(marks):
+        if v == qid:
+            return j, (marks[k + 1][0] if k + 1 < len(marks) else len(lines))
+    return None, None
+
+
+def _line_ending(s):
+    return s[len(s.rstrip('\r\n')):]
+
+
+def cmd_attempts(argv):
+    """派发失败计数写入口（ISS-053）：此前全表 0 处 attempts、queue-attempts-cap 永不触发。
+    每失败一次 +1（--reset 置 0）；达 3 自动 state: blocked ＋ block_reason 转人。
+    写回＝逐行插入/替换，不重排、不改动其它行（保持 YAML 其余内容逐字节不变）。"""
+    args = [a for a in argv if not a.startswith('-')]
+    reset = '--reset' in argv
+    if len(args) != 1:
+        print('用法：gate.py attempts <Q-id> [--reset]（递增；达 3 自动置 blocked 转人；--reset 置 0）')
+        return 2
+    qid = args[0]
+    raw = io.open(QUEUE, encoding='utf-8', errors='replace', newline='').read()
+    nl = '\r\n' if '\r\n' in raw else '\n'
+    lines = raw.splitlines(True)
+    start, end = _queue_block(lines, qid)
+    if start is None:
+        print('队列无此项：%s（先核对 id，不得凭印象计数；未写盘）' % qid)
+        return 2
+
+    def find(pat):
+        for j in range(start + 1, end):
+            if re.match(pat, lines[j].rstrip('\r\n')):
+                return j
+        return None
+
+    def set_scalar(j, valstr):
+        m = re.match(r'^(\s*[A-Za-z_]+\s*:\s*)\S+([^\r\n]*)(\r?\n?)$', lines[j])
+        if not m:
+            return False
+        lines[j] = m.group(1) + valstr + m.group(2) + m.group(3)
+        return True
+
+    at_i = find(r'^\s*attempts\s*:')
+    cur = _qint(lines[at_i].split(':', 1)[1]) if at_i is not None else None
+    val = 0 if reset else (cur or 0) + 1
+    if at_i is not None:
+        if not set_scalar(at_i, str(val)):
+            print('attempts 行格式异常，未写盘：%r' % lines[at_i])
+            return 2
+    else:
+        a_i = find(r'^\s*review_rounds\s*:')
+        anchor = a_i if a_i is not None else start
+        lead = re.match(r'^\s*', lines[anchor]).group(0)
+        lines.insert(anchor + 1,
+                     lead + 'attempts: %d' % val + (_line_ending(lines[anchor]) or nl))
+        end += 1
+    note = ''
+    if val >= 3:
+        s_i = find(r'^\s*state\s*:')
+        s_cur = lines[s_i].split(':', 1)[1].strip() if s_i is not None else ''
+        if s_cur in ('blocked', 'fused'):
+            note = 'state 已是 %s（保持不动）' % s_cur
+        elif s_i is not None and set_scalar(s_i, 'blocked'):
+            note = 'state: %s → blocked' % s_cur
+        else:
+            note = 'state 行未找到：须人工置 blocked！'
+        reason = '"派发失败 3 次，转人"'
+        b_i = find(r'^\s*block_reason\s*:')
+        if b_i is not None:
+            set_scalar(b_i, reason)
+        else:
+            anchor = s_i if s_i is not None else start
+            lead = re.match(r'^\s*', lines[anchor]).group(0)
+            lines.insert(anchor + 1,
+                         lead + 'block_reason: %s' % reason + (_line_ending(lines[anchor]) or nl))
+        note += '；block_reason 已写（达上限须 escalate 转人，不得口头重派了事）'
+    with io.open(QUEUE, 'w', encoding='utf-8', newline='') as f:
+        f.write(''.join(lines))
+    print('== attempts：%s %s ⇒ %d ==' % (qid, 'reset' if reset else '+1', val))
+    if note:
+        print('  %s' % note)
+    print('  落盘：%s（逐行插入/替换，其余内容未动）；复验：python script/gate.py check' % QUEUE)
+    return 0
+
+
+
 CMDS = {'check': cmd_check, 'dispatch': cmd_dispatch, 'changed': cmd_changed, 'report': cmd_report,
-        'loop': cmd_loop, 'escalate': cmd_escalate,
+        'loop': cmd_loop, 'escalate': cmd_escalate, 'attempts': cmd_attempts,
         'snapshot': cmd_snapshot, 'rocheck': cmd_rocheck}
 
 

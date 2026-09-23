@@ -20,6 +20,7 @@
 #                 人可越权继续，但须在 cap_waiver 写明谁在何时批准，否则 gate 判 FAIL）
 #   cap_waiver    人批准的越权批文原文（缺省无）；有它时 review/full 两项轮次上限改打 *-waiver PASS
 #   decision_rounds 该项已派给 vr1-decider 的次数（缺省 0；**达 3 次即熔断转人**，不得继续消耗轮次）
+#   attempts      派发失败计数（缺省无即 0；每失败一次 +1，达 3 自动置 blocked 并写 block_reason 转人——ISS-053）
 #   landable      落实证据落点（done 项必填，"已接受/同意改"不算闭环——§6.1 C1）
 #
 # 领队循环协议（主会话 = 领队；子代理无法互相派发，故调度只能在此侧）：
@@ -29,6 +30,9 @@
 #   停止条件（只有三种）：全部 done → 呈 R0 做阶段出口判定（不得自称"项目完成"）；
 #   只剩被人工阻塞项 → escalate 后停；触熔断（评审 5 轮 / 决策 3 轮）→ 出决策包后停。
 #   绝不自动越过：P1~P4 四个签署点与 §12.3 三类必报项（红线 RA1/RA3）。
+#   派发失败的计数与转人（ISS-053 实装）：派发失败（空返回/超时/被拒）⇒ R8 **必须**执行
+#     `python script/gate.py attempts <Q-id>` 递增 attempts；达 3 ⇒ 自动 blocked 并转人
+#     （不得口头重派了事；FAIL 判据 queue-attempts-cap，对账 WARN queue-attempts-ready）。
 
 meta:
   version: v1.0
@@ -372,6 +376,7 @@ items:
     depends_on: []
     blocked_by: []
     review_rounds: 0
+    attempts: 0
     landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
   - id: Q-028
     task: 实施 ADR-4：`script/gate.py` 新增 `snapshot`/`rocheck`（完整性指纹 judge）＋规则 22 措辞同步
@@ -419,3 +424,37 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: 未开工；派发时给硬预算（目标时长、工具调用上限）与"查不完即列盲区"授权
+
+  - id: Q-032
+    task: ISS-053 实装——gate.py attempts 子命令（派发失败计数写入口）＋dispatch 尾行提示＋check 对账 WARN queue-attempts-ready＋队列头注与流程 §12.2 入文
+    role: R4
+    basis: doc/00 ISS-053；R0 派发词（2026-09-23）；doc/05 R-041
+    done_when: attempts 子命令可递增/复位且达 3 自动 blocked；dispatch 尾行提示；check ≥24 PASS / 0 FAIL 且新 WARN 不误报全表
+    state: done
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "script/gate.py 的 attempts 子命令＋queue-attempts-ready WARN 实跑（doc/05 R-041：Q-027 两次递增→2、--reset→0；副本探针达 3 → state: blocked＋block_reason；dispatch 尾行提示）；doc/项目开发流程.md §12.2"
+  - id: Q-033
+    task: D-13 §9.5 汇聚清单（④段材料，G1 前由人读）
+    role: R8
+    basis: doc/03 §0 D-13；各轮"需进 ④段"标注（ADR-1~3 注记 + R-5.1 + R-S2.1）
+    done_when: 条目数与各轮记录标注一致（可对账）；spec/14 首版并入 G1 签署材料
+    state: ready
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划 AI《驱动计划》派生项（D-13/D-14）；未开工
+  - id: Q-034
+    task: D-14 Q-004 终局全量复核轮（§9.4b：章节片 + 三纵片）
+    role: R1
+    basis: doc/03 §0 D-14；doc/项目开发流程.md §9.4/§9.4b
+    done_when: C2 判定成文（新增 0 + 旧问题全改 + 档位声明 + 取证范围自报）；纵片三项齐；"成立"→呈 R0
+    state: ready
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: 计划 AI《驱动计划》派生项（D-13/D-14）；未开工

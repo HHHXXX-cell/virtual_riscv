@@ -284,3 +284,9 @@
   - 未完成: ① 本片未经评审（送审由 R8 派）② `spec/01` §3.8 `iq_wr_t.isop`（行 277）与 §3.11 `disp_x_t.isop`（行 340）仅列位宽、无 `spec/02` 指针——按派发词未改，留痕 ③ T-2~T-16 中 11 项未动（T-3／T-4／T-7／T-8／T-10~T-16）、2 项部分推进（T-2／T-9），明细＝`spec/02` §14 ④ 保留段 937 组合的非法化路径归 `spec/10`（T-9）
   - 下一手: R8 核销本项并按《驱动计划》取队首；`spec/02` 送审时复核 §9.3 保留段两条硬规则与 §9.5 派生计数（28+48+2+1+8＝87）
 
+- [Q-032]（ISS-053 实装：attempts 从死代码到有写入口） 角色=vr1-verifier（R4/工具面） 日期=2026-09-23 轮次=1
+  - 产物: ① `script/gate.py` 新增 `attempts <Q-id> [--reset]` 子命令（逐行插入/替换写回；达 3 自动 `state: blocked`＋`block_reason` 转人）＋`dispatch` 尾行重派提示＋`check` 对账 WARN `queue-attempts-ready`（attempts>0 且 state=ready）② `run_cmd/AutoQueue.yaml` 头注字段行＋"派发失败的计数与转人"句＋Q-032 ③ `doc/项目开发流程.md` §12.2 计划引领制段加句 ④ `doc/05` R-041 ⑤ 本条交接
+  - 依据: R0 派发词（ISS-053：全表 0 处 attempts、queue-attempts-cap 永不触发＝死代码）；台账 `doc/00` ISS-053 行
+  - 机判: 终态 `python script/gate.py check` = ---- 24 PASS / 0 WARN / 0 FAIL ----；反证：副本探针 attempts=2 且 ready → WARN `queue-attempts-ready` 命中 1 条（0 FAIL），第 3 次 → `state: blocked`＋`block_reason` 自动写入、WARN 消隐；实跑 Q-027 递增 1→2、`--reset`→0，剥掉 attempts 行后与原始逐字节一致＝True
+  - 未完成: ① 本片未经评审（送审由 R8 派）② R0 指定的 `yaml.safe_load` 自检命令在存量文件上即失败（既有非严格 YAML：值以反引号起始；`git show HEAD` 版同样失败，非本次引入），是否统一修 YAML 建议单独立项 ③ `doc/04` 队列镜像如有需要由 R8 补 ④ attempts 仅人工入口（自动派发器未实装）
+  - 下一手: R8 跑 `python script/gate.py check`＋`dispatch` 核销 Q-032；此后派发失败一律先 `python script/gate.py attempts <Q-id>` 计数（达 3 转人，不得口头重派了事）
