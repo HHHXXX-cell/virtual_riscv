@@ -345,7 +345,7 @@ items:
     review_rounds: 0
     landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
   - id: Q-025
-    task: 写 spec/13 周期模型（含 ISS-012 的 C/f 核验与 T1/T2 判定）
+    task: 写 spec/13 周期模型（含 ISS-012 的 C/f 核验与 PT1/PT2 判定）
     role: R1
     basis: 计划轮篇序 12→13；ISS-012 ADR 下游义务
     done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/04 §② 计划快照）；每篇独立走 §9.4 两档复核
