@@ -330,5 +330,5 @@
   - 产物: ① `doc/04-验证进度.md` L65/L122（`T1/T2`→`PT1/PT2`；`T1/T5/T6`→`AB1/AB5/AB6`）② `run_cmd/AutoQueue.yaml` L348（`T1/T2`→`PT1/PT2`）③ `doc/spec/02-指令集与逐指令行为.md` `I2-n`→`SI-n` 31 处 ④ `doc/spec/04-重命名与乱序引擎.md` A9 更正（3 句＋4 处「由 A9 闭合」标注）⑤ `doc/05-回归记录.md` 新增 **R-052**（原拟 R-051，与并行会话撞号 ⇒ 按“后出现者后移”） ⑥ 本条
   - 依据: 派发词 D-14 落文遗留收口；`doc/05` R-049（F5/A9 裁定）与 R-050（残项清单）；`spec/01` §3.11/§3.19 现文（A9 落文对照）；全仓对账（改前命中 17 文件）
   - 机判: `python script/width_check.py` = 28 个 struct 可机器核对 28／不符 0／未能核实 0（转录基准行 2）；`python script/gate.py check` 收尾复跑＝---- 24 PASS / 1 WARN / 0 FAIL ----
-  - 未完成: ① T-04-5b（余 `spec/00` §4.4 行注落文）与 5c/5d 维持缺项 ② `S 写口`/`E 写口` 是否随 A9 更名未自裁 ③ 本片未经评审 ④ 转派：`doc/00` L31/L34/L51、`iss/README.md` L55、`iss/tools/trace_compare.py` L10/L64 的旧名引用（非本片写面）；⑤ 收尾复核注：末次 `gate check`＝---- 24 PASS / 1 WARN / 0 FAIL ----（FAIL＝无；WARN＝rare-chars(人工判)        低频字 1 个：竖）
+  - 未完成: ① T-04-5b（余 `spec/00` §4.4 行注落文）与 5c/5d 维持缺项 ② `S 写口`/`E 写口` 是否随 A9 更名未自裁 ③ 本片未经评审 ④ 转派：`doc/00` L31/L34/L51、`iss/README.md` L55、`iss/tools/trace_compare.py` L10/L64 的旧名引用（非本片写面）；⑤ 收尾复核注：末次 `gate check`＝---- 24 PASS / 1 WARN / 0 FAIL ----（FAIL＝无；WARN＝rare-chars(人工判)        低频字 1 个：（低频字））
   - 下一手: R8 核销并按《驱动计划》取队首；送审时复核三处改名分类、`spec/02` 自引用与 `spec/04`「由 A9 闭合」声明
