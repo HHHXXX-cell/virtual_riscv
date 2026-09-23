@@ -4,7 +4,7 @@
 #       `python script/gate.py check` → `dispatch` → 干活 → `report`，
 #       使"下一步做什么"不再依赖人的下一条指令，也不依赖某个会话的记忆。
 # 依据：doc/项目开发流程.md §12.1~12.4（人只在 P1~P4 介入）、
-#       《AI进行IC开发验证工作流程》v2.1 §1.3 阶段×角色矩阵、§6.1 评审收敛判据。
+#       《AI进行IC开发验证工作流程》v3.0 §1.3 阶段×角色矩阵、§6.1 评审收敛判据（§6.1 系 2026-09-23 v3.0 新建；此前为悬空引用）。
 # 字段约定（gate.py 逐条机判，缺项即 FAIL）：
 #   id            队列号，Q-xxx，全局唯一
 #   task          工作项（一句话）
@@ -28,7 +28,7 @@
 #        ③ 执行该动作 → 回填 state/done_when/landable → 回 ①
 #   停止条件（只有三种）：全部 done → 呈 R0 做阶段出口判定（不得自称"项目完成"）；
 #   只剩被人工阻塞项 → escalate 后停；触熔断（评审 5 轮 / 决策 3 轮）→ 出决策包后停。
-#   绝不自动越过：P1~P4 四个签署点与 §12.3 四类必报项（红线 RA1/RA5）。
+#   绝不自动越过：P1~P4 四个签署点与 §12.3 三类必报项（红线 RA1/RA3）。
 
 meta:
   version: v1.0
@@ -373,3 +373,26 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+  - id: Q-028
+    task: 实施 ADR-4：`script/gate.py` 新增 `snapshot`/`rocheck`（完整性指纹 judge）＋规则 22 措辞同步
+    role: R8
+    basis: doc/00 ISS-024 决策列（ADR-4 全文）；知识库 `virtual_test经验/05-门禁完整性基线实务.md` §2.1/§2.2/§2.4/§4
+    done_when: ① 两子命令可用且四分类输出（MODIFIED/ADDED/DELETED/MTIME-ONLY）（**B5 扩充**：另加 **长基线刷新硬规则六条**——仅处置轮开工写产物前每轮≤1 次／评审轮与 FAIL 轮后禁刷／只折"已进复核面"的改动集／执行者=R8／独立提交＋`doc/05` 留痕（旧→新指纹、折入集出处）／作不出折入集出处即作废回滚；并加 **`capability-landed` 判据**：规则承载件出现 `rocheck`/`integrity_baseline` 字样而实件不存在 ⇒ FAIL）② 快照 `script/gate/integrity_baseline.json` 入版本控制 ③ `AGENTS.md` 规则 22 措辞改"内容指纹窗口＋mtime 列 INFO＋新增/删除恒计" ④ 首轮实跑记实测耗时（写入 doc/05） ⑤ 按 §12.5 送 auditor 一次审核（非决定性）
+    state: ready
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: ADR-4 派生；未开工。范围写清：窗口制（含忽略区，仅排 `.git/`、`__pycache__/`）用于规则 22；长基线只覆盖受控目录集（每轮必改件不入）
+  # ---------- 收尾：口径漂移修正（2026-09-23 知识库同步轮回溯，R0 指令）----------
+  - id: Q-029
+    task: 修正口径漂移三处（ISS-049 未定义规则号残留活引用 / ISS-050 判据与必报项计数漂移 / ISS-051 知识库流程文档版本口径过期）
+    role: R8
+    basis: doc/00 ISS-049~051；知识库《AI进行IC开发验证工作流程》v3.0 §6.1/§8/§10
+    done_when: ① 脚本与队列内不再出现未定义规则号的活引用（历史记录/评审附件除外）② `AGENTS.md` 规则 23 不再写死判据项数（改以实跑输出为权威源）③ 必报项计数与流程文件一致（三类口径）④ 两处流程文档版本口径改 v3.0（并注明 §6.1 系 v3.0 新建）⑤ `python script/gate.py check` 0 FAIL
+    state: done
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "`AGENTS.md` 规则 23（计数改以实跑为权威源）；`script/gate.py` 头注释与 cmd_loop/cmd_escalate 打印串；`run_cmd/AutoQueue.yaml` 协议头；`doc/00` ISS-049~051（已解决）；`doc/04` 镜像 48→51；`doc/05` R-032；`gate.py check` 22 PASS / 0 WARN / 0 FAIL"

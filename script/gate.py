@@ -16,7 +16,7 @@
   escalate   把某条台账项打成"≤5 选项决策包"呈 R0（《AI进行IC开发验证工作流程》§5 格式）
 
 依据：doc/项目开发流程.md §9.4（评审收敛两档制）、§12.1~12.4；
-      《AI进行IC开发验证工作流程》v2.1 §6.1（评审收敛）；
+      《AI进行IC开发验证工作流程》v3.0 §6.1（评审收敛；该节 2026-09-23 由 v3.0 新建）；
       doc/AI角色与职责.md §2（角色与写边界）、§6.1（角色数封顶）。
 """
 import io
@@ -782,7 +782,7 @@ def cmd_loop(_):
               '`gate.py check`、`width_check.py` 输出一并写进派发词（评审者无执行工具，不给它跑脚本的权限）。')
         print('  ② 增量轮已"新增 0" → 本轮改派**终局全量复核轮**（读整篇，判 §6.1 C2 对全篇成立），'
               '并把该项 full_rounds 加 1。')
-        print('  ③ 全量轮已用 %d/%d：到限仍不收敛即置 fused 并 `gate.py escalate` 转 R0，不得默认通过（RA5）。'
+        print('  ③ 全量轮已用 %d/%d：到限仍不收敛即置 fused 并 `gate.py escalate` 转 R0，不得默认通过（红线 RA1/RA3）。'
               % (fr, FULL_ROUND_CAP))
         if str(i.get('cap_waiver', '')).strip():
             print('     **本项已持越权批文**（%s）——上限不挡继续；但批文不是免检：'
@@ -820,13 +820,13 @@ def cmd_loop(_):
         print('无可执行项，卡在：%s' % ', '.join(blockers))
         print('本轮派 vr1-decider 处理 %s（已决 %s 次，上限 %d）；' %
               (i['id'], i.get('decision_rounds', 0), DECIDE_CAP))
-        print('  它先查知识库/网络给建议；属 §12.3 四类必报项则第 0 次即转人。')
+        print('  它先查知识库/网络给建议；属 §12.3 三类必报项则第 0 次即转人。')
         print('  无论结论如何，须把该项 decision_rounds 加 1 并回写台账（计数不涨即视为空转）。')
         return 0
     print('**停下等人**：以下项被不可自决的问题阻塞，且决策轮次已用尽（上限 %d）：' % DECIDE_CAP)
     for i in pend:
         print('  %s  卡在 %s' % (i['id'], ', '.join(i.get('blocked_by') or []) or '-'))
-    print('请逐项跑：python script/gate.py escalate ISS-0xx  生成决策包。领队不得默认通过（RA1/RA5）。')
+    print('请逐项跑：python script/gate.py escalate ISS-0xx  生成决策包。领队不得默认通过（红线 RA1/RA3）。')
     return 3
 
 
