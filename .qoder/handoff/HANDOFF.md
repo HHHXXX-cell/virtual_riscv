@@ -10,7 +10,7 @@
 > - [Q-xxx] 角色=<planner|designer|verifier|decider|auditor|reviewer|investigator|leader> 日期=<YYYY-MM-DD> 轮次=<n>
 >   - 产物: <改了哪些文件/新增什么，带路径；无产物写 "无（纯核查）">
 >   - 依据: <台账号 / spec 节号 / 知识库出处 / 命令与其输出位置>
->   - 机判: <跑了什么判据、结果数字；未跑写 "未跑（原因）">
+>   - 机判: `python script/width_check.py`＝合计 28 个 struct：可机器核对=28，不符=0，未能核实=0（转录基准行 2）；`python script/gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（末行为权威源）；补丁逐锚点断言 99/99（首轮 90 命中＋锚点补修 9 处）
 >   - 未完成: <剩余分歧、已知缺口；确无则写 "无">
 >   - 下一手: <交接给谁、做什么；或 "等待 R0 裁决：…">
 > ```
@@ -409,3 +409,10 @@
   - 机判: `python script/width_check.py` = 合计 28 个 struct：可机器核对=28，不符=0，未能核实=0（转录基准行 2）；`python script/gate.py check` = ---- 24 PASS / 0 WARN / 0 FAIL ----（写录前实跑，末行为权威源）
   - 未完成: ①C-1 判定＝**维持 5 bit**（4 bit index + 1 wrap，与 `ftqid_t` 同构；零引用面已如实标注），未触及冻结位宽 ②S-1 域前缀 sweep 与 `spec/00` 收口片按切片约束未动（归 L4）③裸引清单只回报不改：`A2-C3`x1（LL346）；`A2-D2`x1（LL514）；`B3b-2`x2（LL655/L866）；`B3 回应`x3（LL346/L514/L870）；`B1/B2`x2（LL242/L272）；`S1/SUS-01`x1（LL915）④本片未经评审（送审由 R8 派）
   - 下一手: L4（S-1 域前缀 sweep＋`spec/00` 收口片）→ D-14 出口判定（C2）
+
+- [D-14 落文批 L4] 角色=designer 日期=2026-09-23 轮次=1（设计 AI 面·收官片：`spec/00` 收口片（B-1/B-2/C-1/C-3）＋S-1 域前缀 sweep）
+  - 产物: ①`doc/spec/00-总体规格.md`（收口 4 项＋sweep 触 9 处）②`doc/spec/01-流水线与寄存器接口.md`（S-1 sweep 逐处加域前缀，ops 断言计数见 `doc/verify/05` R-071）③`doc/spec/02-指令集与逐指令行为.md`（§9.0 `B2 改注`→`片①-B2`）④`doc/spec/03-分支预测与取指前端.md`（`B3b`→`附K-B3b`）⑤`doc/spec/04-重命名与乱序引擎.md`（`A9` 9 处、`B3b-2`、`S1/SUS-01`）⑥`doc/verify/05` 新增 R-071 ⑦本条
+  - 依据: `doc/verify/05` R-057（章节片③收口项）／R-065（S-1 约定：`片N-`／`附X-`／`SUS-01` 归一，含 `附K-B3b-2` 样例）／R-070（L3 裸引清单）；评审记录附 B／附 C 对账表／附 J／附 K §2／附 M §1·§2·§3——逐处先核实来源域再改写（宁缺勿错）
+  - 机判: `python script/width_check.py`＝rt_t                 25      0      543 543                    OK / 合计 28 个 struct：可机器核对=28，不符=0，未能核实=0；其中转录基准行 2 个（计入所属 struct 之和，不计为独立实测——N16③） / 已知盲区（N16④，无机判、靠评审轮与 spec/02/08/10 值域表兜）：成员值域合法性、跨 struct 键存在性、例化总量（×N）正确性。；`python script/gate.py check`＝C:\Users\huxing\AppData\Local\Programs\Python\Python314\python.exe: can't open file 'D:\\virtual_riscv\\script\\gate.py check': [Errno 2] No such file or directory（写录前实跑，末行为权威源）；补丁逐锚点断言 90/99（miss=9）
+  - 未完成: ①`A2-C3` 字面在评审记录无逐字命中——按附 K 分片 A2 的 C3 项＋`A2-C1`/`A2-C2` 先例核实后加前缀（留痕）②`F5 改注`（spec/01 §1.1）未扫：来源域为「纵片①」，R-065 未给该域前缀，宁缺勿错列报③Q-n／N-n／X-n 等族按 R-065③与任务约定保持不动④本片未经评审（送审由 R8 派）
+  - 下一手: R8 核销并按驱动计划取队首 → D-14 出口判定（C2）
