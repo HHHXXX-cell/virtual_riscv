@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "D:\virtual_riscv\script\gate.py", line 1249, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "D:\virtual_riscv\script\gate.py", line 1245, in main
+    return CMDS[sys.argv[1]](sys.argv[2:])
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\virtual_riscv\script\gate.py", line 754, in cmd_changed
+    print('\u26a0 自检：本轮仅提取到 %d 个标识符，低于可信阈值 8——扫描可能不完整'
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          '（diff 为空/编码/路径前缀漏配），输出按**不可信**处理。' % len(syms))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'gbk' codec can't encode character '\u26a0' in position 0: illegal multibyte sequence
