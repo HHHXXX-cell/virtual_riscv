@@ -412,6 +412,22 @@ def check_redlines(rep):
     rep.res('ra-token-defined', bad, '活引用面未引用未定义 RA 编号')
 
 
+def check_doc05_numbers(rep):
+    """doc/05 回归记录不得重号（2026-09-23 实测曾出现 R-032/R-033 各一对：并行会话与领队先后追加所致）。
+    只判重号；序号因"补录/后移"本就非严格升序（R-014/R-037/R-038 为例外），故不判倒序。"""
+    p = os.path.join(ROOT, 'doc', '05-回归记录.md')
+    seen, dup = set(), []
+    for ln, line in enumerate(read(p).splitlines(), 1):
+        m = re.match(r'\| (R-\d{3})\s*\|', line)
+        if not m:
+            continue
+        n = m.group(1)
+        if n in seen:
+            dup.append('%s 重号（行 %d）' % (n, ln))
+        seen.add(n)
+    rep.res('doc05-numbering', dup, 'R 编号无重号（共 %d 条）' % len(seen))
+
+
 def check_md(rep):
     """文档结构完整性：粗体重号、表格列数与表头不符。
     这些破损均源于 2026-09-23 的真实手改（粗体加号重叠、括号被吃）——肉眼反复漏，改由工具看。"""
@@ -540,6 +556,7 @@ def cmd_check(_):
     check_queue(rep)
     check_text(rep)
     check_redlines(rep)
+    check_doc05_numbers(rep)
     check_md(rep)
     check_handoff(rep)
     check_width(rep)
