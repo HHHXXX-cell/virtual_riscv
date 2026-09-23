@@ -59,6 +59,13 @@
   - 未完成: `doc/AI角色与职责.md` §2 仍按 R5/R6/R7 三个独立职责面描述，与“5 份子代理定义”不一致（一人可持多顶帽子，映射已写进 `AutoQueue.yaml` 头部协议块）；该文件属流程定义，待人批后同步；`vr1-decider` 仍需重开会话才进派发列表
   - 下一手: 领队按 `gate.py loop` 继续推 Q-004 的机械可确定批（`rob_alloc_t`/`wb_t`/`rt_t` 三处声明值改正 + 下游引用同步）
 
+- [D-9] 角色=designer 日期=2026-09-23 轮次=1
+  - 产物: `doc/spec/00-总体规格.md` §4.8 四行重算（TAGE / L1D / L2 / 合计，4 insertions / 4 deletions，`git diff --stat` 实测只动这四行）；`doc/05-回归记录.md` 新增 R-035；本条 HANDOFF 记录
+  - 依据: ADR-S2（判"未达标"三行＋合计行的 `≈`/残式）；`spec/00` §4.1（`PA_BITS` 44）／§4.2（`TAGE_TABLES`/`TAGE_ENTRIES_EA`/`TAGE_TAG_W`/`TAGE_CTR_W`/`TAGE_USEFUL_W`/`TAGE_BASE_ENTRIES`）／§4.6（`L1_SETS`/`L1_WAYS`/`L1_LINE`/`L2_SIZE`/`L2_WAYS`/`L2_LINE`）；落点 `doc/05` R-035
+  - 机判: `python script/width_check.py` 28 个 struct 可机器核对 28 / 不符 0 / 未能核实 0（基准行 2）；`python script/gate.py check` **23 PASS / 0 WARN / 0 FAIL**；§4.8 内 `≈`/`…` 计数 0；四行算术逐式复算（`python -c`）TAGE 133,120 / L1D 279,552 / L2 2,228,224 / 合计 2,968,772
+  - 未完成: **三处 待锚点**（定义篇缺位域表，本轮未自造字段）：①`spec/03` 未建 ⇒ TAGE 条目完整位域、SC 权重阵列/ITTAGE/RAS 计入口径；②`spec/09` 未建 ⇒ L1D 替换位与字节有效/dirty 形态；③`spec/09` 未建 ⇒ L2 替换位与 non-inclusive 目录位。另：合计行仍为"表内 12 行之和"（未含 BTB/RAS/TLB/MSHR/SC/ITTAGE）
+  - 下一手: `vr1-planner`（驱动计划下一项）或 `vr1-decider`——若要把三处 `待锚点` 转为已锚定，须先建 `spec/03`/`spec/09` 的条目位域表；本行数值在定义篇落地后需同步复算
+
 - [Q-004] 角色=leader 日期=2026-09-23 轮次=4
   - 产物: Q-004 由 fused 改回 in_progress（人已选定 A 方案，熔断前提解除）；`gate.py` 删掉自造假阳词“计数脉”（它在 spec/01 里是“计数脉冲”的前三字）
   - 依据: 人的选择（A：先机器算差异表→逐条返工→纯复核轮）；`gate.py check` 实跑输出
