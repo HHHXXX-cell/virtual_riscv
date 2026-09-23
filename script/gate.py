@@ -93,6 +93,13 @@ def parse_ledger():
     return txt, rows, declared or {}, pend_ids
 
 
+RA_DEFINED = {1, 2, 3, 4}
+RULE_FILES = ['AGENTS.md', os.path.join('doc', '项目开发流程.md'),
+              os.path.join('doc', 'AI角色与职责.md'),
+              os.path.join('.qoder', 'agents', 'vr1-auditor.md'),
+              os.path.join('.qoder', 'agents', 'vr1-decider.md')]
+
+
 def check_ledger(rep):
     txt, rows, declared, pend_ids = parse_ledger()
     ids = sorted(int(k) for k in rows)
@@ -345,6 +352,24 @@ def check_text(rep):
         rep.warn('rare-chars(人工判)', '低频字 %d 个：%s' % (len(once_all), ' '.join(once_all[:14])))
 
 
+def check_redlines(rep):
+    """规则文件不得引用未定义的 RA 编号（防"引用悬空"回流）。
+    RA1~RA4 出自知识库《AI进行IC开发验证工作流程》§8；2026-09-23 全库 grep 实证**库内没有 RA5**，
+    而本项目曾四处按"RA1/RA5"引用它——R0 当日后决定：全部移除、**不新设**该编号（doc/00 ISS-048）。
+    只扫**规则承载件**（本文件、流程文件、角色表、两个子代理章程）：台账/评审记录/回归记录里
+    允许出现该字样——那些是"已移除"的事后记载，不是引用。"""
+    bad = []
+    for rel in RULE_FILES:
+        p = os.path.join(ROOT, rel)
+        if not os.path.exists(p):
+            bad.append('%s: 规则承载件不存在' % rel)
+            continue
+        for m in re.finditer(r'RA(\d+)', read(p)):
+            if int(m.group(1)) not in RA_DEFINED:
+                bad.append('%s: 引用未定义的 RA%s（知识库只定义 RA1~RA4）' % (rel, m.group(1)))
+    rep.res('ra-token-defined', bad, '规则文件未引用未定义 RA 编号')
+
+
 def check_md(rep):
     """文档结构完整性：粗体重号、表格列数与表头不符。
     这些破损均源于 2026-09-23 的真实手改（粗体加号重叠、括号被吃）——肉眼反复漏，改由工具看。"""
@@ -472,6 +497,7 @@ def cmd_check(_):
     check_board(rep)
     check_queue(rep)
     check_text(rep)
+    check_redlines(rep)
     check_md(rep)
     check_handoff(rep)
     check_width(rep)
