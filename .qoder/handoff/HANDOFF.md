@@ -256,3 +256,10 @@
   - 未完成: ① `ra-token-defined` 扫描面是否扩至工具/队列/交接件——属监督通道自身改动，未自决、待批（本轮只登记 ISS-049 的判据盲区）② `HANDOFF`/`doc/05` 旧行与评审附件中的旧字样按"记录不改写"保留
   - 下一手: 领队按 `gate.py loop` 取队首（Q-029 已 done，landable 见队列项）；`ra-token-defined` 扩面与否等待 R0 裁决
 
+- [Q-030] 角色=leader 日期=2026-09-23 轮次=2（判据扩面：ra-token-defined 活引用面）
+  - 产物: ① `script/gate.py`：新增 `RA_LIVE_FILES`（规则承载件＋本工具＋`run_cmd/AutoQueue.yaml` 全件）与行级豁免标记 `RA_RECORD_EXEMPT`；新增 `_ra_live_lines()`（HANDOFF 只取最后一条记录的未完成/下一手）；判据自述段去编号字样 ② `doc/00` ISS-052（已解决，附双向验证）＋状态总览 52 条（3/23/26）③ `doc/04` 镜像同步 ④ `run_cmd/AutoQueue.yaml` 新增 Q-030（done）与 Q-031（ready，送审）⑤ `doc/05` R-033
+  - 依据: R0 2026-09-23 裁定"选 A"；`doc/00` ISS-049（盲区实证：本工具 2 处、交接件历史记录 12 处会假阳）；纪律"判据变更＝监督通道自身改动须人批"
+  - 机判: `python script/gate.py check` **22 PASS / 0 WARN / 0 FAIL**；双向验证：注入未登记编号 → 1 FAIL、加豁免标记 → PASS、撤除 → PASS 且 sha256 还原一致
+  - 未完成: ① 送审 Q-031（R6，非决定性）未跑 ② 记录面（台账/回归记录/评审记录/交接件历史记录）按设计继续豁免——覆盖面收窄处已在本记录与 ISS-052 显式声明
+  - 下一手: 派 Q-031 给 R6 做一次非决定性审核（按规则 22 附仓库清单比对＋mtime 窗口）；其余按 `gate.py loop` 取队首
+

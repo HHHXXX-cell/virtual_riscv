@@ -98,6 +98,11 @@ RULE_FILES = ['AGENTS.md', os.path.join('doc', '项目开发流程.md'),
               os.path.join('doc', 'AI角色与职责.md'),
               os.path.join('.qoder', 'agents', 'vr1-auditor.md'),
               os.path.join('.qoder', 'agents', 'vr1-decider.md')]
+# 活引用面（2026-09-23 R0 批扩面）：规则承载件 + 工具/队列**全件**；HANDOFF 只取**最后一条记录**的
+# 未完成/下一手（最新交接面，其下均为快照记录）。依据：ISS-049 实证——工具打印串与队列协议头
+# 曾残留未定义编号，而旧扫描面（仅 RULE_FILES）不覆盖 ⇒ 靠人工回头核查才发现。
+RA_LIVE_FILES = RULE_FILES + ['script/gate.py', os.path.join('run_cmd', 'AutoQueue.yaml')]
+RA_RECORD_EXEMPT = '记录不改写'   # 行级豁免标记：行内含它即跳过（记录性出现须逐行显式标注理由）
 
 
 def check_ledger(rep):
@@ -352,22 +357,52 @@ def check_text(rep):
         rep.warn('rare-chars(人工判)', '低频字 %d 个：%s' % (len(once_all), ' '.join(once_all[:14])))
 
 
-def check_redlines(rep):
-    """规则文件不得引用未定义的 RA 编号（防"引用悬空"回流）。
-    RA1~RA4 出自知识库《AI进行IC开发验证工作流程》§8；2026-09-23 全库 grep 实证**库内没有 RA5**，
-    而本项目曾四处按"RA1/RA5"引用它——R0 当日后决定：全部移除、**不新设**该编号（doc/00 ISS-048）。
-    只扫**规则承载件**（本文件、流程文件、角色表、两个子代理章程）：台账/评审记录/回归记录里
-    允许出现该字样——那些是"已移除"的事后记载，不是引用。"""
-    bad = []
-    for rel in RULE_FILES:
+def _ra_live_lines():
+    """返回 [(显示名, 行号, 行文本)]：只含"活引用面"的行。
+    规则承载件与工具/队列取全件；HANDOFF 只取**最后一条记录**的"未完成/下一手"两字段
+    （最新交接面＝活指令；记录内其余字段与更早记录均属快照，按"记录不改写"免扫）。"""
+    out = []
+    for rel in RA_LIVE_FILES:
         p = os.path.join(ROOT, rel)
         if not os.path.exists(p):
+            out.append((rel, 0, '<<MISSING>>'))
+            continue
+        for ln, line in enumerate(read(p).splitlines(), 1):
+            out.append((rel, ln, line))
+    if os.path.exists(HANDOFF):
+        lines = read(HANDOFF).splitlines()
+        idx = [i for i, l in enumerate(lines) if l.startswith('- [Q-')]
+        if idx:
+            key = None
+            for ln, line in enumerate(lines[idx[-1]:], idx[-1] + 1):
+                m = re.match(r'- (产物|依据|机判|未完成|下一手)[：:]', line.strip())
+                if m:
+                    key = m.group(1)
+                if key in ('未完成', '下一手'):
+                    out.append(('.qoder/handoff/HANDOFF.md(最新记录)', ln, line))
+    return out
+
+
+def check_redlines(rep):
+    """活引用面不得引用未定义的 RA 编号（防"引用悬空"回流）。
+    RA1~RA4 出自知识库《AI进行IC开发验证工作流程》§8；库内未定义更多编号
+    （2026-09-23 两次实证：ISS-048 规则承载件 7 处、ISS-049 工具/队列 3 处——
+    后者的旧扫描面盲区由 ISS-052 的人批扩面闭合）。
+    扫描面＝规则承载件 + `script/gate.py` + `run_cmd/AutoQueue.yaml` 全件，
+    加 HANDOFF **最后一条记录**的"未完成/下一手"（最新交接面）。
+    记录面豁免：台账/回归记录/评审记录/HANDOFF 历史记录——那些是"已移除"的事后记载，不是引用；
+    行级豁免标记 `记录不改写` 供个别例外逐行显式标注（沿用 codepoints 判据的先例）。"""
+    bad = []
+    for rel, ln, line in _ra_live_lines():
+        if line == '<<MISSING>>':
             bad.append('%s: 规则承载件不存在' % rel)
             continue
-        for m in re.finditer(r'RA(\d+)', read(p)):
+        if RA_RECORD_EXEMPT in line:
+            continue
+        for m in re.finditer(r'RA(\d+)', line):
             if int(m.group(1)) not in RA_DEFINED:
-                bad.append('%s: 引用未定义的 RA%s（知识库只定义 RA1~RA4）' % (rel, m.group(1)))
-    rep.res('ra-token-defined', bad, '规则文件未引用未定义 RA 编号')
+                bad.append('%s:%d 引用未定义的 RA%s（知识库只定义 RA1~RA4）' % (rel, ln, m.group(1)))
+    rep.res('ra-token-defined', bad, '活引用面未引用未定义 RA 编号')
 
 
 def check_md(rep):

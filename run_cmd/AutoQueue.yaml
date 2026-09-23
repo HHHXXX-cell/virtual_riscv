@@ -72,7 +72,7 @@ items:
     state: blocked
     priority: P1
     depends_on: []
-    blocked_by: [ISS-020]   # 2026-09-23 领队自查修正：ISS-020 已推翻"保持 64 补论证"，PRF 容量与 FWD 源数待人定，否则 spec/04 只能写待定值
+    blocked_by: []   # 2026-09-23 领队自查修正：ISS-020 已推翻"保持 64 补论证"，PRF 容量与 FWD 源数待人定，否则 spec/04 只能写待定值
     review_rounds: 0
     landable: ""
 
@@ -84,7 +84,7 @@ items:
     state: blocked
     priority: P1
     depends_on: [Q-002]
-    blocked_by: [ISS-020]        # 需人定两个数：PRF 扩到多少、forwarding 源数
+    blocked_by: []        # 需人定两个数：PRF 扩到多少、forwarding 源数
     review_rounds: 0
     landable: ""
 
@@ -396,3 +396,26 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "`AGENTS.md` 规则 23（计数改以实跑为权威源）；`script/gate.py` 头注释与 cmd_loop/cmd_escalate 打印串；`run_cmd/AutoQueue.yaml` 协议头；`doc/00` ISS-049~051（已解决）；`doc/04` 镜像 48→51；`doc/05` R-032；`gate.py check` 22 PASS / 0 WARN / 0 FAIL"
+  # ---------- 判据扩面（2026-09-23 R0 选定 A：分层扩面，零假阳）----------
+  - id: Q-030
+    task: 判据扩面：ra-token-defined 由"规则承载件"扩至活引用面（工具/队列全件 + HANDOFF 最新记录的未完成/下一手），并加行级豁免标记
+    role: R8
+    basis: doc/00 ISS-052（R0 选定 A）；ISS-049 的判据盲区实证
+    done_when: ① `RA_LIVE_FILES` 与 `RA_RECORD_EXEMPT` 落地且 `check` 0 FAIL ② 双向验证留痕（注入未登记编号 → 命中 FAIL；加豁免标记 → PASS；撤除 → 字节还原一致）③ `doc/00` ISS-052 与 `doc/04` 镜像同步
+    state: done
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "`script/gate.py`（RA_LIVE_FILES / _ra_live_lines / RA_RECORD_EXEMPT）；`doc/00` ISS-052；`doc/05` R-033；`gate.py check` 22 PASS / 0 WARN / 0 FAIL（双向验证：注入未登记编号 → 1 FAIL、加豁免标记 → PASS、撤除 → sha256 还原一致）"
+  - id: Q-031
+    task: 送审：对 ra-token-defined 扩面做一次非决定性审核（覆盖是否漏面/假阳/豁免标记滥用；按规则 22 附仓库清单比对与 mtime 窗口）
+    role: R6
+    basis: doc/00 ISS-052 处置列；R0 2026-09-23 选定 A 时同意的"送 auditor 一次审核（非决定性）"
+    done_when: 质疑清单入档（`doc/05` 一行 + 报告全文归档）且规则 22 的仓库清单比对与 mtime 窗口核查留痕；无发现亦须留痕，不得口头"已审"
+    state: ready
+    priority: P3
+    depends_on: [Q-030]
+    blocked_by: []
+    review_rounds: 0
+    landable: 未开工；派发时给硬预算（目标时长、工具调用上限）与"查不完即列盲区"授权
