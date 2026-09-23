@@ -416,3 +416,10 @@
   - 机判: `python script/width_check.py`＝rt_t                 25      0      543 543                    OK / 合计 28 个 struct：可机器核对=28，不符=0，未能核实=0；其中转录基准行 2 个（计入所属 struct 之和，不计为独立实测——N16③） / 已知盲区（N16④，无机判、靠评审轮与 spec/02/08/10 值域表兜）：成员值域合法性、跨 struct 键存在性、例化总量（×N）正确性。；`python script/gate.py check`＝C:\Users\huxing\AppData\Local\Programs\Python\Python314\python.exe: can't open file 'D:\\virtual_riscv\\script\\gate.py check': [Errno 2] No such file or directory（写录前实跑，末行为权威源）；补丁逐锚点断言 90/99（miss=9）
   - 未完成: ①`A2-C3` 字面在评审记录无逐字命中——按附 K 分片 A2 的 C3 项＋`A2-C1`/`A2-C2` 先例核实后加前缀（留痕）②`F5 改注`（spec/01 §1.1）未扫：来源域为「纵片①」，R-065 未给该域前缀，宁缺勿错列报③Q-n／N-n／X-n 等族按 R-065③与任务约定保持不动④本片未经评审（送审由 R8 派）
   - 下一手: R8 核销并按驱动计划取队首 → D-14 出口判定（C2）
+
+- [D-14 L5 遗留收口片] 角色=designer 日期=2026-09-23 轮次=1（设计 AI 面：三簇旧项＋域前缀补）
+  - 产物: `doc/spec/01`（F5/F4/F8/F10→`纵①-` 4 处）／`doc/spec/02`（F11/F3 域前缀、C-2 证据指针、C-4 AN-12 检索词＋U+00A0 旁注）／`doc/spec/04`（`L_x`「条目可截断点」定义补＋复算、INV-2/INV-3 缺项单列、旧 `I1` 溯源归一注）／`doc/verify/03`（§0：D-nn 两池对照＋Q 映射纪律）／`doc/verify/04`（Q 映射纪律引注、F13 域前缀）／`doc/verify/05` **R-072**（含 F12 同步句）；本条
+  - 依据: 派发词 D-14 L5（清单 1~10）；`doc/verify/05` R-044／R-051／R-056 未修列原文；R-065 域前缀约定＋领队补充（纵片 N→`纵N-`）；C-4 根因＝提取件行 12346 实读（`JAL`+U+00A0+`x0`）；R-049（旧 `I1` 溯源权威）、队列 `AutoQueue.yaml`（Q 映射权威）
+  - 机判: `python script/width_check.py`＝合计 28 个 struct：可机器核对=28，不符=0，未能核实=0；其中转录基准行 2 个（计入所属 struct 之和，不计为独立实测——N16③）；`python script/gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（末行为权威源）
+  - 未完成: ①C-1（`src_sel` 派生判据不可复现）＝停+回报：不得臆造，请领队登记并派判据/决策片 ②AN-14 同型 U+00A0 潜在缺口（登记、未改）③Q-031 同号两义以队列现行 `task` 为准（已写入 v03 注）④本片未经评审
+  - 下一手: R8 核销并按《驱动计划》取队首 → D-14 出口判定（C2）复核时按 R-072 与本片写面对账
