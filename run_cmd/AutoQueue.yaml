@@ -458,7 +458,7 @@ items:
     blocked_by: []
     review_rounds: 0
     # 2026-09-23 R0 明示恢复（doc/verify/05 R-062）：blocked 解除；r17 基线已立
-    landable: 章节片①~⑤＋纵片①②③已跑；D1/D2＋L1~L6＋A1/A2＋r18 基线＋D3/D4＋L7＋A3 均已回收（附 M/N/O/P；ISS-057~061）；**D5 决策片回收**（ADR-D5-①~③，R-080：三次严格判据＋同级吸收／`ckpt_pend_v` 点火集合显式化＋被杀路径补发点火／`rob_head_id`/`rob_head_type` 绑定）；**下一手：L8 微落文（D5 三项＋澄-L7-3 §8.1 引件口径）→ width/gate 复跑 → A4 增量复核（窄，基线＝L8 提交）→ A5 终局全量（C2 判定呈 R0）**
+    landable: 全链进展——章①~⑤＋纵①~③（附 M）→ A1/A2（附 N/O）→ D1~D5 五决策批（ADR-B1~B9/D3-①~⑤/D4-①~④/D5-①~③）→ L1~L8 落文批 → 增量复核 A1/A3/A4（附 N/P/Q）；**L8 完成**（R-081：10/10 锚点）；**A4 窄复核回收**（R-082／附 Q：11/11 通过、0 阻塞、0 存疑、1 低烈度澄清判非阻塞）；**下一手：A5 终局全量复检（读整篇 spec/01，C2＝新增 0＋旧问题全改的判定成文）→ 呈 R0（门禁权在人）**
 
   - id: Q-035
     task: doc/ 分类改造（R0 指令）：验证→doc/verify/、设计→doc/design/、评审→doc/review/、台账→doc/process/；spec 原地
