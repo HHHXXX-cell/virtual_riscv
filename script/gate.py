@@ -432,7 +432,10 @@ def check_doc05_numbers(rep):
         if n in seen:
             dup.append('%s 重号（行 %d）' % (n, ln))
         seen.add(n)
-    rep.res('doc05-numbering', dup, 'R 编号无重号（共 %d 条）' % len(seen))
+    bad_fmt = [l.split('|')[1].strip() for l in read(p).splitlines()
+               if l.startswith('| R-') and not re.match(r'\| R-\d{3} \|', l)]
+    dup += ['格式非法：%s' % x for x in bad_fmt]
+    rep.res('doc05-numbering', dup, 'R 编号无重号且格式合法（共 %d 条）' % len(seen))
 
 
 def check_md(rep):
