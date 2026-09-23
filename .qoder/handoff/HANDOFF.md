@@ -388,3 +388,10 @@
   - 机判: 未跑（无执行工具）；锚点口径已声明＝构造性论证＋既有正文（**外部实现锚缺失**，库内无 BOOM 类乱序核）
   - 未完成: ①P7 在途寄存器去留、B-8② 措辞冻结归落文轮 ②`ROLLBACK_MAX=33` 与 §5.2"上界＝`ROB_ENTRIES`"两口径并存待 B-5 落文时同步复核 ③建议断言两条（活性 ≤6 拍／`flush_apply \|=> ckpt_pend_v==0`）编号待 `spec/11` 定稿 ④四项须进 §9.5 ④段
   - 下一手: R8 核销 → **L1 落文片**（`spec/01` §5.2/§5.3/§4 BP2 句/§7＋`spec/00` §4.3 注；**B-1 与 B-8① 必须同批**）→ 复跑 width/gate → 审核 AI 按 §12.5 一次决策审核
+
+- [D-14 落文批 L1] 角色=design 日期=2026-09-23 轮次=1（设计 AI 面：D1 四 ADR（B-1/B-2/B-3/B-8）＋B-5＋B-9 落 `spec/01`；`spec/00` §4.3 注最小回写）
+  - 产物: ①`doc/spec/01-流水线与寄存器接口.md`（7 处补丁：§2 `ckpt_t`／§4 BP2／§5.2 恢复点表与延迟 bullet／§5.3 三段／§7 A4+A6）②`doc/spec/00-总体规格.md`（仅 §4.3 `ROLLBACK_MAX` 行注）③`doc/verify/05` **R-068** ④本文件
+  - 依据: `doc/verify/05` R-067（D1 四 ADR 全文）＋R-066（ADR-B9）；评审记录附 M（B-1~B-9）；数值引 `spec/00` §4.3（`HIST_DEPTH=33`/`CHECKPOINT_COPIES=4`/`ROLLBACK_MAX=33`）；先验后写、逐锚点唯一命中
+  - 机判: `python script/width_check.py`＝合计 28 个 struct：可机器核对=28，不符=0，未能核实=0；其中转录基准行 2 个（计入所属 struct 之和，不计为独立实测——N16③）；`python script/gate.py check`＝---- 24 PASS / 1 WARN / 0 FAIL ----（WARN＝rare-chars 人工判：`崖`，出处＝doc/verify/05-回归记录.md:148）；残留扫描 `rob_near_full_d`/`CHECKPOINT_NUM`＝仅「已删/作废」说明注 3 处
+  - 未完成: ①L2（B-4/B-6/B-7）与 C-1~C-4 文本类按切片约束未动（防切片相撞）②D1 四项按 §12.5 送审并入下一轮审核片 ③`spec/04` 联动公式（`K`/`K_stall`/栈深复核）归后续篇；建议断言两条编号待 `spec/11`
+  - 下一手: L2 落文批（B-4/B-6/B-7）→ C-1~C-4 文本类 → `spec/00` 收口片 → D-14 出口判定（C2）
