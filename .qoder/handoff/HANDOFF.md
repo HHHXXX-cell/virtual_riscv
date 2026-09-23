@@ -346,3 +346,10 @@
   - 机判: `python script/gate.py check` = **24 PASS / 0 WARN / 0 FAIL**；`python script/path_audit.py --fix` = 缺失路径 0 / 骨架缺失 0 / 无占位 0；旧路径残留扫描 = 0 处
   - 未完成: ① 长基线 `integrity_baseline.json` 中探针 30 件的路径键随迁移失效，须按 ADR-4 走 `snapshot --refresh --reason`（先跑 `rocheck --baseline` 取证，再重折）② 本片未经评审（R8 自改自留痕，送审时校验清扫面与冻结件零改动）
   - 下一手: R8 继续按《驱动计划》取队首：`spec/02` 收口片（B-1/B-2/B-3 + C-3/C-5）与章节片⑤（`spec/01` §2/§4/§5/§7/§8），其后 `spec/00` 收口片 → D-14 出口判定
+
+- [Q-035] 角色=leader 日期=2026-09-23 轮次=1（更正 Q-035#1：收尾补漏与长基线已知差异）
+  - 产物: ① 残留补扫：`script/tmp/README.md`（2 处）、`sim/covdb/README.md`（5 处）——上轮清扫的 `SKIP_DIRS` 口径把这两个受控文档也跳过了 ② 取证件归档 `doc/review/00-doc分类改造探针/`（READ ME＋脚本 5＋输出 3）③ `doc/verify/05` R-060
+  - 依据: 全仓残留扫描（不设目录跳过）；`doc/verify/05` R-059 的折入集出处；规则 22（探针须入受版本控制证据目录）
+  - 机判: `gate.py check` = 24 PASS / 0 WARN / 0 FAIL；残留扫描 = 3 文件 19 处且**全部在豁免面内**；`rocheck --baseline` = MODIFIED 1（见下，预期）
+  - 未完成: **长基线预期差异 1 件**（`sim/covdb/README.md`）：本轮刷新已用满 ≤1 次/轮，该补修在其后发生 ⇒ 下轮处置开工时折入，**不得为抹差异而重刷**
+  - 下一手: 同 Q-035 原条——R8 按《驱动计划》取队首：章节片⑤（`spec/01` §2/§4/§5/§7/§8）与 `spec/02` 收口片（B-1/B-2/B-3 + C-3/C-5）

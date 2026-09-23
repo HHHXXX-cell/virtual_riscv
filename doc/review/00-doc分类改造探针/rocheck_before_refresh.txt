@@ -1,0 +1,7 @@
+== rocheck --baseline（基线 sha256:77efa13c73b0c69b80e38c5290de0150c790ddde49f98ac2176acfe4dfb63ad7，生成于 2026-09-23T17:28:47）==
+  基线文件 88 / 现态文件 98
+  MODIFIED           8  iss/README.md iss/tests/probes/README.md iss/tests/test_isa_semantics.py iss/tools/trace_compare.py iss/vriss/consts.py iss/vriss/encode.py iss/vriss/mem.py iss/vriss/trace.py
+  ADDED             40  doc/review/01-评审探针/machine_r10_changed_all.txt doc/review/01-评审探针/machine_r10_check.txt doc/review/01-评审探针/machine_r10_width.txt doc/review/01-评审探针/machine_r11_changed_all.txt doc/review/01-评审探针/machine_r11_check.txt doc/review/01-评审探针/machine_r11_width.txt doc/review/01-评审探针/machine_r12_changed_all.txt doc/review/01-评审探针/machine_r12_check.txt …
+  DELETED           30  doc/spec/01-评审探针/machine_r10_changed_all.txt doc/spec/01-评审探针/machine_r10_check.txt doc/spec/01-评审探针/machine_r10_width.txt doc/spec/01-评审探针/machine_r11_changed_all.txt doc/spec/01-评审探针/machine_r11_check.txt doc/spec/01-评审探针/machine_r11_width.txt doc/spec/01-评审探针/machine_r12_changed_all.txt doc/spec/01-评审探针/machine_r12_check.txt …
+  MTIME-ONLY(INFO)   1  iss/tests/probes/_e.txt
+  判定：内容侧差异非空 → 退出码 1。差异只能走 snapshot --refresh --reason（ADR-4/B5）重折，不得顺手重刷基线把差异抹掉。

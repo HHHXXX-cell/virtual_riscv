@@ -1,0 +1,5 @@
+== snapshot：基线已刷新 ==
+  目录集：rtl/、sim/covdb/、iss/、sw/、filelist/、run_cmd/、tb/、doc/review/*-评审探针/
+  文件数 98 ；指纹 sha256:aabdd2719b3d1da89427fc3d5e6d4a95ebbd4d5097236888a3fb0c122f87ff21
+  旧→新指纹：sha256:77efa13c73b0c69b80e38c5290de0150c790ddde49f98ac2176acfe4dfb63ad7 → sha256:aabdd2719b3d1da89427fc3d5e6d4a95ebbd4d5097236888a3fb0c122f87ff21（须独立提交并把本行贴进 doc/verify/05）
+  写盘：script/gate/integrity_baseline.json
