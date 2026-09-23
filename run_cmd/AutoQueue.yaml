@@ -458,7 +458,7 @@ items:
     blocked_by: []
     review_rounds: 0
     # 2026-09-23 R0 明示恢复（doc/verify/05 R-062）：blocked 解除；r17 基线已立
-    landable: 章节片①（spec/01 §1+§3）/②（spec/03+04）/③（spec/00）/④（spec/02）与纵片①②③已跑；章节片⑤（spec/01 §2/§4/§5/§7/§8）已重派（auditor 只读）；spec/02 收口片同轮派出；spec/00 收口片待派
+    landable: 章节片①~④与纵片①②③已跑；**章节片⑤已回收**（核对 28＝通过 14/阻塞 9/澄清 4/存疑 1，附 M；**C2 不成立**）；`spec/02` 收口片已落（R-063、提交 `1565d48`）；9 阻塞分流：**D1/D2 决策片在跑**，文本类随落文批；`spec/00` 收口片、C-3 片待派
 
   - id: Q-035
     task: doc/ 分类改造（R0 指令）：验证→doc/verify/、设计→doc/design/、评审→doc/review/、台账→doc/process/；spec 原地
