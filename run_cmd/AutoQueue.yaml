@@ -93,11 +93,11 @@ items:
     role: R1
     basis: doc/00 ISS-018、ISS-021；spec/01-评审记录.md
     done_when: 评审记录中每条阻塞项状态=已落实且附落点；纯复核轮新增 0（§6.1 C2）；位宽自检脚本输出留档
-    state: in_review
+    state: in_progress
     priority: P1
     depends_on: []
     blocked_by: []
-    review_rounds: 11
+    review_rounds: 12
     # §9.4：已消耗的**全量轮**数（第 3/5/6/7/8 轮的全篇纯复核，附件 B/D/E/G 各计一轮）。
     # 已达上限 5 仍不收敛 ⇒ 本应 fused 转 R0；现由下方 cap_waiver 越权继续，机判打 queue-full-round-cap-waiver。
     full_rounds: 5
@@ -246,9 +246,9 @@ items:
     role: R1
     basis: 人 2026-09-23 口径变更（doc/00 ISS-042）；doc/项目开发流程.md §12.2/§12.3/§9.5；台账 ISS-003/007/012/017/024/025/026/027/028 + 待定项 ISS-039/ISS-041
     done_when: 每项产出 ADR（选项与评估 2~3 条 / 选定 / 外部锚点 / 下游义务 / 回退方式）并回填 doc/00 决策列与正文落点；无锚点者标“登记＋预测＋回退点”且不得写“已定”；涉及接口/几何形态者进入 §9.5 评审 list 的 ④ 段
-    state: ready
+    state: in_progress
     priority: P2
     depends_on: []
     blocked_by: []
     review_rounds: 0
-    landable: 未开工。派发时用 vr1-decider（隶属 R1 判定面，无写权限——落地由领队/作者角色代执行）；决策范围含 ISS-039（槽 15 跨窗恢复机制，A/B/C/D 见台账行）与 ISS-041（W 级停放语义、csrq 规则 4 迟到写）两项已推迟项——新口径下二者可先出 ADR，G1 前仍须闭合回写
+    landable: 已派发（2026-09-23 后台 vr1-decider，第 1 批＝ISS-039/ISS-041/ISS-045）；ADR 由领队代录。派发时用 vr1-decider（隶属 R1 判定面，无写权限——落地由领队/作者角色代执行）；决策范围含 ISS-039（槽 15 跨窗恢复机制，A/B/C/D 见台账行）与 ISS-041（W 级停放语义、csrq 规则 4 迟到写）两项已推迟项——新口径下二者可先出 ADR，G1 前仍须闭合回写
