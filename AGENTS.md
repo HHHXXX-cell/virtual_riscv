@@ -77,7 +77,8 @@ set MTI=D:\modeltech64_2020.4\win64
 %MTI%\vmap  mtiUvm D:/modeltech64_2020.4/uvm-1.2
 
 :: 编译（覆盖率开关编译期就要带：-cvgexpr -cvgseq 按项选择）
-%MTI%\vlog -64 -sv -cover bcesf -ntb_opts uvm-1.2 -f filelist/filelist.f -l sim\vlog_compile.log
+:: **实测更正（D-7/ISS-054）：本机 vlog 不支持 -ntb_opts（vlog-1902）⇒ 用 +incdir；编译判据=产物证据行（-- Compiling 计数+段末 Errors: N，ADR-5）**
+%MTI%\vlog -64 -sv -cover bcesf +incdir+%MTI%/../verilog_src/uvm-1.2/src -f filelist/tb.f -l sim\vlog_compile.log
 
 :: 优化 + 批仿真（命令行模式，必带超时与 log）
 %MTI%\vopt -64 -cover=bcesf work.vr1_top_tb -o work_opt
