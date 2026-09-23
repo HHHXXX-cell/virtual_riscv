@@ -263,3 +263,10 @@
   - 未完成: ① 送审 Q-031（R6，非决定性）未跑 ② 记录面（台账/回归记录/评审记录/交接件历史记录）按设计继续豁免——覆盖面收窄处已在本记录与 ISS-052 显式声明
   - 下一手: 派 Q-031 给 R6 做一次非决定性审核（按规则 22 附仓库清单比对＋mtime 窗口）；其余按 `gate.py loop` 取队首
 
+- [Q-028] 角色=vr1-verifier 日期=2026-09-23 轮次=1（D-5：ADR-4 落件——gate.py snapshot/rocheck ＋ capability-landed）
+  - 产物: ① `script/gate.py`：新增 `snapshot`、`rocheck` 两子命令（`--refresh` 强制随 `--reason`，缺则拒绝）＋ `check_capability_landed` 判据并入 check ② `script/gate/integrity_baseline.json`（首建长基线：88 文件，指纹 sha256:77efa13c…；每轮必改件不入长基线）③ `AGENTS.md` 规则 22 措辞同步（内容指纹（md5:size）窗口／纯 mtime 单列 INFO／新增删除恒计入；保留探针禁入忽略区）
+  - 依据: `doc/00` ISS-024（ADR-4）与派发词 D-5；`AGENTS.md` 规则 22 机械化要求；ISS-022 失效举证
+  - 机判: `gate.py check` **23 PASS / 0 WARN / 0 FAIL**（含新判据）；`rocheck --baseline` 0 MODIFIED/0 ADDED/0 DELETED（rc=0）；反证实验：注入 tmp 探针 → ADDED=1 rc=1、改 `iss/tests/probes/_e.txt` → MODIFIED=1 rc=1、恢复 → MTIME-ONLY=1 rc=0；`snapshot` 存量与 `snapshot --refresh` 缺 `--reason` 均 rc=2 拒绝
+  - 未完成: ① 本片未经评审（送交由 R8 派）② `--window` 制在真评审轮的首次实战留痕待跑 ③ 基线刷新正路径（带 `--reason`）本轮未触发——按硬规则非处置轮不得刷
+  - 下一手: R8 核销 Q-028 并派下一项；规则 22 后续每轮以 `rocheck --window <ISO>` 输出留痕入 `doc/05`
+

@@ -9,6 +9,10 @@
 
 子命令：
   check      跑全部不变式，任一 FAIL 退出码 1（R8 每轮开工第一件事）
+  snapshot   完整性长基线（ADR-4/ISS-024）：受控目录集逐文件 md5:size:mtime →
+             script/gate/integrity_baseline.json；刷新须 --refresh --reason <折入集出处>
+  rocheck    只读核查：--baseline 对长基线（内容侧差异非零退出）；--window <ISO>
+             全仓窗口（含忽略区，仅排除 .git/、__pycache__/；纯 mtime 差记 MTIME-ONLY(INFO)）
   dispatch   取队首可执行项，打印归属角色 + 完成判据
   changed    生成"改动集"（改动节 + 被改标识符的引用闭包），供增量复核轮当复核面（§9.4）
              默认只列真信号（未展开项 + ≥10 的枢纽项），全表加 `--all`
@@ -19,6 +23,9 @@
       《AI进行IC开发验证工作流程》v3.0 §6.1（评审收敛；该节 2026-09-23 由 v3.0 新建）；
       doc/AI角色与职责.md §2（角色与写边界）、§6.1（角色数封顶）。
 """
+import datetime
+import glob
+import hashlib
 import io
 import json
 import os
@@ -536,6 +543,7 @@ def cmd_check(_):
     check_md(rep)
     check_handoff(rep)
     check_width(rep)
+    check_capability_landed(rep)
     rc = rep.dump()
     if rc:
         print('R8 纪律：有 FAIL 即不得宣布任何"已落实"；修完重跑，不信任何口头结论。')
@@ -778,6 +786,242 @@ def cmd_changed(argv):
     return 0
 
 
+# ---------------------------------------------------------------- 完整性长基线 / 只读核查（ADR-4，ISS-024）
+# 为什么：ISS-022 实测"只读"子代理在忽略区留下 34 个新建文件，而当时的核查手段是人工
+# "仓库清单比对 + mtime 窗口"——mtime 一碰就变、清单不认内容，两头都能骗过。本段把核查
+# 落到内容指纹（md5:size）：窗口制扫全仓（含忽略区），长基线制管受控目录集。
+GATEDIR = os.path.join(ROOT, 'script', 'gate')
+BASE_JSON = os.path.join(GATEDIR, 'integrity_baseline.json')
+WINDOW_STATE = os.path.join(GATEDIR, 'window_state.json')
+BASE_DIRS = ['rtl', 'sim/covdb', 'iss', 'sw', 'filelist', 'run_cmd', 'tb']
+BASE_GLOBS = [os.path.join('doc', 'spec', '*-评审探针')]
+# 每轮必改件（doc/00|04|05、HANDOFF、队列、评审记录）不入长基线——否则每轮必报 MODIFIED，
+# 基线的判别力会被日常记录噪音淹没（与 ISS-026"全表列 token 淹掉真信号"同型）。
+BASE_EXCLUDE_RE = re.compile(r'(^|/)AutoQueue\.yaml$|(^|/)HANDOFF\.md$'
+                             r'|^doc/0[045]-|(^|/)评审记录\.md$')
+# 工具自身状态件不算第三方改动、且每次运行自我改写——两制扫描均排除（否则自我引用假阳）。
+TOOL_STATE = ('script/gate/window_state.json', 'script/gate/integrity_baseline.json')
+SKIP_DIRS = {'.git', '__pycache__'}
+SNAP_RULE = ('长基线刷新硬规则（ADR-4/B5）：仅处置轮开工写产物前每轮 ≤1 次；评审轮与 FAIL 轮后禁刷；'
+             '只折"已进复核面"的改动集；执行者＝R8；独立提交＋doc/05 留痕（旧→新指纹、折入集出处）；'
+             '作不出折入集出处即作废回滚。')
+
+
+def _now_iso():
+    return datetime.datetime.now().isoformat(timespec='seconds')
+
+
+def _fingerprint(path):
+    h = hashlib.md5()
+    with open(path, 'rb') as f:
+        for blk in iter(lambda: f.read(1 << 20), b''):
+            h.update(blk)
+    st = os.stat(path)
+    return {'md5': h.hexdigest(), 'size': st.st_size,
+            'mtime': datetime.datetime.fromtimestamp(st.st_mtime).isoformat(timespec='seconds')}
+
+
+def _scan(roots, exclude_re=None, extra_exclude=()):
+    """roots＝文件/目录绝对路径表 → {仓相对路径（/ 分隔）: md5:size:mtime 三元组}。"""
+    out = {}
+    for r in roots:
+        if os.path.isfile(r):
+            cand = [r]
+        elif os.path.isdir(r):
+            cand = []
+            for dp, dns, fns in os.walk(r):
+                dns[:] = [d for d in dns if d not in SKIP_DIRS]
+                cand.extend(os.path.join(dp, f) for f in fns)
+        else:
+            continue
+        for p in cand:
+            rel = os.path.relpath(p, ROOT).replace(os.sep, '/')
+            if rel in extra_exclude or (exclude_re and exclude_re.search(rel)):
+                continue
+            try:
+                out[rel] = _fingerprint(p)
+            except OSError:
+                continue                      # 扫描瞬间被删的文件按跳过处理，不判 DELETED
+    return out
+
+
+def _base_roots():
+    roots = [os.path.join(ROOT, d.replace('/', os.sep)) for d in BASE_DIRS]
+    for g in BASE_GLOBS:
+        roots.extend(glob.glob(os.path.join(ROOT, g)))
+    return roots
+
+
+def _files_fingerprint(files):
+    h = hashlib.sha256()
+    for rel in sorted(files):
+        h.update(('%s|%s|%d\n' % (rel, files[rel]['md5'], files[rel]['size'])).encode('utf-8'))
+    return 'sha256:' + h.hexdigest()
+
+
+def _classify(old, new):
+    """四分类。**判定只看内容侧（md5/size）**；纯 mtime 差归 MTIME-ONLY(INFO)。"""
+    mod = [r for r in sorted(new) if r in old
+           and (new[r]['md5'] != old[r]['md5'] or new[r]['size'] != old[r]['size'])]
+    add = [r for r in sorted(new) if r not in old]
+    dele = sorted(set(old) - set(new))
+    mt = [r for r in sorted(new) if r in old and r not in mod
+          and new[r].get('mtime') != old[r].get('mtime')]
+    return mod, add, dele, mt
+
+
+def _print_classes(mod, add, dele, mt):
+    for tag, lst in (('MODIFIED', mod), ('ADDED', add), ('DELETED', dele),
+                     ('MTIME-ONLY(INFO)', mt)):
+        head = ' '.join(lst[:8]) + (' …' if len(lst) > 8 else '')
+        print('  %-16s %3d  %s' % (tag, len(lst), head))
+
+
+def cmd_snapshot(argv):
+    """完整性长基线：受控目录集逐文件 md5:size:mtime → script/gate/integrity_baseline.json。
+    刷新（--refresh）必须随 --reason <折入集出处>，否则拒绝执行。"""
+    exists = os.path.exists(BASE_JSON)
+    refresh = '--refresh' in argv
+    reason = argv[argv.index('--reason') + 1] if ('--reason' in argv and
+                                                  argv.index('--reason') + 1 < len(argv)) else ''
+    if refresh and not reason.strip():
+        print('--refresh 必须随 --reason（折入集出处：如 doc/05:R-0xx 行 / 提交号 / 评审结论）；'
+              '作不出出处即不得刷新。拒绝执行。')
+        print(SNAP_RULE)
+        return 2
+    if exists and not refresh:
+        print('长基线已存在：%s' % os.path.relpath(BASE_JSON, ROOT).replace(os.sep, '/'))
+        print('按 ADR-4 硬规则，刷新只能走 `snapshot --refresh --reason <折入集出处>`；'
+              '评审轮与 FAIL 轮后禁刷。**拒绝覆盖**。')
+        return 2
+    files = _scan(_base_roots(), BASE_EXCLUDE_RE)
+    prev = None
+    if exists:
+        try:
+            prev = json.loads(read(BASE_JSON))
+        except ValueError:
+            prev = None
+    doc = {'tool': 'script/gate.py snapshot（ADR-4 / ISS-024）',
+           'generated_at': _now_iso(), 'reason': reason,
+           'scan_dirs': [d + '/' for d in BASE_DIRS] + ['doc/spec/*-评审探针/'],
+           'exclude': '每轮必改件不入长基线：doc/00|04|05-*、HANDOFF.md、AutoQueue.yaml、*评审记录*.md',
+           'file_count': len(files),
+           'prev_fingerprint': prev.get('fingerprint') if isinstance(prev, dict) else None,
+           'fingerprint': _files_fingerprint(files), 'files': files}
+    if not os.path.isdir(GATEDIR):
+        os.makedirs(GATEDIR)
+    with io.open(BASE_JSON, 'w', encoding='utf-8', newline='\n') as f:
+        json.dump(doc, f, ensure_ascii=False, indent=1, sort_keys=True)
+        f.write('\n')
+    print('== snapshot：%s ==' % ('基线已刷新' if prev is not None else '基线已建立'))
+    print('  目录集：%s' % '、'.join(doc['scan_dirs']))
+    print('  文件数 %d ；指纹 %s' % (len(files), doc['fingerprint']))
+    if prev is not None:
+        print('  旧→新指纹：%s → %s（须独立提交并把本行贴进 doc/05）'
+              % (prev.get('fingerprint'), doc['fingerprint']))
+    print('  写盘：%s' % os.path.relpath(BASE_JSON, ROOT).replace(os.sep, '/'))
+    return 0
+
+
+def cmd_rocheck(argv):
+    """只读核查（规则 22 机械化）。
+    --baseline    对长基线比对受控目录集：MODIFIED/ADDED/DELETED 任一非空 → 退出码 1；
+                  MTIME-ONLY 恒不改变退出码（仅打印）。
+    --window <ISO> 扫全仓（含 script/tmp/ 等忽略区；仅排除 .git/、__pycache__/ 与工具状态件）；
+                  首次调用建立窗口快照（INIT 只记录起点、不判定），同 ISO 再调即出四分类。"""
+    if '--baseline' in argv:
+        if not os.path.exists(BASE_JSON):
+            print('长基线不存在：先 `python script/gate.py snapshot`。不比对即不得宣布"无改动"。')
+            return 2
+        try:
+            doc = json.loads(read(BASE_JSON))
+        except ValueError as e:
+            print('长基线 JSON 损坏（%s）：不得据此判"无改动"。' % e)
+            return 2
+        old = doc.get('files', {})
+        new = _scan(_base_roots(), BASE_EXCLUDE_RE)
+        mod, add, dele, mt = _classify(old, new)
+        print('== rocheck --baseline（基线 %s，生成于 %s）=='
+              % (doc.get('fingerprint', '?'), doc.get('generated_at', '?')))
+        print('  基线文件 %d / 现态文件 %d' % (len(old), len(new)))
+        _print_classes(mod, add, dele, mt)
+        if mod or add or dele:
+            print('  判定：内容侧差异非空 → 退出码 1。差异只能走 snapshot --refresh --reason（ADR-4/B5）'
+                  '重折，不得顺手重刷基线把差异抹掉。')
+            return 1
+        print('  判定：内容侧 0 差异（MTIME-ONLY 恒不改变退出码）。')
+        return 0
+    if '--window' in argv:
+        i = argv.index('--window')
+        iso = argv[i + 1].strip() if i + 1 < len(argv) else ''
+        if not iso:
+            print('用法：gate.py rocheck --window <窗口起点 ISO 时间>')
+            return 2
+        new = _scan([ROOT], None, extra_exclude=set(TOOL_STATE))
+        st = None
+        if os.path.exists(WINDOW_STATE):
+            try:
+                st = json.loads(read(WINDOW_STATE))
+            except ValueError:
+                st = None
+        if st is None or st.get('window_start') != iso:
+            if not os.path.isdir(GATEDIR):
+                os.makedirs(GATEDIR)
+            with io.open(WINDOW_STATE, 'w', encoding='utf-8', newline='\n') as f:
+                json.dump({'window_start': iso, 'created_at': _now_iso(),
+                           'file_count': len(new), 'files': new}, f,
+                          ensure_ascii=False, sort_keys=True)
+            print('== rocheck --window %s：窗口已建立（INIT，本次只记录起点、不判定）==' % iso)
+            print('  全仓文件 %d（含 script/tmp/ 等忽略区；仅排除 .git/、__pycache__/ 与工具状态件）'
+                  % len(new))
+            print('  子代理动完手后重跑同一命令 → 四分类（判定只看内容侧 md5/size）。')
+            return 0
+        old = st.get('files', {})
+        mod, add, dele, mt = _classify(old, new)
+        print('== rocheck --window %s（窗口快照建于 %s）==' % (iso, st.get('created_at', '?')))
+        print('  窗口起点文件 %d / 现态文件 %d' % (len(old), len(new)))
+        _print_classes(mod, add, dele, mt)
+        if mod or add or dele:
+            print('  判定：内容侧有变更/新增/删除（**新增/删除恒计入**）→ 退出码 1；'
+                  '须逐条归因；纯 mtime 差不作判据。')
+            return 1
+        print('  判定：内容侧 0 变更（纯 mtime 差仅列 INFO，不改判）。')
+        return 0
+    print('用法：gate.py rocheck --baseline | --window <ISO>')
+    return 2
+
+
+def check_capability_landed(rep):
+    """规则承载件声明了 rocheck / integrity_baseline 而实件不存在 ⇒ FAIL。
+    模式同 ra-token-defined：本项目的失效多是"声明已改、实件未落"（ISS-021/022），
+    所以声明的另一半必须是存在性检查，不是口头承诺。"""
+    files = ['AGENTS.md', os.path.join('doc', '项目开发流程.md')]
+    files += [os.path.relpath(p, ROOT) for p in role_agent_files()]
+    hits = []
+    for rel in files:
+        p = os.path.join(ROOT, rel)
+        if not os.path.exists(p):
+            continue
+        s = read(p)
+        for tok in ('rocheck', 'integrity_baseline'):
+            if tok in s:
+                hits.append('%s:%s' % (rel.replace(os.sep, '/'), tok))
+    if not hits:
+        rep.ok('capability-landed', '规则承载件未出现 rocheck/integrity_baseline（无声明即无核销对象）')
+        return
+    miss = []
+    if 'rocheck' not in CMDS:
+        miss.append('gate.py 无 rocheck 子命令')
+    if not os.path.exists(BASE_JSON):
+        miss.append('script/gate/integrity_baseline.json 不存在')
+    if miss:
+        rep.fail('capability-landed', '规则承载件已声明（%s）但实件缺失：%s'
+                 % ('；'.join(hits[:6]), '；'.join(miss)))
+    else:
+        rep.ok('capability-landed', '声明 %d 处，实件齐（rocheck 子命令 + integrity_baseline.json）'
+               % len(hits))
+
+
 ROLE2AGENT = {'R1': 'vr1-designer / vr1-planner', 'R2': 'vr1-verifier', 'R3': 'vr1-designer',
               'R4': 'vr1-verifier', 'R5': 'vr1-verifier（取证已并入验证）',
               'R6': 'vr1-auditor（模式 P）', 'R7': 'vr1-auditor（模式 T）', 'R8': '主会话（领队）'}
@@ -866,7 +1110,8 @@ def cmd_loop(_):
 
 
 CMDS = {'check': cmd_check, 'dispatch': cmd_dispatch, 'changed': cmd_changed, 'report': cmd_report,
-        'loop': cmd_loop, 'escalate': cmd_escalate}
+        'loop': cmd_loop, 'escalate': cmd_escalate,
+        'snapshot': cmd_snapshot, 'rocheck': cmd_rocheck}
 
 
 def main():

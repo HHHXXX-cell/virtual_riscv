@@ -196,8 +196,14 @@ verilator --cc --exe --build -j 4 --trace-fst -CFLAGS -O2 -f filelist/rtl.f     
 21. **【独立性声明】同模型多角色共享盲点**：不得把“换了个角色评审”当独立性证据；
     残余风险由 R0 人签署 + 锚点兜底。
 22. **【角色边界机械化】写禁令不靠声明**：子代理（R6/R7）声称“只读”时，每轮结束后必须跑
-    “仓库清单比对 + mtime 窗口”核查并记入 `doc/05`；**评审探针与输出不得留在 `script/tmp/`
+    “仓库清单比对＋**内容指纹（md5:size）窗口**”（`python script/gate.py rocheck --window <ISO>`，
+    扫描面含 `script/tmp/` 等忽略区）核查并记入 `doc/05`；纯 mtime 差异单列 `MTIME-ONLY(INFO)`、
+    不作改动判据；**新增/删除恒计入**；**评审探针与输出不得留在 `script/tmp/`
     等忽略区**，必须归入受版本控制的证据目录（`iss/tests/probes/`、`doc/spec/*-评审探针/`）。
+    长基线 `script/gate/integrity_baseline.json` 的刷新有硬规则：只走
+    `python script/gate.py snapshot --refresh --reason <折入集出处>`——仅处置轮开工写产物前每轮 ≤1 次；
+    评审轮与 FAIL 轮后禁刷；只折“已进复核面”的改动集；执行者＝R8；独立提交＋`doc/05` 留痕
+    （旧→新指纹、折入集出处）；作不出出处即作废回滚。
     本轮已实测发生一次违反（34 个新建文件，无既有文件被改），见 ISS-022。
 
 23. **【R8 编排与逐轮机械核销】** 项目设 **R8 项目编排 AI（PM）**，职责是按《AI进行IC开发验证工作流程》§1.3/§6.1 与本文件驱动阶段推进（角色边界见 `doc/AI角色与职责.md` §2/§3.1）：

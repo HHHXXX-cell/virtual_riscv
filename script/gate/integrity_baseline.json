@@ -1,0 +1,461 @@
+{
+ "exclude": "每轮必改件不入长基线：doc/00|04|05-*、HANDOFF.md、AutoQueue.yaml、*评审记录*.md",
+ "file_count": 88,
+ "files": {
+  "doc/spec/01-评审探针/machine_r10_changed_all.txt": {
+   "md5": "b575a36b6079e9f7c8a7ba9e84319115",
+   "mtime": "2026-09-23T12:59:09",
+   "size": 7372
+  },
+  "doc/spec/01-评审探针/machine_r10_check.txt": {
+   "md5": "f0ad40b0e2922f7ce1052e8d86c65712",
+   "mtime": "2026-09-23T12:59:09",
+   "size": 1382
+  },
+  "doc/spec/01-评审探针/machine_r10_width.txt": {
+   "md5": "93947b99d19eb5ff52c58d2b21cb4fef",
+   "mtime": "2026-09-23T12:59:08",
+   "size": 2356
+  },
+  "doc/spec/01-评审探针/machine_r11_changed_all.txt": {
+   "md5": "ac923e3e30d2b8f73c8e3e3b6f0fd7e0",
+   "mtime": "2026-09-23T13:33:38",
+   "size": 4068
+  },
+  "doc/spec/01-评审探针/machine_r11_check.txt": {
+   "md5": "1a663e163c5069adbcea96682643f139",
+   "mtime": "2026-09-23T13:33:38",
+   "size": 1382
+  },
+  "doc/spec/01-评审探针/machine_r11_width.txt": {
+   "md5": "93947b99d19eb5ff52c58d2b21cb4fef",
+   "mtime": "2026-09-23T13:33:37",
+   "size": 2356
+  },
+  "doc/spec/01-评审探针/machine_r12_changed_all.txt": {
+   "md5": "014362e32929b2efdad38f40b3c94193",
+   "mtime": "2026-09-23T15:11:54",
+   "size": 8276
+  },
+  "doc/spec/01-评审探针/machine_r12_check.txt": {
+   "md5": "7f36a23df77aabd899205717f6e3b450",
+   "mtime": "2026-09-23T15:11:54",
+   "size": 1420
+  },
+  "doc/spec/01-评审探针/machine_r12_width.txt": {
+   "md5": "49888e3db6dfee3599480b034dfb367e",
+   "mtime": "2026-09-23T15:11:53",
+   "size": 2356
+  },
+  "doc/spec/01-评审探针/machine_r13_changed_all.txt": {
+   "md5": "2d309e11335e5529489c7f2fb420c8eb",
+   "mtime": "2026-09-23T16:12:21",
+   "size": 6684
+  },
+  "doc/spec/01-评审探针/machine_r13_check.txt": {
+   "md5": "35f0c7283e777b3ecfafc39e1a5e866c",
+   "mtime": "2026-09-23T16:12:21",
+   "size": 1421
+  },
+  "doc/spec/01-评审探针/machine_r13_width.txt": {
+   "md5": "49888e3db6dfee3599480b034dfb367e",
+   "mtime": "2026-09-23T16:12:20",
+   "size": 2356
+  },
+  "doc/spec/01-评审探针/machine_r9_changed_all.txt": {
+   "md5": "9a9cfcaa353604577b1e0c254cb4758d",
+   "mtime": "2026-09-23T12:26:33",
+   "size": 16368
+  },
+  "doc/spec/01-评审探针/machine_r9_check.txt": {
+   "md5": "48d9fc6449da1df6913ee110639db5fa",
+   "mtime": "2026-09-23T12:26:33",
+   "size": 1462
+  },
+  "doc/spec/01-评审探针/machine_r9_width.txt": {
+   "md5": "ec50e4cd9d0325a4a88658addc6bee49",
+   "mtime": "2026-09-23T12:26:33",
+   "size": 2356
+  },
+  "doc/spec/01-评审探针/review_probe.py": {
+   "md5": "ed88000b34b3a4de7d6b935a2532b298",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 8169
+  },
+  "doc/spec/01-评审探针/review_probe2.py": {
+   "md5": "6d7871ec805856457024cf810d89f2e6",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 7688
+  },
+  "doc/spec/01-评审探针/review_probe3.py": {
+   "md5": "4791a8de4833737d31d920ae74f5fe2b",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 6828
+  },
+  "doc/spec/01-评审探针/review_probe4.py": {
+   "md5": "de0ca7a47536fedb3d4e07800740aa4f",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 4175
+  },
+  "doc/spec/01-评审探针/review_probe5.py": {
+   "md5": "2f0b5d5d5ea252d049e84cd381c902ce",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 2822
+  },
+  "doc/spec/01-评审探针/snapshot_r10_spec00.md": {
+   "md5": "208b14b819c9998ab2471ae07241b8f4",
+   "mtime": "2026-09-23T12:54:14",
+   "size": 29832
+  },
+  "doc/spec/01-评审探针/snapshot_r10_spec01.md": {
+   "md5": "1b45cbf7fbab90f38c5f098007dc27f6",
+   "mtime": "2026-09-23T12:54:14",
+   "size": 70435
+  },
+  "doc/spec/01-评审探针/snapshot_r11_spec00.md": {
+   "md5": "d229d262154aa65d00a86fa5f4ee91a7",
+   "mtime": "2026-09-23T13:31:30",
+   "size": 30371
+  },
+  "doc/spec/01-评审探针/snapshot_r11_spec01.md": {
+   "md5": "a9cd335a856096026ac03a294efa0a63",
+   "mtime": "2026-09-23T13:31:30",
+   "size": 73503
+  },
+  "doc/spec/01-评审探针/snapshot_r12_spec00.md": {
+   "md5": "a64f1ef723c2dfc03e3aad7c84b6aba7",
+   "mtime": "2026-09-23T15:11:54",
+   "size": 30696
+  },
+  "doc/spec/01-评审探针/snapshot_r12_spec01.md": {
+   "md5": "38e5a642809506be6ce85b46af6e0d1f",
+   "mtime": "2026-09-23T15:11:54",
+   "size": 77329
+  },
+  "doc/spec/01-评审探针/snapshot_r13_spec00.md": {
+   "md5": "a581e55e5ed0787a0d36daa150dc631a",
+   "mtime": "2026-09-23T16:12:21",
+   "size": 31217
+  },
+  "doc/spec/01-评审探针/snapshot_r13_spec01.md": {
+   "md5": "f2f1e81c076e44b7e82af3162f2582c9",
+   "mtime": "2026-09-23T16:12:21",
+   "size": 85349
+  },
+  "doc/spec/01-评审探针/snapshot_r9_spec00.md": {
+   "md5": "dcc757dba5d0b699c2065d15f747cfa5",
+   "mtime": "2026-09-23T11:20:31",
+   "size": 29663
+  },
+  "doc/spec/01-评审探针/snapshot_r9_spec01.md": {
+   "md5": "318bd65dfdc876e1f61b669e03880349",
+   "mtime": "2026-09-23T11:22:57",
+   "size": 66848
+  },
+  "filelist/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "iss/README.md": {
+   "md5": "2237ee92d933879eff208e85d335bcc7",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 6415
+  },
+  "iss/tests/probes/README.md": {
+   "md5": "7f026a94511d080f47493602888c6db1",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 2285
+  },
+  "iss/tests/probes/_e.txt": {
+   "md5": "6aa27e765881b52496e5770c745fe1ea",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 8158
+  },
+  "iss/tests/probes/_m1.txt": {
+   "md5": "ac389c9f927803f620d40032a80b26d3",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 16192
+  },
+  "iss/tests/probes/_m2.txt": {
+   "md5": "43ca550df9243168ab60512884e958f9",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 16746
+  },
+  "iss/tests/probes/_m3.txt": {
+   "md5": "9453fbde423f54db421b37bddf5bbe61",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 15596
+  },
+  "iss/tests/probes/_sm.txt": {
+   "md5": "d2ae83d485ad4474cbb1825114cf6a49",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 9842
+  },
+  "iss/tests/probes/rr_out10.txt": {
+   "md5": "5bfe7419446c5ad9aa9069cbf8d00c4b",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 2404
+  },
+  "iss/tests/probes/rr_out11.txt": {
+   "md5": "47a85646b2547bec7590817d9333214e",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 534
+  },
+  "iss/tests/probes/rr_out12.txt": {
+   "md5": "09bb962fad71834a259804e7bf5e444e",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 3352
+  },
+  "iss/tests/probes/rr_out2.txt": {
+   "md5": "78bd115a74d87b6fbee155d3effdeab9",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 6280
+  },
+  "iss/tests/probes/rr_out3.txt": {
+   "md5": "c9e324377e2aa25100bdbc2201cbc7e9",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 2504
+  },
+  "iss/tests/probes/rr_out3b.txt": {
+   "md5": "8e871585ee2bf23149b604c7d713aefe",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 2760
+  },
+  "iss/tests/probes/rr_out4.txt": {
+   "md5": "e2089f4cc49d25c132c73fe1ad05c305",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 2583
+  },
+  "iss/tests/probes/rr_out5.txt": {
+   "md5": "7384c05bd903ca08a3ff39d6d20c501b",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 5407
+  },
+  "iss/tests/probes/rr_out6.txt": {
+   "md5": "091738ff550d7bc5f830b6c4823dedef",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 1297
+  },
+  "iss/tests/probes/rr_out7.txt": {
+   "md5": "168d02f20a31a8e2d8e0f70829385d96",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 2596
+  },
+  "iss/tests/probes/rr_out8.txt": {
+   "md5": "cb802704563230422b7f9adaa3386f1d",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 750
+  },
+  "iss/tests/probes/rr_probe10.py": {
+   "md5": "462e4a4c0eeeb01a3ca05e1766bea125",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 1638
+  },
+  "iss/tests/probes/rr_probe11.py": {
+   "md5": "54eca3bd5a865a8d3a381978a0f952c5",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 1005
+  },
+  "iss/tests/probes/rr_probe12.py": {
+   "md5": "0dbf2756c19709044e4cd2a4644e5c6c",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 4280
+  },
+  "iss/tests/probes/rr_probe1_shift.py": {
+   "md5": "e1aee448eb230a143a8224026046c7f4",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 3782
+  },
+  "iss/tests/probes/rr_probe2_system.py": {
+   "md5": "a23fd50f0eda4ec113f2c16594353ca1",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 5748
+  },
+  "iss/tests/probes/rr_probe3_trap.py": {
+   "md5": "ca25315e663de36d20feb00e7545e66d",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 7746
+  },
+  "iss/tests/probes/rr_probe3b.py": {
+   "md5": "cfd7081ff5f3b5f26cab11cf963bbe8d",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 6382
+  },
+  "iss/tests/probes/rr_probe4.py": {
+   "md5": "0c35dfe025c649dba58143890d98b299",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 4237
+  },
+  "iss/tests/probes/rr_probe5.py": {
+   "md5": "803a2c980e02d28493c7d71ee6e7b6b0",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 3275
+  },
+  "iss/tests/probes/rr_probe6.py": {
+   "md5": "e807abe303a6954cd618a8a6f0b792ad",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 5077
+  },
+  "iss/tests/probes/rr_probe7.py": {
+   "md5": "60524e450c925fc286d05af5c6367745",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 4067
+  },
+  "iss/tests/probes/rr_probe8.py": {
+   "md5": "3e99ef215fc7fdf8f91d82831f9ccd01",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 2009
+  },
+  "iss/tests/probes/rr_probe9.py": {
+   "md5": "425263c9478a997ca70eee3b93e96807",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 990
+  },
+  "iss/tests/test_isa_semantics.py": {
+   "md5": "c43d9f770a6748420b8b2e320707ff9b",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 11191
+  },
+  "iss/tests/test_smoke.py": {
+   "md5": "4889221a6605adfeb12df916a2a24416",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 7451
+  },
+  "iss/tools/trace_compare.py": {
+   "md5": "e44c46df75ff61ca09d99250d87d2d44",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 4527
+  },
+  "iss/vriss/__init__.py": {
+   "md5": "3888c90c78aa3289d1291485ebe0b159",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 1162
+  },
+  "iss/vriss/__main__.py": {
+   "md5": "ad0ff4c8aed18b763d848d11a93d7ff1",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 4191
+  },
+  "iss/vriss/consts.py": {
+   "md5": "46d16de81b99176b3ade08c54f3bd459",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 7780
+  },
+  "iss/vriss/encode.py": {
+   "md5": "2deb21c7acacd2f4a81947090f345a3b",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 12545
+  },
+  "iss/vriss/machine.py": {
+   "md5": "080278a30399b096e880187584504980",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 26658
+  },
+  "iss/vriss/mem.py": {
+   "md5": "55a3e30d8fa4c27c3bfeff047ea454b4",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 8210
+  },
+  "iss/vriss/trace.py": {
+   "md5": "a318e8da5703c27a73f6f54532cf6fcf",
+   "mtime": "2026-09-23T09:06:54",
+   "size": 5763
+  },
+  "rtl/vr1/cache/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "rtl/vr1/core/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "rtl/vr1/ctrl/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "rtl/vr1/exu/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "rtl/vr1/frontend/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "rtl/vr1/include/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "rtl/vr1/issue/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "rtl/vr1/lsu/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "rtl/vr1/mmu/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "rtl/vr1/rename/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "sim/covdb/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "sim/covdb/README.md": {
+   "md5": "0a1704f651c6cb6b6d936774db8873a4",
+   "mtime": "2026-09-23T09:47:26",
+   "size": 1627
+  },
+  "sw/env/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "sw/tests/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "tb/unit/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  },
+  "tb/vr1_uvm/.gitkeep": {
+   "md5": "833914afdb84270b1d2ea8f36077b08e",
+   "mtime": "2026-09-23T09:46:59",
+   "size": 119
+  }
+ },
+ "fingerprint": "sha256:77efa13c73b0c69b80e38c5290de0150c790ddde49f98ac2176acfe4dfb63ad7",
+ "generated_at": "2026-09-23T17:28:47",
+ "prev_fingerprint": null,
+ "reason": "",
+ "scan_dirs": [
+  "rtl/",
+  "sim/covdb/",
+  "iss/",
+  "sw/",
+  "filelist/",
+  "run_cmd/",
+  "tb/",
+  "doc/spec/*-评审探针/"
+ ],
+ "tool": "script/gate.py snapshot（ADR-4 / ISS-024）"
+}
