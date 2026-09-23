@@ -33,6 +33,14 @@ import os
 import re
 import sys
 
+# Windows 控制台默认 GBK：输出含 ⚠ 等字符时 print 会抛 UnicodeEncodeError（A7-BLK-1 根因）
+for _s in (getattr(sys, 'stdout', None), getattr(sys, 'stderr', None)):
+    if _s is not None and hasattr(_s, 'reconfigure'):
+        try:
+            _s.reconfigure(encoding='utf-8', errors='replace')
+        except Exception:
+            pass
+
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 LEDGER = os.path.join(ROOT, 'doc', 'process', '00-问题记录.md')
 BOARD = os.path.join(ROOT, 'doc', 'verify', '04-验证进度.md')
