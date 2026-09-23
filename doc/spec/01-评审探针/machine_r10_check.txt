@@ -1,8 +1,8 @@
 == gate check（机械核销）==
   PASS  ledger-count-待决策       待决策 = 11 一致
   PASS  ledger-count-处理中       处理中 = 15 一致
-  PASS  ledger-count-已解决       已解决 = 13 一致
-  PASS  ledger-total           合计 39 行一致
+  PASS  ledger-count-已解决       已解决 = 14 一致
+  PASS  ledger-total           合计 40 行一致
   PASS  ledger-contiguous      通过
   PASS  solved-needs-date      通过
   PASS  pending-in-list        通过

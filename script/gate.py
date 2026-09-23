@@ -611,6 +611,16 @@ def cmd_changed(argv):
             continue
         if cur is None:
             continue
+        # 标识符抽取的**来源**与闭包**语料**必须同类：只取规格篇正文（`doc/spec/NN-*.md`，排除
+        # 评审记录/探针）。两条理由：① 记录类文本（`doc/00`/`doc/04`/`doc/05`）是叙事件，其中
+        # 引述的示例词（如描述缺陷时写到的 `clk_i`/`from`）会被当成"被改标识符"，凭空制造假未展开项；
+        # ② 更致命的是反向——记录里提过一次的标识符会把规格正文里**只有 1 处**的真孤儿抬到 hits≥2
+        # 而漏报（与第 7 轮"语料误含评审记录致假阴"同根因，该轮修了计数侧、本轮补上抽取侧）。
+        # 证据/探针目录同理**只列不计**（其中 `snapshot_*.md` 是规格篇全文拷贝，会把整篇标识符重数一遍，
+        # 实测使"未展开"由真值 7 项暴涨到 127 项）。两类文件**都仍照列于改动清单（不藏）**。
+        evidence = '评审探针' in cur
+        spec_prose = (bool(re.match(r'^doc/spec/\d{2}-', cur))
+                      and '评审' not in os.path.basename(cur))
         m = HUNK_RE.match(line)
         if m:
             files[cur]['hunks'].append(int(m.group(1)))
@@ -623,8 +633,8 @@ def cmd_changed(argv):
             files[cur]['del'] += 1
         else:
             continue
-        if not cur.startswith('doc/'):
-            continue          # 标识符闭包只对规格/文档有意义；脚本与队列另列，不参与闭包
+        if evidence or not spec_prose:
+            continue          # 见上：抽取侧与语料侧同类；记录/台账/脚本/队列另列，不参与闭包
         found = set()
         for s in SYM_BT.findall(body):
             if '/' in s:
@@ -654,7 +664,10 @@ def cmd_changed(argv):
     print('== 改动集（增量复核轮的复核面，doc/项目开发流程.md §9.4）：基线 = %s ==' % rev)
     print('改动文件：')
     for f, v in sorted(files.items()):
-        print('  %-46s +%d/-%d，%d 处 hunk' % (f, v['add'], v['del'], len(v['hunks'])))
+        prose = (bool(re.match(r'^doc/spec/\d{2}-', f)) and '评审' not in os.path.basename(f)
+                 and '评审探针' not in f)
+        tag = '' if prose else '（不参与标识符闭包：记录/台账/探针/脚本只列不计）'
+        print('  %-46s +%d/-%d，%d 处 hunk%s' % (f, v['add'], v['del'], len(v['hunks']), tag))
         idx = _heading_index(os.path.join(ROOT, f.replace('/', os.sep)))
         for sec in sorted({_section_at(idx, ln) for ln in v['hunks']}):
             print('      节：%s' % sec)
