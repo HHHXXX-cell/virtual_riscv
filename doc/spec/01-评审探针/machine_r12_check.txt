@@ -1,8 +1,8 @@
 == gate check（机械核销）==
   PASS  ledger-count-待决策       待决策 = 3 一致
   PASS  ledger-count-处理中       处理中 = 25 一致
-  PASS  ledger-count-已解决       已解决 = 19 一致
-  PASS  ledger-total           合计 47 行一致
+  PASS  ledger-count-已解决       已解决 = 20 一致
+  PASS  ledger-total           合计 48 行一致
   PASS  ledger-contiguous      通过
   PASS  solved-needs-date      通过
   PASS  pending-in-list        通过
@@ -15,9 +15,10 @@
   PASS  queue-full-round-cap   Q-015 全量轮 0/5（未达限）
   PASS  queue-schema           队列 17 项：ready=5 / blocked=6 / 评审中=2 / done=4
   PASS  codepoints             通过
+  PASS  ra-token-defined       通过
   PASS  md-integrity           通过
   PASS  handoff-exists         通过
   PASS  handoff-fields         通过
   PASS  handoff-no-orphan      通过
   PASS  width-mismatch         通过
----- 21 PASS / 0 WARN / 0 FAIL ----
+---- 22 PASS / 0 WARN / 0 FAIL ----
