@@ -138,8 +138,8 @@ items:
     done_when: doc/01-理解清单.md 存在，五节齐，每条功能点带 spec 出处，存疑项单列不臆测
     state: ready
     priority: P2
-    depends_on: [Q-002, Q-006]
-    blocked_by: []
+    depends_on: [Q-004]
+    blocked_by: [ISS-020]
     review_rounds: 0
     landable: ""
 
