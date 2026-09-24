@@ -528,12 +528,12 @@ items:
     role: R8
     basis: `doc/process/00` ISS-094；`doc/verify/05` R-169 ④⑤
     done_when: 38 处逐处按篇定稿态措辞改写并可回查；`spec/01`/`spec/03`/`doc/verify/01`/`spec/00`/`spec/02` 无同型残留；片内带 δ 复核；gate.py check 全 PASS（末行为准）
-    state: ready
+    state: done
     priority: P2
     depends_on: []
     blocked_by: []
     review_rounds: 0
-    landable: ""
+    landable: "**2026-09-25 办结（R-176）**：41 处（清单 38＋收尾 3）逐处按篇定稿态措辞改写——`spec/00`×5／`spec/01`×22／`spec/02`×1／`spec/03`×1／`doc/verify/01`×12；残留＝`spec/00` L8 更正注引述 1 处（保留并注明）；ISS-094 转已解决；片内 δ 复核见附 AS"
 
   - id: Q-041
     task: 附 AN 处置批（δ 轮 3 收工）：N1（总览枚举 27→24）／N2（verify/01 扩面并入 ISS-094）／N3（`doc/项目开发流程.md` 尾两句改已落地口径）即修＋ISS-095 登记并关闭

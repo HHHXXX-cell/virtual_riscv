@@ -1258,3 +1258,10 @@
   - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）
   - 未完成: Q-040 扫除片未落；S2 体例口径；ISS-094 清单 38 处
   - 下一手: Q-040 扫除片 → 片内 δ 复核
+
+- [Q-040] 扫除片办结（41 处按定稿态改写）＋ISS-094 闭合 角色=R8（本体） 日期=2026-09-25 轮次=（R-176）
+  - 产物: `doc/spec/00`（5）／`doc/spec/01`（22）／`doc/spec/02`（1）／`doc/spec/03`（1）／`doc/verify/01`（12）逐处改写；`doc/process/00`（ISS-094 已解决＋总览 22/74）；`run_cmd/AutoQueue.yaml`（Q-040→done＋landable）；`doc/verify/05` **R-176**；本条
+  - 依据: `doc/process/00` ISS-094（38 处清单）；Q-040 `done_when`；δ 轮 3/4/5/6 的盘点与修正链
+  - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）；残留复核＝仅 `spec/00` L8 更正注引述 1 处（保留并注明）
+  - 未完成: 片内 δ 复核未派；`spec/00` L8 引述保留项（已注明）
+  - 下一手: 派 δ 复核（`audit-q040`）→ 归档附 AS → 余项逐项账实相核
