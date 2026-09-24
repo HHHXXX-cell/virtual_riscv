@@ -1,6 +1,6 @@
 {
  "exclude": "每轮必改件不入长基线：doc/process/00、doc/verify/04|05、HANDOFF.md、AutoQueue.yaml、*评审记录*.md",
- "file_count": 130,
+ "file_count": 148,
  "files": {
   "doc/review/01-评审探针/machine_r10_changed_all.txt": {
    "md5": "b575a36b6079e9f7c8a7ba9e84319115",
@@ -177,6 +177,66 @@
    "mtime": "2026-09-24T09:06:05",
    "size": 2356
   },
+  "doc/review/01-评审探针/machine_r24_changed_all.txt": {
+   "md5": "4fdcfca42a2973f0b8e730a6cecabc71",
+   "mtime": "2026-09-24T09:48:25",
+   "size": 5529
+  },
+  "doc/review/01-评审探针/machine_r24_check.txt": {
+   "md5": "e4b70840cc4d93719141f37e2c627736",
+   "mtime": "2026-09-24T09:48:25",
+   "size": 1416
+  },
+  "doc/review/01-评审探针/machine_r24_width.txt": {
+   "md5": "f43a351a71e8cf5a8e11afbb8d8fbddf",
+   "mtime": "2026-09-24T09:48:25",
+   "size": 2356
+  },
+  "doc/review/01-评审探针/machine_r25_changed_all.txt": {
+   "md5": "f526c16d612fe5cc07e5e6f49a080ae3",
+   "mtime": "2026-09-24T10:36:16",
+   "size": 2995
+  },
+  "doc/review/01-评审探针/machine_r25_check.txt": {
+   "md5": "84c4df6d6ba3dc1c884b72caa42f62ef",
+   "mtime": "2026-09-24T10:36:16",
+   "size": 1416
+  },
+  "doc/review/01-评审探针/machine_r25_width.txt": {
+   "md5": "f43a351a71e8cf5a8e11afbb8d8fbddf",
+   "mtime": "2026-09-24T10:36:16",
+   "size": 2356
+  },
+  "doc/review/01-评审探针/machine_r26_changed_all.txt": {
+   "md5": "18ca95603619ea7b6b32bd3dc974c5f7",
+   "mtime": "2026-09-24T11:32:23",
+   "size": 3337
+  },
+  "doc/review/01-评审探针/machine_r26_check.txt": {
+   "md5": "bd75ac4115d4c49525320f7cd6b083ee",
+   "mtime": "2026-09-24T11:32:23",
+   "size": 1416
+  },
+  "doc/review/01-评审探针/machine_r26_width.txt": {
+   "md5": "f43a351a71e8cf5a8e11afbb8d8fbddf",
+   "mtime": "2026-09-24T11:32:23",
+   "size": 2356
+  },
+  "doc/review/01-评审探针/machine_r27_changed_all.txt": {
+   "md5": "218c343b25f5bc680c7d899b80bed368",
+   "mtime": "2026-09-24T11:59:36",
+   "size": 2819
+  },
+  "doc/review/01-评审探针/machine_r27_check.txt": {
+   "md5": "eabc0b64a6f12c4fd5fdf4677f10c00f",
+   "mtime": "2026-09-24T11:59:36",
+   "size": 1448
+  },
+  "doc/review/01-评审探针/machine_r27_width.txt": {
+   "md5": "f43a351a71e8cf5a8e11afbb8d8fbddf",
+   "mtime": "2026-09-24T11:59:37",
+   "size": 2356
+  },
   "doc/review/01-评审探针/machine_r9_changed_all.txt": {
    "md5": "9a9cfcaa353604577b1e0c254cb4758d",
    "mtime": "2026-09-23T22:33:06",
@@ -221,6 +281,16 @@
    "md5": "cde1fdd4da8e1d7c1c2363624f9d9692",
    "mtime": "2026-09-23T23:14:20",
    "size": 530
+  },
+  "doc/review/01-评审探针/rocheck_r25_window.txt": {
+   "md5": "11a369c0a1f667d9f2251ef78e738820",
+   "mtime": "2026-09-24T11:06:30",
+   "size": 1354
+  },
+  "doc/review/01-评审探针/rocheck_r26_window.txt": {
+   "md5": "a0eb876be1c6c62b41c1a1f563143395",
+   "mtime": "2026-09-24T11:58:16",
+   "size": 1278
   },
   "doc/review/01-评审探针/snapshot_r10_spec00.md": {
    "md5": "208b14b819c9998ab2471ae07241b8f4",
@@ -377,6 +447,16 @@
    "mtime": "2026-09-22T21:16:16",
    "size": 3352
   },
+  "iss/tests/probes/rr_out13.txt": {
+   "md5": "6cc9c8672f9b229c86504af494bc446e",
+   "mtime": "2026-09-24T09:44:05",
+   "size": 4679
+  },
+  "iss/tests/probes/rr_out14.txt": {
+   "md5": "6f806a2dd5dd5ec2b288d95759f3f316",
+   "mtime": "2026-09-24T10:52:13",
+   "size": 8326
+  },
   "iss/tests/probes/rr_out2.txt": {
    "md5": "78bd115a74d87b6fbee155d3effdeab9",
    "mtime": "2026-09-22T20:42:52",
@@ -432,6 +512,16 @@
    "mtime": "2026-09-22T21:16:07",
    "size": 4280
   },
+  "iss/tests/probes/rr_probe13.py": {
+   "md5": "077e56087b7f6443d7fdfe49e67e1abc",
+   "mtime": "2026-09-24T09:43:51",
+   "size": 8442
+  },
+  "iss/tests/probes/rr_probe14.py": {
+   "md5": "9a322e7eee04a8a7734912b8a0033461",
+   "mtime": "2026-09-24T10:51:35",
+   "size": 19796
+  },
   "iss/tests/probes/rr_probe1_shift.py": {
    "md5": "e1aee448eb230a143a8224026046c7f4",
    "mtime": "2026-09-22T20:38:39",
@@ -483,9 +573,9 @@
    "size": 990
   },
   "iss/tests/test_isa_semantics.py": {
-   "md5": "c6abfc19ed5a684b9dcf50b3c16b21a8",
-   "mtime": "2026-09-23T22:33:06",
-   "size": 11207
+   "md5": "556bef6f1d649c7ed399fac3d1d64989",
+   "mtime": "2026-09-24T09:44:20",
+   "size": 14149
   },
   "iss/tests/test_smoke.py": {
    "md5": "4889221a6605adfeb12df916a2a24416",
@@ -518,9 +608,9 @@
    "size": 12553
   },
   "iss/vriss/machine.py": {
-   "md5": "080278a30399b096e880187584504980",
-   "mtime": "2026-09-22T21:31:51",
-   "size": 26658
+   "md5": "6dd2c94d07cdea623b3c741a33596de9",
+   "mtime": "2026-09-24T09:44:03",
+   "size": 27353
   },
   "iss/vriss/mem.py": {
    "md5": "a637da7eb4a08bd59e0dec45cfa2db6e",
@@ -653,10 +743,10 @@
    "size": 1680
   }
  },
- "fingerprint": "sha256:57ca0712b52bbca5c314a9633dd6195882a88f9ef49d5c9c50bc2e8d59f2d1b4",
- "generated_at": "2026-09-24T09:24:49",
- "prev_fingerprint": "sha256:caf696b51801b83ecee6f8bbe5eb8968c40f54b47ceb5779e4fb10acc59e0f95",
- "reason": "Q-010 处置轮开工折入：spec/00/01 全链落文（L1~L11，经 A7~A12 复核）＋复核面件 r20~r23（machine_r2x_*／snapshot_r2x_spec01）＋窗口与探针留痕",
+ "fingerprint": "sha256:8f1eb3fa029e39e6ed43123af54c5bc91b6058a8a0314a1371132bedb02cd5b3",
+ "generated_at": "2026-09-24T12:11:15",
+ "prev_fingerprint": "sha256:57ca0712b52bbca5c314a9633dd6195882a88f9ef49d5c9c50bc2e8d59f2d1b4",
+ "reason": "A15 处置批（Q-010 链新处置轮开工折入，A15/C-18）：spec/02 L12~L12d 更正、iss 面（rr_probe13/14＋machine.py 修复）、machine_r24~r27 机判件、rocheck_r25/r26 窗口件、记录面（附 Z~附 AC／R-096~R-105）——均已进复核面",
  "scan_dirs": [
   "rtl/",
   "sim/covdb/",
