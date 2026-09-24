@@ -1,0 +1,8 @@
+== rocheck --window 2026-09-24T11:33:48（窗口快照建于 2026-09-24T11:33:48）==
+  窗口起点文件 188 / 现态文件 188
+  MODIFIED           1  run_cmd/AutoQueue.yaml
+  ADDED              0  
+  DELETED            0  
+  MTIME-ONLY(INFO)   0  
+  判定：内容侧有变更/新增/删除（**新增/删除恒计入**）→ 退出码 1；须逐条归因；纯 mtime 差不作判据。
+（R8 注，2026-09-24：本件＝A14 轮核查当场原始输出留存（逐字），按 ISS-069 纠正顺序执行——freeze（`5b97386`）→ INIT `11:33:48`（写者未启动前）→ 派 `vr1-auditor`（A14，只读）→ 收工即查。结果：**MODIFIED 1＝`run_cmd/AutoQueue.yaml`**（R8 的 `gate.py attempts Q-010` 写入，ISS-053 计数 ⇒ 1；见 `doc/verify/05` R-105 与 `doc/review/01-评审记录.md` 附 AB 领队注①）／**ADDED 0**／**DELETED 0** ⇒ 评审者零写入、窗口可隔离。首跑曾将本次核查输出重定向到临时件 `script/tmp/a14_win_raw.txt`（致 ADDED 1），该件已即删并复跑取得本结果（`窗口起点 188 / 现态 188`）。**随后落盘的 `rocheck_r26_window.txt`（本件）与一次性批脚本属核查后产物**——此后重跑同窗会显示 ADDED 1~2，不等于 A14 期间有新写者。）

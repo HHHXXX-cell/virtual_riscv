@@ -267,7 +267,11 @@ def check_queue(rep):
                          '%s 全量复核轮已用 %d/%d（§9.4：应已 fused 并 escalate 转 R0）'
                          % (qid, fr, FULL_ROUND_CAP))
         elif fr is not None:
-            rep.ok('queue-full-round-cap', '%s 全量轮 %d/%d（未达限）' % (qid, fr, FULL_ROUND_CAP))
+            # 已闭合项（done/fused）不适用上限——措辞单列，避免"5/5 未达限"式误读（ISS-070/C-3）
+            if i.get('state') in ('done', 'fused'):
+                rep.ok('queue-full-round-cap', '%s 全量轮 %d/%d（已闭合，cap 不适用）' % (qid, fr, FULL_ROUND_CAP))
+            else:
+                rep.ok('queue-full-round-cap', '%s 全量轮 %d/%d（未达限）' % (qid, fr, FULL_ROUND_CAP))
         for d in i.get('depends_on', []) or []:
             if d not in ids:
                 rep.fail('queue-deps', '%s 依赖不存在的 %s' % (qid, d))

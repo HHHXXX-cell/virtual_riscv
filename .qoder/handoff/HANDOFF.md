@@ -639,3 +639,16 @@
   - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（写录前/后各一次，同值）；rocheck `--window 2026-09-24T10:36:28`＝MODIFIED 10／ADDED 0／DELETED 0（10 件全数可归因、无未声明写者；评审者零写入不可由该窗隔离 → ISS-069）
   - 未完成: ①**A14 终局 δ 复核待派**——须按「freeze → INIT → 派只读 → 收工即查（写者未启动前）」取**可隔离窗口**（闭 ISS-069 的出口判据）②Q-010 呈判材料（`done_when` 的 M/A 面口径＋ISS-068 存疑-1）待 A14 后呈 R0；门禁权在 R0，本项不得自置 done
   - 下一手: 固化 r26 复核面（基线 312cd51，spec/02＋iss 探针＋记录面机判件）→ INIT 窗口 → 派 `vr1-auditor`（A14，增量档）→ 收工即查 → 汇呈判包呈 R0
+
+- [Q-010 A14 回收入库（R8）] 角色=R8（领队） 日期=2026-09-24 轮次=（回收批）
+  - 产物: `doc/review/01-评审记录.md` **附 AB**（A14 报告全文＋领队注）；`doc/verify/05` **R-105**（另更正 R-104 ②段）；窗口证据件 `doc/review/01-评审探针/rocheck_r26_window.txt`；`doc/process/00` **ISS-069 关闭／ISS-070 登记即闭**（台账 70＝4/24/42）；`doc/verify/04` 镜像；`run_cmd/AutoQueue.yaml`（Q-010 `state:in_review`／`review_rounds:3`／attempts 注）；`script/gate.py`（`queue-full-round-cap` 已闭合项措辞）；`AGENTS.md` §1；本条
+  - 依据: 附 AB 正文；R-102/R-103 落点；规则 22（干净窗口）；ISS-053（派发失败计数）
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（写录后实跑；C-2 回填前曾现 `queue-attempts-ready` WARN，回填后消解）；干净窗口＝MODIFIED 1（AutoQueue attempts 写入）／ADDED 0／DELETED 0
+  - 未完成: ①**A15 δ 复核待派**（复核面＝本处置批；「新增 0」后汇呈判包）②呈判包内容（既有呈判项）：ISS-068（md5 不可复算替代核验是否足够）＋`done_when` 的 M/A 24 成员面口径＋§9.4b 是否需补终局全量（整篇）
+  - 下一手: 固化 r27 复核面（基线 5b97386）→ INIT → 派 `vr1-auditor`（A15，增量档）→ **收工即查** → 汇呈判包呈 R0（门禁权在人；Q-010 不得自置 done）
+- [更正 Q-010 A13 回收入库条（R-104 窗口数字／r26 基线）] 角色=R8（领队） 日期=2026-09-24 轮次=（更正）
+  - 产物: `doc/verify/05` R-104 ②段（行内更正：ADDED **2** 件归因＝R8 一次性临时件 `script/tmp/fix_a13_win.py`／`r25_win.txt`，删后复跑为 0）＋`doc/review/01-评审记录.md` 附 AA 领队注①（引注统一为「10 件全数可归因；评审者零写入不可由该窗隔离——见 ISS-069」）；本条
+  - 依据: A14 报告 B-1／C-1（附 AB）；证据件 `doc/review/01-评审探针/rocheck_r25_window.txt` 原始输出「ADDED 2  script/tmp/fix_a13_win.py script/tmp/r25_win.txt」
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（更正后实跑）
+  - 未完成: r26 复核面权威基线＝**fff7415**（`machine_r26_changed_all.txt` 自述；上条「下一手」所写「基线 312cd51」系笔误，以本更正为准）
+  - 下一手: A15 复核时按 fff7415 面复核 r26/r27 两件基线口径
