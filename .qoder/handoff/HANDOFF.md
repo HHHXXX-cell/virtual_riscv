@@ -679,3 +679,10 @@
   - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（关闭批写录后实跑）
   - 未完成: ①M/A 24 成员语义（T-14／T-15）与跨篇清单①（异常提交抑制写对照）**转后续 `spec/02` 第二批片**——须在其成篇时逐条编入 ②`spec/00` v0.1 仍待评审（`spec/03` 等后续篇按《驱动计划》推进）
   - 下一手: `python script/gate.py dispatch` 取队首（按 `role` 字段切换角色执行；每轮开工先 `gate.py check`）
+
+- [Q-006] 角色=R8（领队）/执行=R1（设计面） 日期=2026-09-24 轮次=1（续写片派发·spec/03）
+  - 产物: `run_cmd/AutoQueue.yaml` Q-006 `state: in_progress`＋landable 续写片范围（T3-5 明文项＋T3-2/T3-3/T3-6/T3-7 成文）；本片写面预告＝`doc/spec/03-分支预测与取指前端.md`＋`doc/verify/05` R-109＋本条（完成后回填）
+  - 依据: Q-010 关闭批（R0 裁决「全 A」，R-108）后 `gate.py dispatch` 取队首＝Q-006；其 `done_when` 明文含 T3-5（跨篇联动⑥／附 AA 澄-D）
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（派发记录写录后实跑；此前 `handoff-exists` 曾因先改 state 后补记录 FAIL 一次，已即修）
+  - 未完成: 稿未成（待设计片回收）；T3-1/T3-4/T3-8 维持待补（归属见 spec/03 §4）
+  - 下一手: 派 `vr1-designer` 执行续写片 → 回收后 `gate.py check`＋增量/整篇复核拟定
