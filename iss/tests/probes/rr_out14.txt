@@ -25,3 +25,37 @@ machine.py md5 = 6dd2c94d07cdea623b3c741a33596de9
   [FS-B] RED-CAUGHT  inject: P14-2b 指令 0x00000173 -> 0x00200073（换编码点） | pred=False（主运行该点将报 FAIL） got: exc_v=1 cause=2 mcause=2 pc=0x2000
   [FS-C] RED-CAUGHT  inject: 前门序 x5 初值 0x8 -> 0x0（改一个操作数） | pred=False（主运行该点将报 FAIL） got: mstatus(mret后)=0x80 pc=0x1008 cold=0x80
 == falsify summary: injections=3 red caught=3（检查器有效：主运行会报红） ==
+---- [R-102 append] 时间 2026-09-24T10:52:12+08:00 | CMD: python iss/tests/probes/rr_probe14.py | machine.py md5 = 6dd2c94d07cdea623b3c741a33596de9 | 主运行（P14-3 新增后全量；下列为实跑输出） ----
+== rr_probe14: 附 Z 澄-1 落盘件 —— D-3（CSRRW rd=x0 回填 csr_old）／D-4（ECALL rd=2）实跑复现 ==
+CMD: python iss/tests/probes/rr_probe14.py   (cwd = 仓库根；PYTHONIOENCODING=utf-8)
+machine.py md5 = 6dd2c94d07cdea623b3c741a33596de9
+spec anchors = lines 5049-5052 / 3174-3180 / 46915+ / 2026-2029 / 45127-45130（R-102 增）
+-- P14-1  D-3: CSRRW rd=x0 的 csr_old 回填（口径注·低烈度；spec/02 §16.3.1 D-3） --
+  [P14-1a] PASS  expect: 实读初值：rd_wb=0 且 cold=0x0（mstatus 不在初值表，非 0x88；以实测为准） | got: rd_wb=0 cold=0x0 cnew=0x20008 cwr=1 mstatus=0x20008
+  [P14-1b] PASS  expect: R-096 观察逐位复现（前置态 0x88）：rd_wb=0 但 cold=0x88（已读回填） | got: rd_wb=0 cold=0x88 cnew=0x20008 cwr=1 mstatus=0x20008
+  [P14-1c] PASS  expect: 前门序自然可达（无 CSR 注入）：MRET 后 mstatus=0x88，末步 csrrw 记录 cold=0x88 且 rd_wb=0 | got: mstatus(mret后)=0x88 pc=0x1008 rd_wb=0 cold=0x88 cnew=0x20008
+  [P14-1d] PASS  expect: trace 列面：gpr 列=''（rd=x0）；csr 列只含新值 0x300:0x…2008（csr_old 不在列内）；x1 无副作用 | got: gpr='' csr='0x300:0x0000000000020008' x1=0x20008 x0=0
+  [P14-1] INFO  口径注（低）：一期 CSR 集无读副作用 + csr_old 不进 trace 比对列（iss/README §3 映射表）
+                  ==> 无可观测分叉；ISS 记录字段是否按 rd=x0 置空=verifier 自定；本件维持现状（不改 ISS）。
+-- P14-2  D-4: ECALL rd=2（SYSTEM 保留字段）-> 正常陷阱（口径归 spec/10 T-9） --
+  [P14-2a] PASS  expect: ECALL rd=x0（规范形，对照） -> 正常陷阱 cause=11（ECALL_M；非 illegal=2） | got: exc_v=1 cause=11 mcause=11 mepc=0x1000 mtval=0x0 pc=0x2000 priv=3
+  [P14-2b] PASS  expect: ECALL rd=2（R-096 P7 观察复现：按字面接受） -> 正常陷阱 cause=11（ECALL_M；非 illegal=2） | got: exc_v=1 cause=11 mcause=11 mepc=0x1000 mtval=0x0 pc=0x2000 priv=3
+  [P14-2c] PASS  expect: ECALL rs1=3（同 'rd/rs1 非零组合' 面） -> 正常陷阱 cause=11（ECALL_M；非 illegal=2） | got: exc_v=1 cause=11 mcause=11 mepc=0x1000 mtval=0x0 pc=0x2000 priv=3
+  [P14-2d] PASS  expect: ECALL rd=2 且 rs1=3（组合面） -> 正常陷阱 cause=11（ECALL_M；非 illegal=2） | got: exc_v=1 cause=11 mcause=11 mepc=0x1000 mtval=0x0 pc=0x2000 priv=3
+  [P14-2e] PASS  expect: 对照：SYSTEM funct7=0 low5=2 未定义点 -> illegal（cause=2；非全盘接受） | got: exc_v=1 cause=2 mcause=2 pc=0x2000
+  [P14-2] INFO  D-4 不判缺陷：SYSTEM 保留字段口径归 spec/10 T-9（保留!=非法依据句=spec/02 §9.3）；
+                 本件只落盘现状观察（ISS 侧未加保留化检查），不改 ISS。
+-- P14-3  D-2 对照分支: MRET 且 MPP=S -> MPRV 清 0（y!=M 正确路径；代证 R-096 行文 P3b） --
+  [P14-3] PASS  expect: MPP=S(0b01): MPRV 清 0, priv=S, MPP->0, MIE<-MPIE=1, MPIE=1, pc=mepc（mstatus 恰为 0x88） | got: mstatus=0x88 priv=1 pc=0x2000
+  [P14-3] INFO  D-2 对照分支落盘：P14-3=MPP=S 代证（P4b 为 MPP=U 同分支；二者同为 y≠M）；
+                 P4a／P4c（`rr_probe13`）覆盖 MPP=M 保持侧；规范行 45127–45130。
+== probe14 summary: checks=10 fail=0  ==
+---- [R-102 append] 时间 2026-09-24T10:52:12+08:00 | CMD: python iss/tests/probes/rr_probe14.py --self-falsify | machine.py md5 = 6dd2c94d07cdea623b3c741a33596de9 | 负控运行（--self-falsify；下列为实跑输出） ----
+== rr_probe14 [SELF-FALSIFY]：单点注入负控（每个检查点配一次反证） ==
+CMD: python iss/tests/probes/rr_probe14.py --self-falsify   (cwd = 仓库根；PYTHONIOENCODING=utf-8)
+machine.py md5 = 6dd2c94d07cdea623b3c741a33596de9
+  [FS-A] RED-CAUGHT  inject: P14-1b 前置态 0x88 -> 0x89（翻一位 CSR） | pred=False（主运行该点将报 FAIL） got: rd_wb=0 cold=0x89 cnew=0x20008
+  [FS-B] RED-CAUGHT  inject: P14-2b 指令 0x00000173 -> 0x00200073（换编码点） | pred=False（主运行该点将报 FAIL） got: exc_v=1 cause=2 mcause=2 pc=0x2000
+  [FS-C] RED-CAUGHT  inject: 前门序 x5 初值 0x8 -> 0x0（改一个操作数） | pred=False（主运行该点将报 FAIL） got: mstatus(mret后)=0x80 pc=0x1008 cold=0x80
+  [FS-D] RED-CAUGHT  inject: P14-3 前置态 MPP=S -> MPP=M（翻 MPP 域一位） | pred=False（主运行该点将报 FAIL） got: mstatus=0x20088 priv=3 pc=0x2000
+== falsify summary: injections=4 red caught=4（检查器有效：主运行会报红） ==

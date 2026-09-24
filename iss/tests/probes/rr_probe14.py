@@ -5,6 +5,10 @@
 - R-096 行的 ISS 互校清单含 D-3／D-4 两条"口径注"，但**无落盘用例**，且其行文 P 编号与
   落盘件 `rr_probe13.py` 的文件内编号**同号不同物**。本件把 D-3／D-4 两条观察值补成
   可回查证据（本文件＋实跑重定向输出 `rr_out14.txt`，不得手写结果），并给出三方编号对照。
+- R-102 verifier 收口微片（A13 增量复核·附 AA 澄-B／澄-C 处置）：①澄-B 改述——R-096 行文
+  **未标前置态**；0x88 口径按实测补（**fresh=0x0，0x88 需前置态**，见下"关于 R-096 观察值"段）
+  ②澄-C 补 D-2 对照分支落盘——新增 **P14-3**（MRET 且 MPP=S → MPRV 清 0；代证 R-096 行文
+  P3b，`rr_probe13` P4b 为 MPP=U 同分支）。两处均只增不改既有 P14-1／P14-2（`doc/verify/05` R-102）。
 
 三方 P 编号对照表（逐行一一对应；"无对应"＝该命名空间内不存在同物编号）：
 
@@ -13,7 +17,7 @@
 | SLLI 保留编码（D-1 主项；`spec/02` §16.3.1 D-1） | P1 | P1（SLLI 保留） | —（R-097 已落盘） |
 | W 型移位保留对照（D-1 对照；同出处"对照 P2"） | P2 | P2（SLLIW/SRLIW/SRAIW） | —（R-097 已落盘） |
 | ADDIW 立即数域（同族附项） | —（R-096 未单列） | P3（ADDIW） | —（R-097 已落盘） |
-| MRET/MPRV（D-2；`spec/02` §16.3.1 D-2） | P3（=MRET） | P4（=MRET） | —（R-097 已落盘） |
+| MRET/MPRV（D-2；`spec/02` §16.3.1 D-2） | P3（=MRET）／P3b（=MPP=S 对照） | P4（=MRET） | P4（R-097 已落盘）＋**P14-3**（=MPP=S 代证；P4b 为 MPP=U 同分支；二者同为 y≠M） |
 | SRET 未实现记录 | —（R-096 未单列） | P5（SRET） | — |
 | CSRRW rd=x0（D-3；`spec/02` §16.3.1 D-3） | P4（=CSRRW） | 无对应（P1~P5 均非此用例） | **P14-1**（本件落盘） |
 | ECALL rd=2（D-4；`spec/02` §16.3.1 D-4） | P7（=ECALL） | 无对应 | **P14-2**（本件落盘） |
@@ -35,9 +39,10 @@ D-3 现象与口径（**口径注·低烈度**；`spec/02` §16.3.1 D-3 行同�
 - **无可观测分叉**：一期 CSR 集无读副作用；`csr_old` **不进 trace 比对列**（`iss/README.md`
   §3 映射表：csr 列只取 `csr_addr`／`csr_new`／`csr_wr_en`）⇒ D-3 不构成可观测分叉；
   ISS 侧记录字段是否按 rd=x0 置空＝verifier 自定（本件维持现状、不改 ISS，`doc/verify/05` R-100）。
-- 关于 R-096 观察值"cold=0x88"：实读 `machine.py.__init__` 初值表不含 mstatus（缺省经
-  `csr_read` 得 0）⇒ **0x88 不是复位值/初值**（P14-1a 实测 fresh 初值＝0x0，与 R-096 行文
-  "0x88 为复位值"不符，以实测为准）。0x88＝MIE|MPIE（bit3|bit7），可由"MIE=1 时发生陷阱
+- 关于 R-096 观察值"cold=0x88"（澄-B 改述，`doc/verify/05` R-102）：**R-096 行文未标前置态**
+  （原文仅"`cold=0x88`（已读）"一句）；本件按实测补前置态口径——**fresh 初值＝0x0，0x88 需
+  前置态**。实读 `machine.py.__init__` 初值表不含 mstatus（缺省经 `csr_read` 得 0）⇒ fresh
+  直跑 `cold=0x0`（P14-1a 实测）。0x88＝MIE|MPIE（bit3|bit7），可由"MIE=1 时发生陷阱
   （MPIE←MIE=1、MIE←0、MPP←M）再 MRET（MIE←MPIE、MPIE←1、MPP→最低可用模式）"自然产生；
   本件以 P14-1b（显式前置态注入，与 `rr_probe13` `single(csrs=...)` 同法）与 P14-1c
   （前门指令序，无 CSR 注入）两种方式复现 `cold=0x88`。
@@ -54,14 +59,18 @@ D-4 现象与口径（**边界注；不判缺陷**）：
 - 行 3174–3180  ECALL/EBREAK 正文（"cause a precise requested trap"）
 - 行 46915 起   ECALL 按起源特权级生成对应异常（M 态＝environment-call-from-M＝11）
 - 行 2026–2029  保留编码译码行为 UNSPECIFIED（平台可选非法化）→ D-4 口径归 T-9
+- 行 45127–45130  xRET 语义（"If y≠M, xRET also sets MPRV=0"；P14-3 代证用；变更记录行 42649 同口径）
 
 自证伪（负控；每个检查点配一次反证）：
 - `--self-falsify` 模式对"检查点所观察的态势"做单点注入，验证主运行的同一断言谓词确实翻假
   （即主运行会报 FAIL——只有能报红的检查器才算存在）：
     注入 A（翻一位 CSR）：P14-1b 前置态 0x88 -> 0x89 -> cold 谓词应翻假；
     注入 B（换一个编码点）：P14-2b 指令 0x00000173 -> 0x00200073 -> cause=11 谓词应翻假；
-    注入 C（改一个操作数）：前门序 x5 初值 0x8 -> 0x0 -> MRET 后 mstatus 谓词应翻假。
-- 负控谓词未翻假者报 MISS（该检查器无效）；输出块 2 随附于 `rr_out14.txt`。
+    注入 C（改一个操作数）：前门序 x5 初值 0x8 -> 0x0 -> MRET 后 mstatus 谓词应翻假；
+    注入 D（翻 MPP 域一位）：P14-3 前置态 MPP=S -> MPP=M -> "MPRV 清 0／priv=S" 谓词应翻假
+    （M 分支保持 MPRV=1）。
+- 负控谓词未翻假者报 MISS（该检查器无效）；负控输出块随附于 `rr_out14.txt`
+  （R-100 提交＝块 2；R-102 追加后另见末块）。
 
 跑法（仓库根，UTF-8 输出）：
     set PYTHONIOENCODING=utf-8 （bash: PYTHONIOENCODING=utf-8）
@@ -102,6 +111,8 @@ MSTATUS_MIE = 1 << 3
 MSTATUS_MPIE = 1 << 7
 MS_0X88 = MSTATUS_MIE | MSTATUS_MPIE  # = 0x88（R-096 行文观察值；MIE|MPIE 组合）
 SRC_X1 = 0x2_0008                     # csrrw 源值：MPRV(bit17)|MIE(bit3)，均在 mstatus 写掩码内
+MSTATUS_MPRV = 1 << 17                # P14-3 前置态注入用（bit17；y≠M 时 xRET 应清 0，行 45130）
+MSTATUS_MPP_S = 0b01 << 11            # mstatus.MPP=S（P14-3 前置态注入用；0b11=M）
 
 CODE = 0x1000
 HANDLER = 0x1100
@@ -165,7 +176,7 @@ def main() -> int:
     print("CMD: python iss/tests/probes/rr_probe14.py   (cwd = 仓库根；PYTHONIOENCODING=utf-8)")
     m5 = hashlib.md5((ROOT / "iss" / "vriss" / "machine.py").read_bytes()).hexdigest()
     print("machine.py md5 = %s" % m5)
-    print("spec anchors = lines 5049-5052 / 3174-3180 / 46915+ / 2026-2029")
+    print("spec anchors = lines 5049-5052 / 3174-3180 / 46915+ / 2026-2029 / 45127-45130（R-102 增）")
 
     print("-- P14-1  D-3: CSRRW rd=x0 的 csr_old 回填（口径注·低烈度；spec/02 §16.3.1 D-3） --")
     r, iss = single(I_CSRRW_X0_MSTATUS_X1, regs={1: SRC_X1})
@@ -225,6 +236,17 @@ def main() -> int:
     print("  [P14-2] INFO  D-4 不判缺陷：SYSTEM 保留字段口径归 spec/10 T-9（保留!=非法依据句=spec/02 §9.3）；")
     print("                 本件只落盘现状观察（ISS 侧未加保留化检查），不改 ISS。")
 
+    print("-- P14-3  D-2 对照分支: MRET 且 MPP=S -> MPRV 清 0（y!=M 正确路径；代证 R-096 行文 P3b） --")
+    r, iss = single(I_MRET, csrs={int(Csr.MSTATUS): MSTATUS_MPP_S | MSTATUS_MPRV | MSTATUS_MPIE,
+                                  int(Csr.MEPC): 0x2000})
+    m = iss.csr[int(Csr.MSTATUS)]
+    chk("P14-3", "MPP=S(0b01): MPRV 清 0, priv=S, MPP->0, MIE<-MPIE=1, MPIE=1, pc=mepc（mstatus 恰为 0x88）",
+        (m >> 17) & 1 == 0 and iss.priv == 1 and (m >> 11) & 3 == 0
+        and (m >> 3) & 1 == 1 and (m >> 7) & 1 == 1 and iss.pc == 0x2000 and m == 0x88,
+        "mstatus=0x%x priv=%d pc=0x%x" % (m, iss.priv, iss.pc))
+    print("  [P14-3] INFO  D-2 对照分支落盘：P14-3=MPP=S 代证（P4b 为 MPP=U 同分支；二者同为 y≠M）；")
+    print("                 P4a／P4c（`rr_probe13`）覆盖 MPP=M 保持侧；规范行 45127–45130。")
+
     n_fail = len(FAILS)
     print("== probe14 summary: checks=%d fail=%d %s =="
           % (_COUNT[0], n_fail, ("| FAIL ids: " + ",".join(FAILS)) if FAILS else ""))
@@ -232,12 +254,13 @@ def main() -> int:
 
 
 def self_falsify() -> int:
-    """自证伪（负控）：三处单点注入，验证主运行对应断言的谓词确实会翻假（会报红）。
+    """自证伪（负控）：四处单点注入，验证主运行对应断言的谓词确实会翻假（会报红）。
 
     注入 A（翻一位 CSR）：P14-1b 前置态 0x88 -> 0x89；谓词 cold=0x88 应翻假。
     注入 B（换一个编码点）：P14-2b 指令 0x00000173 -> 0x00200073（ECALL rd=2 -> SYSTEM
             未定义点）；谓词 cause=11（ECALL_M）应翻假。
     注入 C（改一个操作数）：前门序 x5 初值 MIE -> 0x0；谓词 MRET 后 mstatus=0x88 应翻假。
+    注入 D（翻 MPP 域一位）：P14-3 前置态 MPP=S -> MPP=M；谓词 MPRV 清 0／priv=S 应翻假。
     谓词未翻假者报 MISS（该检查器无效）。
     """
     print("== rr_probe14 [SELF-FALSIFY]：单点注入负控（每个检查点配一次反证） ==")
@@ -274,8 +297,16 @@ def self_falsify() -> int:
         and r.csr_old == 0x88 and r.csr_new == SRC_X1,
         "mstatus(mret后)=0x%x pc=0x%x cold=0x%x" % (m_mid, pc_back, r.csr_old))
 
-    print("== falsify summary: injections=3 %s =="
-          % ("red caught=3（检查器有效：主运行会报红）" if not missed
+    r, iss = single(I_MRET, csrs={int(Csr.MSTATUS): (3 << 11) | MSTATUS_MPRV | MSTATUS_MPIE,
+                                  int(Csr.MEPC): 0x2000})
+    m = iss.csr[int(Csr.MSTATUS)]
+    red("FS-D", "P14-3 前置态 MPP=S -> MPP=M（翻 MPP 域一位）",
+        (m >> 17) & 1 == 0 and iss.priv == 1 and (m >> 11) & 3 == 0
+        and (m >> 3) & 1 == 1 and (m >> 7) & 1 == 1 and iss.pc == 0x2000 and m == 0x88,
+        "mstatus=0x%x priv=%d pc=0x%x" % (m, iss.priv, iss.pc))
+
+    print("== falsify summary: injections=4 %s =="
+          % ("red caught=4（检查器有效：主运行会报红）" if not missed
              else "MISS ids: " + ",".join(missed)))
     return 1 if missed else 0
 

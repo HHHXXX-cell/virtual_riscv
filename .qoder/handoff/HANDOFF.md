@@ -620,3 +620,15 @@
   - 机判: 补丁逐锚点唯一命中断言 3/3（先验后写、CRLF 感知、无整文件翻转）；`spec/02` 行尾 CRLF 891／裸 LF 0／裸 CR 0；`python script/width_check.py`＝合计 28 个 struct：可机器核对=28，不符=0，未能核实=0（转录基准行 2）；`python script/gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（写录前实跑，末行为权威源）
   - 未完成: ①偏差两处已留痕 R-101 结论列——派发句「D-1／D-2 行引用的 `P#`＝文件编号」仅 D-1 成立（D-2 行 `P3` 实为 R-096 行文编号、对应文件编号 `P4`，按澄-1／R-100／`rr_probe14.py` 文件头三方改写）；派发片段「（前进 D-2 不适用）」语义不可判、未写入 ②本片未经评审（送审并入 A13 复核面）
   - 下一手: R8 核销本片＋增量复核 A13（复核面含 R-101、新口径段、两处行尾指针、`rr_probe14.py` 文件头表）→ Q-010 呈判
+- [Q-010 verifier 收口微片（附 AA 澄-B／澄-C 处置；更正 Q-010 verifier 微片#1）] 角色=verifier 日期=2026-09-24 轮次=2
+  - 产物: ① `iss/tests/probes/rr_probe14.py`（澄-B 改述一处＝0x88 前置态口径；新增 P14-3＝MRET 且 MPP=S → MPRV 清 0；负控追加 FS-D；文件头对照表 D-2 行注「P14-3 = MPP=S 代证（P4b 为 MPP=U 同分支；二者同为 y≠M）」；既有 P14-1／P14-2 用例与断言未动）② `iss/tests/probes/rr_out14.txt` 追加两块（主运行 checks=10／负控 injections=4；块头含命令/时间/md5；原两块原样保留＝前缀 3601 B、md5 `d8fdd33a…` 未变）③ `doc/verify/05-回归记录.md` 追加 **R-102**；本条
+  - 依据: A13 增量复核（报告待归档＝附 AA）澄-B／澄-C；`spec/02` §16.3.1 D-2 行（P3b 对照）；规范提取件行 45127–45130（“If y≠M, xRET also sets MPRV=0”）／42649；`machine.py` md5 零改动（`6dd2c94d…`）；落点＝`doc/verify/05` R-102
+  - 机判: 四项回归实跑——`rr_probe14`＝`== probe14 summary: checks=10 fail=0  ==`；`--self-falsify`＝`== falsify summary: injections=4 red caught=4（检查器有效：主运行会报红） ==`；`rr_probe13`＝`== probe13 summary: checks=17 fail=0  ==`；`test_isa_semantics`＝`[semantics] 断言 32 项，失败 0 项`；`test_smoke`＝retired=30 通过；`python script/gate.py check`＝`---- 24 PASS / 0 WARN / 0 FAIL ----`（末行为权威源；写录前实跑）
+  - 未完成: ①（更正 Q-010 verifier 微片#1）前条未完成③的 0x88“复位值/初值”转述不可回查（全库实检无原件）——R-096 行文未标前置态、仅「`cold=0x88`（已读）」；已按实测改述（fresh=0x0／0x88 需前置态；落点＝探针文件头＋R-102）②本片未经评审（送审并入 A13／附 AA 复核面）③`spec/02` §16.3.1 D-2 行如需补 P14-3 落盘指针属设计写面、本片只登记未动④D-3／D-4 维持现状不改 ISS（D-4 归 `spec/10` T-9）
+  - 下一手: R8 核销本片（A13／附 AA 复核面含 R-102、探针两件、P14-3 与 FS-D 新块）→ Q-010 呈判
+- [Q-010-L12d 收口微片（A13／附 AA 澄-A 处置：`spec/02` 两条同轴残项对齐＋§16.3.1 D-2 行 P14-3 落盘指针）] 角色=designer 日期=2026-09-24 轮次=1
+  - 产物: `doc/spec/02-指令集与逐指令行为.md` 3 处字节级补丁（L867 §16.5 T-7 行：行级锚 2722–2746→2722–2757＋L12d 短注；L887 §16.6 检查项 5：同轴改 2722–2757（Table 2 跨页，含第五行块 2751–2757）＋短注；L796 §16.3.1 D-2 行证据列：补「对照 P3b（MPP=S）」实证落点＝`rr_probe14.py` P14-3（R-102 实测 mstatus=0x88 priv=1）＋`rr_probe13.py` 对应项为 P4b（MPP=U 同 y≠M 分支））；`doc/verify/05-回归记录.md` 追加 **R-103**；本条
+  - 依据: 派发词 Q-010-L12d；实读件＝`rr_out14.txt` L49（P14-3 `got: mstatus=0x88 priv=1 pc=0x2000`）＋`rr_out13.txt` L25／L54（P4b）＋`rr_probe14.py` 文件头三方对照表＋R-099／R-102；落点＝`doc/verify/05` R-103
+  - 机判: 补丁逐锚点唯一命中断言 3/3（每处旧串全篇命中＝1、行内＝1；`spec/02` sha256 `b86e9cc8…`→`e2e65cb9…`）；行级 diff 断言＝仅 L796／L867／L887 变更；行尾自查＝`spec/02` CRLF 891／裸 LF 0／裸 CR 0；`python script/width_check.py`＝合计 28 个 struct：可机器核对=28，不符=0，未能核实=0（转录基准行 2）；`PYTHONIOENCODING=utf-8 python script/gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（末行为权威源）；`git diff --numstat`（记录追加前实跑）＝`spec/02` +3/−3
+  - 未完成: ①本片未经评审（送审并入 A13 归档后的回查面）②附 AA（A13 报告）待 R8 归档——`附 AA 澄-A` 指针以派发口径为准、归档后回查 ③跨篇承接维持 L12 登记（`spec/03` T3-5／`spec/01` §3.12）、仍开放 ④D-3／D-4 维持现状不改 ISS
+  - 下一手: R8 核销本片＋归档 A13（附 AA）→ 按复核面回查三处短注 → Q-010 呈判
