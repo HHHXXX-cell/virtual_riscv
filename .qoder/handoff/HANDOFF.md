@@ -889,3 +889,17 @@
   - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----；`width_check`＝28/28 不符 0；`I[12]` 命中 10/预期 10
   - 未完成: ①ADR-S08（`PRF_RD_PORTS` 2 恢复读口，RD 片在跑）待回收 → 随 S-09 落文 ②T-04-5b 落文清单已给但须 S-09 执行（本篇不得改 `spec/00`）③5d 归 Q-037
   - 下一手: ADR-S08 回收 → S-09（`spec/00` 收口：§4.8 四行重算＋§4.4 行注＋`PRF_RD_PORTS` 决议＋ISS-020 残余清点）
+
+- [S-09（spec/00 收口＋ISS-020 关闭面）] 角色=R8（本体） 日期=2026-09-24 轮次=（S-09）
+  - 产物: `doc/spec/00`（§4.3 `PRF_RD_PORTS` 行注更正＋§5 D2 措辞＋§4.8 机判注＋版本表 `v0.1 续5`）；`script/width_check.py`（`check_sram()` 扩件：乘法/加式＋合计＋禁 ≈/…，并入 --json）；`doc/process/00` ISS-020 → 已解决（八项清点）；`doc/verify/05` **R-140**；本条
+  - 依据: ISS-020 残余清点（五项待落）；`spec/04` §4.4 T-04-5b 落文清单；ISS-020 待落项「width_check 扩件（乘法/加式校验）」；ADR-S2（禁 ≈/…）
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----；`width_check`＝struct 28/28 不符 0 ＋ §4.8 SRAM 12/12 相符、合计 2,970,836＝Σ行、≈/… = 0/0；双向验证（注入⇒FAIL、还原⇒sha256 一致）
+  - 未完成: ①ADR-S08（`PRF_RD_PORTS` 2 恢复读口，RD 片；被停进程后按需重派）待回收 → §4.3 行注去「待裁」②Q-037（等待集断言＋spec/01 字面同步）待派 ③S-10/S-11 待派
+  - 下一手: ADR-S08 回收落文 → S-10（`doc/verify/01` 首建，D-21 解阻条件已满足）
+
+- [Q-003] 角色=R8（本体） 日期=2026-09-24 轮次=（S-09 收口）
+  - 产物: `doc/spec/00`（§4.3 `PRF_RD_PORTS` 行注对账＋§5 D2 措辞＋§4.8 机判注＋版本表 `v0.1 续5`）；`script/width_check.py` 扩件；`doc/process/00` ISS-020 → 已解决；本条＋`- [S-09...]` 条
+  - 依据: `run_cmd/AutoQueue.yaml` Q-003 `done_when`（§4.8 每行可复算且禁 ≈/…；ISS-020 转已解决；gate 全 PASS）；ISS-020 残余清点八项
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（≈ 计数口径修毕后实跑）；`width_check` 结构 28/28＋§4.8 SRAM 12/12
+  - 未完成: 无（done_when 三项满足）；`PRF_RD_PORTS` 2 恢复读口承载方＝ADR-S08（RD）待回收落文
+  - 下一手: ADR-S08 回收 → S-10（`doc/verify/01` 首建）

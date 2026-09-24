@@ -127,6 +127,115 @@ def parse():
     return structs
 
 
+IDENT = re.compile(r'[A-Za-z_][A-Za-z_0-9]*')
+CJK = re.compile(r'[\u4e00-\u9fff]+')
+
+
+def _sram_norm(expr):
+    e = expr.replace('＋', '+').replace('×', '*').replace('−', '-').replace('＝', '=')
+    e = e.replace(',', '').replace('（', '(').replace('）', ')')
+    e = IDENT.sub(' ', e)                       # 标识符整词剥离（防 `rs1_arch` 残留 1）
+    e = CJK.sub(' ', e)                         # 中文单位/说明剥离（`64 set × 8 way` 类）
+    return re.sub(r'\s+', ' ', e).strip()
+
+
+def _sram_eval(e):
+    if not re.fullmatch(r'[0-9+\-*/() ]+', e) or not any(c.isdigit() for c in e):
+        return None
+    try:
+        v = eval(e, {'__builtins__': {}}, {})
+    except Exception:
+        return None
+    return int(v) if float(v).is_integer() else None
+
+
+def check_sram():
+    """spec/00 §4.8 SRAM 位量算术核销（乘法/加式扩件，ISS-020 待落项）。
+
+    判据三条：①逐行反引号算式求值＝该行位量列；②合计＝Σ 行（且合计行的加式自洽）；
+    ③表块内 `≈`/`…` 计数为 0（ADR-S2 禁）。历史式（`原…`）、中间合式（`…合`）与
+    `→` 邻接算式一律剔除，不计入行和——宁可少算，不许把说明文字当算式。
+    """
+    out = {'ok': True, 'rows': 0, 'ok_rows': 0, 'bad_rows': 0, 'bad': [],
+           'total': 0, 'row_sum': 0, 'sum_expr_ok': False, 'approx': 0, 'ellipsis': 0,
+           'head_line': 0}
+    if not os.path.exists(SPEC00):
+        out['ok'] = False
+        out['bad'].append('spec/00 不存在')
+        return out
+    txt = io.open(SPEC00, encoding='utf-8', errors='replace').read().splitlines()
+    start = None
+    for i, l in enumerate(txt):
+        if l.startswith('### 4.8'):
+            start = i
+            out['head_line'] = i + 1
+            break
+    if start is None:
+        out['ok'] = False
+        out['bad'].append('未找到 §4.8 节')
+        return out
+    rows, block, i = [], [], start
+    while i < len(txt):
+        l = txt[i]
+        if i > start and l.startswith('## '):
+            break
+        block.append(l)
+        if l.startswith('|') and l.count('|') >= 4:
+            rows.append([x.strip() for x in l.strip('|').split('|')])
+        i += 1
+    bt = '\n'.join(block)
+    bt_plain = re.sub(r'`[^`]*`', '', bt)          # 反引号内是“提及符”，不计入禁字
+    out['approx'], out['ellipsis'] = bt_plain.count('≈'), bt_plain.count('…')
+    if out['approx'] or out['ellipsis']:
+        out['ok'] = False
+        out['bad'].append('表块内出现 ≈/…（禁）')
+    for c in rows:
+        name = c[0].strip('* ')
+        if name == '结构' or name.startswith('---'):
+            continue
+        cell = c[2] if len(c) > 2 else ''
+        m = re.search(r'([\d][\d,]*)', c[1])
+        declared = int(m.group(1).replace(',', '')) if m else None
+        if name == '合计':
+            out['total'] = declared or 0
+            m2 = re.search(r'Σ[^：:]*[:：]([^=]+)=\s*([\d,]+)', cell)
+            if m2:
+                lhs = _sram_eval(_sram_norm(m2.group(1)))
+                out['sum_expr_ok'] = (lhs == declared == int(m2.group(2).replace(',', '')))
+            continue
+        ssum, nspan = 0, 0
+        for mm in re.finditer(r'`([^`]+)`', cell):
+            sp, a, b = mm.group(1), mm.start(), mm.end()
+            if '→' in cell[b:b + 2] or '→' in cell[max(0, a - 8):a]:
+                continue
+            pre = cell[max(0, a - 8):a]
+            if '原' in pre or '合' in pre:
+                continue
+            v = _sram_eval(_sram_norm(sp))
+            if v is not None:
+                ssum += v
+                nspan += 1
+        out['rows'] += 1
+        out['row_sum'] += (declared or 0)
+        if nspan == 0 or declared is None:
+            out['bad'].append('%s 无法复算（无算式或位量列缺）' % name)
+            out['bad_rows'] += 1
+            out['ok'] = False
+        elif ssum == declared:
+            out['ok_rows'] += 1
+        else:
+            out['bad'].append('%s 算式和 %d ≠ 位量 %d' % (name, ssum, declared))
+            out['bad_rows'] += 1
+            out['ok'] = False
+    if out['total'] != out['row_sum']:
+        out['ok'] = False
+        out['bad'].append('合计 %d ≠ Σ行 %d' % (out['total'], out['row_sum']))
+    if not out['sum_expr_ok']:
+        out['ok'] = False
+        out['bad'].append('合计行加式复算未通过')
+    return out
+
+
 def main():
     only = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith('--') else None
     structs = parse()
@@ -162,6 +271,15 @@ def main():
                      'claims': claims, 'title_claims': tclaims, 'verdict': verdict})
         if only and s['name'] != only:
             continue
+    n_struct = len(rows)
+    # ISS-020 待落项「width_check 扩件（乘法/加式校验）」：spec/00 §4.8 SRAM 位量逐行复算，
+    # 并入 rows 供 --json 消费者（gate）把不符当 FAIL；行名以 `@` 前缀与 struct 区分。
+    sram = check_sram()
+    rows.append({'struct': '@spec00-4.8-SRAM', 'head_line': sram['head_line'],
+                 'members': sram['rows'], 'baseline': 0,
+                 'resolved': sram['rows'], 'unresolved': 0,
+                 'sum_computed': sram['row_sum'], 'claims': [sram['total']],
+                 'title_claims': [], 'verdict': 'OK' if sram['ok'] else 'MISMATCH'})
     if '--json' in sys.argv:
         print(json.dumps(rows, ensure_ascii=False, indent=1))
         return 1 if any(r['verdict'] == 'MISMATCH' for r in rows) else 0
@@ -169,6 +287,8 @@ def main():
     print('== struct 位宽实算 vs 文档声明 ==')
     print('%-16s %6s %6s %8s %-22s %s' % ('struct', '成员', '未解析', '实算和', '文档声明值', '判定'))
     for r in rows:
+        if r['struct'].startswith('@'):
+            continue
         if only and r['struct'] != only:
             continue
         claim_txt = ','.join(map(str, r['claims']))
@@ -179,13 +299,25 @@ def main():
                                                r['verdict']))
     mis = [r for r in rows if r['verdict'] in ('MISMATCH', 'TITLE-MISMATCH', 'UNVERIFIED',
                                                'NO-TABLE', 'NO-CLAIM')]
-    nb = sum(r['baseline'] for r in rows)
+    nb = sum(r['baseline'] for r in rows if not r['struct'].startswith('@'))
     print('\n合计 %d 个 struct：可机器核对=%d，不符=%d，未能核实=%d；其中转录基准行 %d 个'
           '（计入所属 struct 之和，不计为独立实测——N16③）'
-          % (len(rows), len(rows) - len(mis),
-             len([r for r in rows if r['verdict'] in ('MISMATCH', 'TITLE-MISMATCH')]),
-             len([r for r in rows if r['verdict'] in ('UNVERIFIED', 'NO-TABLE', 'NO-CLAIM')]),
+          % (n_struct, n_struct - len([r for r in mis if not r['struct'].startswith('@')]),
+             len([r for r in mis if not r['struct'].startswith('@')
+                  and r['verdict'] in ('MISMATCH', 'TITLE-MISMATCH')]),
+             len([r for r in mis if not r['struct'].startswith('@')
+                  and r['verdict'] in ('UNVERIFIED', 'NO-TABLE', 'NO-CLAIM')]),
              nb))
+    console = 'GBK' if 'utf-8' not in (sys.stdout.encoding or '').lower() else ''
+    ok_mk = 'OK' if console else '✓'
+    bad_mk = 'x' if console else '✗'
+    print('== spec/00 §4.8 SRAM 位量算术核销（乘法/加式；ISS-020 扩件）==')
+    print('  逐行复算（反引号算式求值＝位量列）：相符 %d / 不符 %d；合计 %s＝Σ行 %d %s；加式复算 %s；表块内 ≈/… = %d/%d'
+          % (sram['ok_rows'], sram['bad_rows'], format(sram['total'], ','), sram['row_sum'],
+             ok_mk if sram['total'] == sram['row_sum'] else bad_mk,
+             ok_mk if sram['sum_expr_ok'] else bad_mk, sram['approx'], sram['ellipsis']))
+    if not sram['ok']:
+        print('  └ 不符明细：%s' % '; '.join(sram['bad']))
     print('已知盲区（N16④，无机判、靠评审轮与 spec/02/08/10 值域表兜）：成员值域合法性、'
           '跨 struct 键存在性、例化总量（×N）正确性。')
     if mis:

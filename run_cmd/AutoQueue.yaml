@@ -85,12 +85,12 @@ items:
     role: R1
     basis: doc/process/00 ISS-020（16 项阻塞）；spec/00 §4.8
     done_when: spec/00 §4.8 每行可复算（禁 ≈ 与省略号）；ISS-020 转【已解决】；gate.py check 通过
-    state: ready        # 2026-09-24 S-08 批：值前提（ADR-S2）已满足、`blocked_by` 空；Q-002 依赖按"值前提已由 ADR-S2 满足"解（见 landable）
+    state: done         # 2026-09-24 S-09（R-140）：done_when 三项满足——§4.8 每行可复算（禁 ≈/…，已入 width_check 机判）、ISS-020 转【已解决】、gate 全 PASS
     priority: P1
     depends_on: []
     blocked_by: []        # 2026-09-23 记「需人定两个数」；2026-09-24 已由 ADR-S2 定（PRF 维持 64＋收窄宣称、FWD 保持 2＋废截断）
     review_rounds: 0
-    landable: "**2026-09-24 S-08 批解阻（`doc/verify/05` R-139）**：S-09（D-20）=本项收口片——`spec/00` §4.8 四行重算（禁 `≈`）、§4.4 行注对账（T-04-5b 落文清单见 `spec/04` §4.4）、§4.3 `PRF_RD_PORTS` 2 恢复读口（待 ADR-S08 回收）、ISS-020 残余清点"
+    landable: "**2026-09-24 S-09 收口（`doc/verify/05` R-140）**：§4.3 `PRF_RD_PORTS` 行注对账（发射级读＝`ISSUE_WIDTH×2`）＋§5 D2 措辞更正＋版本表 `v0.1 续5`；§4.8 算术入 `width_check.py` 机判（12/12＋合计＋禁 ≈/…；双向验证）；ISS-020 关闭；`PRF_RD_PORTS` 2 恢复读口承载方＝ADR-S08（RD，落文随其后片）"
 
   - id: Q-004
     task: spec/01 v0.2 返工——清 21 项阻塞并跑一轮纯复核轮
