@@ -607,6 +607,7 @@ def cmd_check(_):
     check_handoff(rep)
     check_width(rep)
     check_capability_landed(rep)
+    check_spec14_905(rep)
     rc = rep.dump()
     if rc:
         print('R8 纪律：有 FAIL 即不得宣布任何"已落实"；修完重跑，不信任何口头结论。')
@@ -1065,6 +1066,54 @@ def cmd_rocheck(argv):
         return 0
     print('用法：gate.py rocheck --baseline | --window <ISO>')
     return 2
+
+
+def check_spec14_905(rep):
+    """KB §6.2 机判义务落地（2026-09-25，R-168）：正文标注数 ↔ 评审 list 条数必须相等。
+    本项目形态 = doc/spec/14 §3④ 汇聚清单 与 doc/verify/03 §0 D-13 行标注的对账：
+    ①加式自洽 ②声明行数=条目数-3 ③实际表体行数=声明行数 ④D-13 行 B-n/D5-n 标注逐项在 §3 出现。
+    解析失败不得默认为过（fail-closed）。"""
+    p14 = os.path.join(ROOT, 'doc', 'spec', '14-接口冻结记录.md')
+    p03 = os.path.join(ROOT, 'doc', 'verify', '03-验证计划.md')
+    if not os.path.exists(p14):
+        rep.fail('spec14-905-count', 'spec/14 不存在')
+        return
+    t14, t03 = read(p14), read(p03)
+    bad = []
+    m = re.search(r'B 系\s*(\d+)\s*＋\s*(?:ADR-)?D3 系\s*(\d+)\s*＋\s*(?:ADR-)?D4 系\s*(\d+)\s*＋\s*D5 系\s*(\d+)', t14)
+    if not m:
+        rep.fail('spec14-905-count', '未找到 §3④ 加式')
+        return
+    total = sum(int(x) for x in m.groups())
+    mn = re.search(r'条目数\s*(\d+)\s*项', t14)
+    mr = re.search(r'表体\s*(\d+)\s*行', t14)
+    if not mn or int(mn.group(1)) != total:
+        bad.append('加式和 %d != 声明条目数 %s' % (total, mn.group(1) if mn else '-'))
+    if not mr or int(mr.group(1)) != total - 3:
+        bad.append('声明行数 %s != 条目数-3(%d)' % (mr.group(1) if mr else '-', total - 3))
+    cnt = 0; in_tab = False
+    for ln in t14.splitlines():
+        if ln.startswith('| 条目 | 来源 |'):
+            in_tab = True; continue
+        if in_tab:
+            if ln.startswith('|') and not set(ln.replace('|', '').strip()) <= set('-: '):
+                cnt += 1
+            elif not ln.startswith('|'):
+                break
+    if cnt and mr and cnt != int(mr.group(1)):
+        bad.append('实际表体行数 %d != 声明 %s' % (cnt, mr.group(1)))
+    row = ''
+    for ln in t03.splitlines():
+        if ln.startswith('| D-13 |'):
+            row = ln; break
+    toks = sorted(set(re.findall(r'B-\d|D5-[①②③]', row)))
+    miss = [tk for tk in toks if tk not in t14]
+    if miss:
+        bad.append('D-13 行标注未在 §3 出现：%s' % ','.join(miss))
+    if bad:
+        rep.fail('spec14-905-count', '；'.join(bad))
+    else:
+        rep.ok('spec14-905-count', '§9.5/§3④ 对账通过（条目 %d／表体 %d 行／D-13 标注 %d 项全在）' % (total, cnt, len(toks)))
 
 
 def check_capability_landed(rep):
