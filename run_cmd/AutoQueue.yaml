@@ -297,12 +297,12 @@ items:
     role: R1
     basis: 计划轮"10 提前过 08/09"；ISS-007 ADR 下游义务
     done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/verify/04 §② 计划快照）；每篇独立走 §9.4 两档复核
-    state: ready
+    state: done          # 2026-09-24 S-20 交付（R-157）
     priority: P2
     depends_on: [Q-019]
     blocked_by: []
     review_rounds: 0
-    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+    landable: "**2026-09-24 S-20 交付（R-157）**：`doc/spec/10` 首片——特权级/CSR 分类、trap 进场返回（含 45127–45130/46131/52453/52455–52458 五处【权】锚）、中断面（七元优先级）、系统指令语义面、规范版本声明三段式；T-10-1（CSR 全表）＝G1 前必须闭合"
   - id: Q-021
     task: 写 spec/08 访存一致性/VM（Sv39）
     role: R1
