@@ -394,7 +394,7 @@ def check_text(rep):
 def _ra_live_lines():
     """返回 [(显示名, 行号, 行文本)]：只含"活引用面"的行。
     规则承载件与工具/队列取全件；HANDOFF 只取**最后一条记录**的"未完成/下一手"两字段
-    （最新交接面＝活指令；记录内其余字段与更早记录均属快照，按"记录不改写"免扫）。"""
+    （最新交接面＝活指令；记录内其余字段与更早记录均属快照，按"记录不改写"免扫——理由：记录面不改写的既有约定；ISS-052）。"""
     out = []
     for rel in RA_LIVE_FILES:
         p = os.path.join(ROOT, rel)
@@ -435,14 +435,17 @@ def check_redlines(rep):
     扫描面＝规则承载件 + `script/gate.py` + `run_cmd/AutoQueue.yaml` 全件，
     加 HANDOFF **最后一条记录**的"未完成/下一手"（最新交接面）。
     记录面豁免：台账/回归记录/评审记录/HANDOFF 历史记录——那些是"已移除"的事后记载，不是引用；
-    行级豁免标记 `记录不改写` 供个别例外逐行显式标注（沿用 codepoints 判据的先例）。"""
+    行级豁免标记 `记录不改写` 供个别例外逐行显式标注（沿用 codepoints 判据的先例；理由：同上；ISS-052）。"""
     bad = []
     for rel, ln, line in _ra_live_lines():
         if line == '<<MISSING>>':
             bad.append('%s: 规则承载件不存在' % rel)
             continue
         if RA_RECORD_EXEMPT in line:
-            continue
+            # B-4（S-13 送审修复，2026-09-24，附 AJ／ISS-090）：原「含标记即整行跳过」无理由/无审批；
+            # 现要求同行显式理由（JS-编号 或「理由」字样），否则按未豁免处理（fail-closed）。
+            if ('理由' in line) or re.search(r'ISS-\d{3}', line):
+                continue
         # B-2（S-13）：原正则只认无分隔紧邻大写形，漏「连字符/空格/全小写」等形式（含大小写混写）；
         # 词边界（前非字母数字下划线）防「更长单词内子串」类误报。
         for m in re.finditer(r'(?<![A-Za-z0-9_])RA[\s\-]?(\d+)', line, re.I):
@@ -1085,13 +1088,30 @@ def check_capability_landed(rep):
     miss = []
     if 'rocheck' not in CMDS:
         miss.append('gate.py 无 rocheck 子命令')
+    # A-5（S-13 送审修复，2026-09-24，附 AJ）：行为面探针——声明的是「子命令名」，
+    # 但规则 22 用的是「窗口模式」。子命令名在而 `--window` 分支被删时，原判据仍 PASS。
+    src = read(os.path.join(ROOT, 'script', 'gate.py'))
+    if '--window' not in src:
+        miss.append('gate.py 无 --window 分支（规则 22 窗口模式缺失）')
     if not os.path.exists(BASE_JSON):
         miss.append('script/gate/integrity_baseline.json 不存在')
+    else:
+        # A-3（部分）：快照字段与 reason 可回查——ADR-4 硬规则⑤「独立提交＋留痕（旧→新指纹、折入集出处）」的机判半。
+        try:
+            doc = json.loads(read(BASE_JSON))
+            for k in ("fingerprint", "files", "reason"):
+                if not str(doc.get(k, "")).strip():
+                    miss.append('基线字段缺失/为空：%s' % k)
+            rsn = str(doc.get("reason", ""))
+            if rsn and not (re.search(r"R-\d{3}", rsn) or re.search(r"\b[0-9a-f]{7,}\b", rsn)):
+                miss.append('基线 reason 不可回查（须含 R-nnn 或提交号）：%s' % rsn[:40])
+        except ValueError as e:
+            miss.append('基线 JSON 损坏：%s' % e)
     if miss:
         rep.fail('capability-landed', '规则承载件已声明（%s）但实件缺失：%s'
                  % ('；'.join(hits[:6]), '；'.join(miss)))
     else:
-        rep.ok('capability-landed', '声明 %d 处，实件齐（rocheck 子命令 + integrity_baseline.json）'
+        rep.ok('capability-landed', '声明 %d 处，实件齐（rocheck 子命令 + --window 分支 + 基线字段/reason 可回查）'
                % len(hits))
 
 

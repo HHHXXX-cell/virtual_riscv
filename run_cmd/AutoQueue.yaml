@@ -492,21 +492,21 @@ items:
     role: R1
     basis: doc/spec/04 §4.4（T-04-5d 归属）＋doc/spec/04 §8-1；doc/spec/02 §16.4-(1)/(2) 承接口径；doc/spec/04 §2.1
     done_when: 四项逐条落文且可回查（拍序给「前递 w.r.t. `W` 读出拍」的显式关系；两处字面按已定口径改写；旧编号全部改引 `INV-n`）；gate.py check 全 PASS（末行为准）
-    state: ready
+    state: done
     priority: P2
     depends_on: []
     blocked_by: []
     review_rounds: 0
-    landable: "**2026-09-24 S-08 批转录（R-139）**：四项来源＝T-04-5d（S-08 §4.4 归属）＋`spec/02` §16.5 登记（§3.6/§3.12 字面同步）＋`spec/04` §2.1 下游义务（旧编号改引）"
+    landable: "**2026-09-24 S-12 核销（R-146）**：四项全落——①`SAME_GROUP_BYPASS_DEPTH` 拍序（ADR-S12：前递在前；`spec/01` §1.1/§3.5/§4）②§3.6 `is_comp` 恒 0 括注 ③§3.12 `is_jalr_ret` 谓词括注 ④§4/§8 旧编号实核已满足"
 
   - id: Q-038
     task: 门禁增强片（S-11 送审 7 项）：①`rocheck --window` 已有旧窗口且 ISO 不等时告警/拒跑（A-2）②长基线刷新六条硬规则机判化（A-3）③`snapshot` 删件绕过防御（基线不存在时须 `--reason` 方可建立／A-4）④`capability-landed` 反例防护（子命令行为探针／声明面收窄／A-5）⑤编号匹配的词边界与「连字符/空格/全小写」等形式、规则序号（B-2/B-3）⑥豁免标记粒度＋理由字段（B-4）⑦HANDOFF 末条解析＝按 `^- \[` 任取末条、字段缺失 FAIL 不静默（B-5）
     role: R8
     basis: `doc/process/00` ISS-090；评审记录附 AJ（A-2/A-3/A-4/A-5/B-2/B-4/B-5，含审计者所给构造）
     done_when: 七项逐条实装或明列「不做＋理由」；每项带双向验证（构造注入 ⇒ 判据触发；撤除 ⇒ 复原）；gate.py check 全 PASS（末行为准）；规则承载件措辞与实现一致
-    state: ready
+    state: done
     priority: P2
     depends_on: []
     blocked_by: []
     review_rounds: 0
-    landable: "**2026-09-24 S-11 送审转出（R-143）**：7 项构造与后果见附 AJ；本片不涉判定口径放宽（只增判据）"
+    landable: "**2026-09-24 七项全处置（R-147）**：A-2 窗口异 ISO 拒跑／A-3 部分（基线字段＋reason 可回查）／A-4 建立须 `--reason`／A-5 `--window` 分支探针／B-2 词边界等形式／B-4 豁免须带理由／B-5 末条记录解析——均带双向或三路验证；A-3 余四条明列「不做＋理由」（跨轮过程状态，流程面承载）"
