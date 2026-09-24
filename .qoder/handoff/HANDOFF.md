@@ -1025,3 +1025,10 @@
   - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----
   - 未完成: S-15/S-16 待派；篇序队列 Q-019~Q-026 在册
   - 下一手: S-15（`spec/05` 时序与流水级细节，含 F2 `xw_carry` 专项）→ S-16（`spec/06`）→ 篇序续推
+
+- [收尾巡检·散件清理] 角色=R8（本体） 日期=2026-09-24 轮次=（R-151）
+  - 产物: 清理 `run_cmd/AutoQueue.yaml.tmp{E,J,L,P}`×4＋仓根 0 字节整句式散件×9；台账 **ISS-091**（登记即闭）；看板/AGENTS 计数 91＝3/24/64；`doc/verify/05` **R-151**；本条
+  - 依据: `windows-locked-file-safe-write` 手册 R5（散件巡检）/R7（收尾自检）；`list_strays.py` 输出
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----；`git status` 净（仅环境件 `.qoder/settings.json`）
+  - 未完成: S-15/S-16 待派（篇序）；推送待网络恢复
+  - 下一手: S-15（`spec/05` 起稿）→ S-16 → 篇序续推
