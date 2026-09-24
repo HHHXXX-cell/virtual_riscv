@@ -181,7 +181,7 @@ items:
     depends_on: []
     blocked_by: []             # 2026-09-23 解阻：规范提取件已可达且经原文复验（ISS-032 关闭）
     review_rounds: 0
-    landable: ""
+    landable: 收口片完成（R-096：AN 台账 29/30 可回查＋§10 63 条三段链全量＋ISS 互校 D-1~D-4＋T-4/T-7/T-10 关闭）→ 新登记 ISS-063/064（ISS 侧缺陷，交 verifier 修）→ 待复核片（spec/02 ⊿＋iss ⊿ 增量）
 
   # ---------- P3：不挡主线，先建骨架 ----------
   - id: Q-011
