@@ -1004,3 +1004,17 @@
   - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----；引用抽查 57/57；`width_check` 28/28
   - 未完成: 无（本项闭环）
   - 下一手: 无（其下游 Q-008 → §1 S-14 待派）
+
+- [S-14（doc/verify/02 首建）] 角色=R8（本体） 日期=2026-09-24 轮次=（S-14）
+  - 产物: `doc/verify/02-验证点清单.md`（首建；§1 12 维选用／§2 38 条 VP（含检查手段列）／§3 专项说明／§4 覆盖矩阵／§5 自检）；队列 Q-008 → done；看板 Step 2 行刷新；`doc/verify/05` **R-149**；本条
+  - 依据: Q-008 `done_when`；`doc/项目开发流程.md` §3.1/§3.2（12 维／34 法）；`doc/verify/01` F-01~F-32
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----；`width_check` 28/28＋SRAM 12/12；覆盖 32/32（全对正则）；`待补充`（剥离反引号）＝0
+  - 未完成: Step 2 评审（Verification Point Review）待人确认架构；其后 Step 3~（`doc/verify/03` 本体细化／用例）
+  - 下一手: 呈 R0/人做 **Verification Point Review**（门禁面，规则 23 硬停机类）→ 通过后按 §0/队列续推
+
+- [Q-008] 角色=R8（本体） 日期=2026-09-24 轮次=（S-14 交付确认）
+  - 产物: `doc/verify/02-验证点清单.md` 首建（S-14）；队列本项 → done；`doc/verify/05` R-149；本条
+  - 依据: Q-008 `done_when`（`doc/verify/01` 功能点 100% 覆盖／每点含方法＋激励＋检查手段／边界异常并发专项／无残留）
+  - 机判: gate 24 PASS / 0 WARN / 0 FAIL；覆盖 32/32；`width_check` 28/28＋SRAM 12/12
+  - 未完成: Step 2 评审（Verification Point Review）待人确认架构
+  - 下一手: 呈人做 Verification Point Review → 通过后按 §0/队列续推
