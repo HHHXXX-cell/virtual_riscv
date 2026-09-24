@@ -928,14 +928,16 @@ def _print_classes(mod, add, dele, mt):
 
 def cmd_snapshot(argv):
     """完整性长基线：受控目录集逐文件 md5:size:mtime → script/gate/integrity_baseline.json。
-    刷新（--refresh）必须随 --reason <折入集出处>，否则拒绝执行。"""
+    刷新（--refresh）与**首次建立**都必须随 --reason <折入集出处>，否则拒绝执行（A-4）。"""
     exists = os.path.exists(BASE_JSON)
     refresh = '--refresh' in argv
     reason = argv[argv.index('--reason') + 1] if ('--reason' in argv and
                                                   argv.index('--reason') + 1 < len(argv)) else ''
-    if refresh and not reason.strip():
-        print('--refresh 必须随 --reason（折入集出处：如 doc/verify/05:R-0xx 行 / 提交号 / 评审结论）；'
-              '作不出出处即不得刷新。拒绝执行。')
+    if (refresh or not exists) and not reason.strip():
+        # A-4（S-13 送审修复，2026-09-24，附 AJ／ISS-090）：原「建立」路径免 --reason ⇒
+        # 先删 JSON 再 snapshot 即可绕过折入纪律；现要求建立亦须出处（写入 JSON.reason 字段）。
+        print('长基线「建立」与「刷新」均须随 --reason（折入集出处：如 doc/verify/05:R-0xx 行 / 提交号 / 评审结论）；'
+              '作不出出处即不得建立或刷新。拒绝执行。')
         print(SNAP_RULE)
         return 2
     if exists and not refresh:
