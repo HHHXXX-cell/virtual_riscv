@@ -73,24 +73,24 @@ items:
     role: R1
     basis: doc/process/00 ISS-003 解决方案列；【超】CPU卷/04 第 4 章「数量/端口」维度
     done_when: doc/spec/04-*.md 存在；ISS-003 转【已解决】；不变式 I1/I2 同时出现在 spec 正文与断言/覆盖清单
-    state: blocked
+    state: ready        # 2026-09-24 S-08 解阻复核（R-139）：blocked_by 已空、值前提在位（ADR-S2）⇒ 置 ready
     priority: P1
     depends_on: []
-    blocked_by: []   # 2026-09-23 领队自查修正：ISS-020 已推翻"保持 64 补论证"，PRF 容量与 FWD 源数待人定，否则 spec/04 只能写待定值
+    blocked_by: []   # 2026-09-23 领队自查修正：ISS-020 已推翻"保持 64 补论证"；2026-09-24 S-08 批复核确认值前提已由 ADR-S2 满足（HIST_DEPTH/ROLLBACK_MAX=33、FWD 双项）
     review_rounds: 0
-    landable: ""
+    landable: "**2026-09-24 S-08 解阻复核（`doc/verify/05` R-139）**：`spec/04` 起稿已在（§0~§9 全篇）；`K` 定值链闭合（R-048；§3.6 三笔回写经 S-08 复核实落）；余项＝T-04-1~4/6~8 各承接＋ISS-003 关闭面（需 `INV-1`~`INV-5` 进 `spec/11` SVA 与 `doc/verify/02` 覆盖项，属后续阶段）"
 
   - id: Q-003
     task: spec/00 参数表升 v0.2——PRF/ROB/LQ/SQ/FWD 数值重定 + SRAM 表可复算化
     role: R1
     basis: doc/process/00 ISS-020（16 项阻塞）；spec/00 §4.8
     done_when: spec/00 §4.8 每行可复算（禁 ≈ 与省略号）；ISS-020 转【已解决】；gate.py check 通过
-    state: blocked
+    state: ready        # 2026-09-24 S-08 批：值前提（ADR-S2）已满足、`blocked_by` 空；Q-002 依赖按"值前提已由 ADR-S2 满足"解（见 landable）
     priority: P1
-    depends_on: [Q-002]
-    blocked_by: []        # 需人定两个数：PRF 扩到多少、forwarding 源数
+    depends_on: []
+    blocked_by: []        # 2026-09-23 记「需人定两个数」；2026-09-24 已由 ADR-S2 定（PRF 维持 64＋收窄宣称、FWD 保持 2＋废截断）
     review_rounds: 0
-    landable: ""
+    landable: "**2026-09-24 S-08 批解阻（`doc/verify/05` R-139）**：S-09（D-20）=本项收口片——`spec/00` §4.8 四行重算（禁 `≈`）、§4.4 行注对账（T-04-5b 落文清单见 `spec/04` §4.4）、§4.3 `PRF_RD_PORTS` 2 恢复读口（待 ADR-S08 回收）、ISS-020 残余清点"
 
   - id: Q-004
     task: spec/01 v0.2 返工——清 21 项阻塞并跑一轮纯复核轮
@@ -486,3 +486,15 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "Q-036 交付链闭环：`spec/01` v0.4 接口补片（ROB 三表补 `ftq_id`、`iq_wr_t`/`disp_x_t` 补 `rs1_arch`/`rd_arch`）＋`spec/00` §4.8 同步（合计 2,970,836）＋`spec/03` §2.8 改引；S-01 复核（附 AE）→ L13 处置（R-114）→ S-01b 复核（附 AF：0 阻塞，R-118）→ **ISS-073 已解决**（ADR-S1，R-120；`bp_upd_id` 转出 ISS-082）；本项队列回填滞后（S-02 核销批遗漏）经 R-124 补救"
+
+  - id: Q-037
+    task: spec/01 后续对账片：①`SAME_GROUP_BYPASS_DEPTH=4` 同组分发 RAW 前递链的拍序作用点（T-04-5d）②§3.6 `is_comp` 字面同步（恒 0 口径）③§3.12 `is_jalr_ret` 谓词同步（T-7 承接）④§4/§8 旧编号改引 `INV-n`
+    role: R1
+    basis: doc/spec/04 §4.4（T-04-5d 归属）＋doc/spec/04 §8-1；doc/spec/02 §16.4-(1)/(2) 承接口径；doc/spec/04 §2.1
+    done_when: 四项逐条落文且可回查（拍序给「前递 w.r.t. `W` 读出拍」的显式关系；两处字面按已定口径改写；旧编号全部改引 `INV-n`）；gate.py check 全 PASS（末行为准）
+    state: ready
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "**2026-09-24 S-08 批转录（R-139）**：四项来源＝T-04-5d（S-08 §4.4 归属）＋`spec/02` §16.5 登记（§3.6/§3.12 字面同步）＋`spec/04` §2.1 下游义务（旧编号改引）"
