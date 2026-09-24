@@ -1,6 +1,6 @@
 {
  "exclude": "每轮必改件不入长基线：doc/process/00、doc/verify/04|05、HANDOFF.md、AutoQueue.yaml、*评审记录*.md",
- "file_count": 107,
+ "file_count": 130,
  "files": {
   "doc/review/01-评审探针/machine_r10_changed_all.txt": {
    "md5": "b575a36b6079e9f7c8a7ba9e84319115",
@@ -90,6 +90,91 @@
   "doc/review/01-评审探针/machine_r17b_width.txt": {
    "md5": "f43a351a71e8cf5a8e11afbb8d8fbddf",
    "mtime": "2026-09-24T00:44:08",
+   "size": 2356
+  },
+  "doc/review/01-评审探针/machine_r18_changed_all.txt": {
+   "md5": "0fc78defbbb933c4436daef6277b82e3",
+   "mtime": "2026-09-24T02:12:30",
+   "size": 6789
+  },
+  "doc/review/01-评审探针/machine_r18_check.txt": {
+   "md5": "22e995afd6036235d5b224431df47a8d",
+   "mtime": "2026-09-24T02:12:16",
+   "size": 1566
+  },
+  "doc/review/01-评审探针/machine_r18_width.txt": {
+   "md5": "f43a351a71e8cf5a8e11afbb8d8fbddf",
+   "mtime": "2026-09-24T02:12:30",
+   "size": 2356
+  },
+  "doc/review/01-评审探针/machine_r19_changed_all.txt": {
+   "md5": "ae32183fbee23a9339223411cc35bce5",
+   "mtime": "2026-09-24T02:31:23",
+   "size": 5129
+  },
+  "doc/review/01-评审探针/machine_r19_check.txt": {
+   "md5": "3a3fded3973ad06e6a173c7da50f5c05",
+   "mtime": "2026-09-24T02:31:23",
+   "size": 1566
+  },
+  "doc/review/01-评审探针/machine_r19_width.txt": {
+   "md5": "f43a351a71e8cf5a8e11afbb8d8fbddf",
+   "mtime": "2026-09-24T02:31:23",
+   "size": 2356
+  },
+  "doc/review/01-评审探针/machine_r20_changed_all.txt": {
+   "md5": "3feb7b059449578a861097f66d8a68d3",
+   "mtime": "2026-09-24T07:27:05",
+   "size": 3992
+  },
+  "doc/review/01-评审探针/machine_r20_check.txt": {
+   "md5": "3a3fded3973ad06e6a173c7da50f5c05",
+   "mtime": "2026-09-24T07:17:07",
+   "size": 1566
+  },
+  "doc/review/01-评审探针/machine_r20_width.txt": {
+   "md5": "f43a351a71e8cf5a8e11afbb8d8fbddf",
+   "mtime": "2026-09-24T07:17:08",
+   "size": 2356
+  },
+  "doc/review/01-评审探针/machine_r21_changed_all.txt": {
+   "md5": "709c0d190565950f2ec77439ba08ae19",
+   "mtime": "2026-09-24T08:00:30",
+   "size": 6888
+  },
+  "doc/review/01-评审探针/machine_r21_check.txt": {
+   "md5": "02a34c6a189c5831537af1e5a8ebe7a4",
+   "mtime": "2026-09-24T08:00:30",
+   "size": 1566
+  },
+  "doc/review/01-评审探针/machine_r22_changed_all.txt": {
+   "md5": "7640967ef42888c5a69efc0b68054230",
+   "mtime": "2026-09-24T08:23:37",
+   "size": 7499
+  },
+  "doc/review/01-评审探针/machine_r22_check.txt": {
+   "md5": "02a34c6a189c5831537af1e5a8ebe7a4",
+   "mtime": "2026-09-24T08:23:36",
+   "size": 1566
+  },
+  "doc/review/01-评审探针/machine_r22_width.txt": {
+   "md5": "f43a351a71e8cf5a8e11afbb8d8fbddf",
+   "mtime": "2026-09-24T08:23:37",
+   "size": 2356
+  },
+  "doc/review/01-评审探针/machine_r23_changed_all.txt": {
+   "md5": "2e63a1193537d204ff61ab7f986fac43",
+   "mtime": "2026-09-24T09:06:05",
+   "size": 8637
+  },
+  "doc/review/01-评审探针/machine_r23_check.txt": {
+   "md5": "02a34c6a189c5831537af1e5a8ebe7a4",
+   "mtime": "2026-09-24T09:06:04",
+   "size": 1566
+  },
+  "doc/review/01-评审探针/machine_r23_width.txt": {
+   "md5": "f43a351a71e8cf5a8e11afbb8d8fbddf",
+   "mtime": "2026-09-24T09:06:05",
    "size": 2356
   },
   "doc/review/01-评审探针/machine_r9_changed_all.txt": {
@@ -191,6 +276,36 @@
    "md5": "57e44b5932d3e1fc52220e4ddbbf788f",
    "mtime": "2026-09-24T00:44:08",
    "size": 103143
+  },
+  "doc/review/01-评审探针/snapshot_r18_spec01.md": {
+   "md5": "2bea8daa7a7a454e925a000518b5afa0",
+   "mtime": "2026-09-24T02:12:16",
+   "size": 113785
+  },
+  "doc/review/01-评审探针/snapshot_r19_spec01.md": {
+   "md5": "1db5b855ec677397f2640621a4ebb5ff",
+   "mtime": "2026-09-24T02:31:23",
+   "size": 116530
+  },
+  "doc/review/01-评审探针/snapshot_r20_spec01.md": {
+   "md5": "c4e989177dd2015ca361e1bad8f21f83",
+   "mtime": "2026-09-24T07:17:08",
+   "size": 116959
+  },
+  "doc/review/01-评审探针/snapshot_r21_spec01.md": {
+   "md5": "e5507fb1424d957d770c5f45c1fcbae0",
+   "mtime": "2026-09-24T08:00:30",
+   "size": 118368
+  },
+  "doc/review/01-评审探针/snapshot_r22_spec01.md": {
+   "md5": "e5507fb1424d957d770c5f45c1fcbae0",
+   "mtime": "2026-09-24T08:23:37",
+   "size": 118368
+  },
+  "doc/review/01-评审探针/snapshot_r23_spec01.md": {
+   "md5": "6ccb51e9493fc180a6c9b0f84bfb9475",
+   "mtime": "2026-09-24T09:06:05",
+   "size": 118958
   },
   "doc/review/01-评审探针/snapshot_r9_spec00.md": {
    "md5": "dcc757dba5d0b699c2065d15f747cfa5",
@@ -538,10 +653,10 @@
    "size": 1680
   }
  },
- "fingerprint": "sha256:caf696b51801b83ecee6f8bbe5eb8968c40f54b47ceb5779e4fb10acc59e0f95",
- "generated_at": "2026-09-24T01:03:14",
- "prev_fingerprint": "sha256:098fca46dd5a3e668ae09d869ddfb3ecd6f100642603eb610a3b616ad386bb75",
- "reason": "r18 处置轮开工折入：L1~L6 落文批（已过 A1 增量复核，见评审记录附 N 与 doc/verify/05 R-074）＋r17b 复核面四件（machine_r17b_*＋snapshot_r17b_spec01）",
+ "fingerprint": "sha256:57ca0712b52bbca5c314a9633dd6195882a88f9ef49d5c9c50bc2e8d59f2d1b4",
+ "generated_at": "2026-09-24T09:24:49",
+ "prev_fingerprint": "sha256:caf696b51801b83ecee6f8bbe5eb8968c40f54b47ceb5779e4fb10acc59e0f95",
+ "reason": "Q-010 处置轮开工折入：spec/00/01 全链落文（L1~L11，经 A7~A12 复核）＋复核面件 r20~r23（machine_r2x_*／snapshot_r2x_spec01）＋窗口与探针留痕",
  "scan_dirs": [
   "rtl/",
   "sim/covdb/",
