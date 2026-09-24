@@ -275,12 +275,12 @@ items:
     role: R1
     basis: 计划轮篇序 05→06
     done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/verify/04 §② 计划快照）；每篇独立走 §9.4 两档复核
-    state: ready
+    state: done          # 2026-09-24 S-16 交付（R-153）
     priority: P2
     depends_on: [Q-017]
     blocked_by: []
     review_rounds: 0
-    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+    landable: "**2026-09-24 S-16 交付（`doc/verify/05` R-153）**：`doc/spec/06-访存与cache层次.md` 首片——§1 层次/地址流＋§2 LSU（转发键 PA 全宽、延迟重试、store 提交后写）＋§3 MMU 衔接（walk 归 `spec/08`）＋§4 L1/L2/AXI/MMIO＋§5 待补 T-06-1~6；数值零自造、接口零定义"
   - id: Q-019
     task: 写 spec/07 forwarding（G1 高风险篇：单拍可实现性）
     role: R1
