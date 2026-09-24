@@ -472,3 +472,15 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "`doc/verify/05` R-058；台账 ISS-055；三批清扫 703+37+4=744 处、冻结探针零改动；`path_audit.py` 缺失 0／骨架 0／占位 0；`gate check` 24 PASS / 0 WARN / 0 FAIL"
+
+  - id: Q-036
+    task: 写 spec/01 接口补片——解 ISS-073 两条缺口：①`is_jalr_ret` 产生链的架构号载体（`disp_x_t` 补 `rs1`/`rd` 架构源号或等价方案）②校正队列出队身份键＋`bp_upd_id` 提交侧载体（ROB 链）
+    role: R1
+    basis: doc/process/00 ISS-073（Q-006 续写片退回，G1 前必须闭合）；doc/spec/03 §2.8 (e)(f) 候选方案
+    done_when: ISS-073 转【已解决】；`doc/spec/01` 升版回写（接口/位宽变更走接口升版流程，含版本表与 §9.5 ④段材料更新）；`spec/03` §2.8 相应段落改引落定接口；gate check 全 PASS
+    state: ready
+    priority: P1
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: ""

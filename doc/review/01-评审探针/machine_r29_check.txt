@@ -1,0 +1,26 @@
+== gate check（机械核销）==
+  PASS  ledger-count-待决策       待决策 = 3 一致
+  PASS  ledger-count-处理中       处理中 = 25 一致
+  PASS  ledger-count-已解决       已解决 = 45 一致
+  PASS  ledger-total           合计 73 行一致
+  PASS  ledger-contiguous      通过
+  PASS  solved-needs-date      通过
+  PASS  pending-in-list        通过
+  PASS  pending-list-stale     通过
+  PASS  solved-needs-landing   通过
+  PASS  board-mirrors-ledger   通过
+  PASS  queue-id-unique        通过
+  PASS  queue-review-cap-waiver Q-004 已越权继续（R0 2026-09-23 批准“继续直到收敛”——越权继续，不再受 5 轮上限约束；每轮仍须留痕且不得默认通过）
+  PASS  queue-full-round-cap   Q-004 全量轮 5/5（已闭合，cap 不适用）
+  PASS  queue-full-round-cap   Q-015 全量轮 0/5（已闭合，cap 不适用）
+  PASS  queue-schema           队列 37 项：ready=18 / blocked=6 / 评审中=2 / done=11
+  PASS  codepoints             通过
+  PASS  ra-token-defined       通过
+  PASS  doc05-numbering        通过
+  PASS  md-integrity           通过
+  PASS  handoff-exists         通过
+  PASS  handoff-fields         通过
+  PASS  handoff-no-orphan      通过
+  PASS  width-mismatch         通过
+  PASS  capability-landed      声明 2 处，实件齐（rocheck 子命令 + integrity_baseline.json）
+---- 24 PASS / 0 WARN / 0 FAIL ----
