@@ -13,7 +13,7 @@
 ## 1. 层次总览与地址流
 
 ```
-取指：IF → MMU(翻译/PMP/PMA) → L1I 32KB/8w/64B VIPT → L2 512KB/16w → AXI4 → 外部
+取指：IF → MMU(翻译/PMP/PMA) → L1I 32KB/8w/64B VIPT → L2 256KB/16w → AXI4 → 外部
 数据：LSU → MMU(翻译/PMP/PMA) → L1D 32KB/8w/64B VIPT → L2 → AXI4 → 外部
 旁路：CLINT/PLIC 经 MMIO（non-cacheable 区，单拍传输）
 ```
@@ -38,7 +38,7 @@
 
 ## 3. MMU / TLB / PTW 衔接
 
-- **接口**：`mmu_transl_req_t` / `mmu_transl_rsp_t` / `ptw_mem_req_t`（成员与位宽＝`spec/01` §3.14/§3.15，本篇不复述）。
+- **接口**：`mmu_transl_req_t` / `mmu_transl_rsp_t`（成员与位宽＝`spec/01` §3.14，本篇不复述）；**`ptw_mem_req_t`＝`spec/00` §6 M12 行/X5 注所列「G1 冻结前必须闭合」型，`spec/01` 现文未定义 ⇒ 登记 `spec/01` 后续片（ISS-092 处置项②）**。
 - **翻译口径**：Sv39 三级页表（`VA_BITS=39`）；大页级别（4K/2M/1G）在 `rsp.super` 域；`rw` 域值域＝{R,W,X,保留}（`spec/01` §3.14）。
 - **PMP/PMA**：PMP 8 项；PMA 静态区域表（non-cacheable/strong-order/no-prefetch）；**MAG PMA 不配置**（不实现 `Zama16b`，ADR-S06-A，`spec/00` §2/§8）。
 - **walk 与 A/D 位**：`spec/08`（待建）为权威；本期口径：A/D 位**硬件置**（`spec/00` §5 D8）。

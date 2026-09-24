@@ -28,7 +28,7 @@
 
 ## 2. trap 机制（进场/返回/委托）
 
-**进场（6 动作，M 侧；`spec/01` §3.18 承接）**：`mepc ← 触发指令 pc`（锚：【权】行 46131「written with the virtual address of the instruction that was interrupted or that encountered the exception」）／`mcause ← 码`／`mtval ←` 触发信息（非法指令可回填指令位，锚：【权】行 46408–46421）／`mstatus.MPIE ← MIE`、`MIE ← 0`、`MPP ← 前级`／入口＝`mtvec`（Direct or Vectored，`spec/00` §4.7 `MTVEC_MODES`；【权】§3.1.7）。
+**进场（6 动作，M 侧；`spec/01` §3.18 承接）**：`mepc ← 触发指令 pc`（锚：【权】行 **46130–46131**「written with the virtual address of the instruction that was interrupted or that encountered the exception」——附 AK B3 更正：原标 46131，引句跨该两行）／`mcause ← 码`／`mtval ←` 触发信息（非法指令可回填指令位，锚：【权】行 46408–46421）／`mstatus.MPIE ← MIE`、`MIE ← 0`、`MPP ← 前级`／入口＝`mtvec`（Direct or Vectored，`spec/00` §4.7 `MTVEC_MODES`；【权】§3.1.7）。
 **返回（MRET/SRET）**：`pc ← xepc`；`MIE ← MPIE`、`MPIE ← 1`、`MPP ← 0`（锚：【权】行 52455–52458：MRET 先按 MPP/MPV 定新级，再写位段，最后置级与 `pc=mepc`）；**`MPP=M` 时不得清 `mstatus.MPRV`**（锚：【权】行 45127–45130「If y≠M, xRET also sets MPRV=0」；ISS-064 已按此修 ISS 侧）。
 **重执行**：trap 返回后**重试触发指令**（锚：【权】行 52453「retrying the faulting instruction」）；该指令的写面抑制见 `spec/02` §19。
 **委托**：`medeleg`/`mideleg` 决定 S 侧处置（S 侧进场动作与 M 同构、寄存器换名）；委托面首片只锁清单，细则归深化片（T-10-1）。
@@ -79,7 +79,7 @@
 | # | 检查项 | 复核手段 | 本轮结果 |
 |---|---|---|---|
 | 1 | 规范版本声明三段式在位 | 篇首 1/2/3 条逐条可回查（版本行＝`spec/02` T-11 定案） | 一致 |
-| 2 | 已取证锚直接标注 | §2 三处【权】行号（46131／45127–45130／52453／52455–52458／46408–46421）逐条实读在案 | 一致 |
+| 2 | 已取证锚直接标注 | §2 **五处**【权】行号（**46130–46131**／45127–45130／46408–46421／52453／52455–52458）逐条实读在案（附 AK C3 更正：原写「三处」系计数笔误） | 一致 |
 | 3 | 未取证项已登记不裁定 | T-10-1~6 逐项有出口；CSR 全表明标「归深化片」 | 一致 |
 | 4 | 数值零自造 | 数字 token 全量清点（8/3/3/2/6/0/39/31 等均带篇号节号） | 待本轮实跑 |
 | 5 | 结构完整（表列数/码点） | `gate.py check` 的 `md-integrity`/`codepoints` | 待本轮实跑 |
