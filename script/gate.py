@@ -405,15 +405,25 @@ def _ra_live_lines():
             out.append((rel, ln, line))
     if os.path.exists(HANDOFF):
         lines = read(HANDOFF).splitlines()
-        idx = [i for i, l in enumerate(lines) if l.startswith('- [Q-')]
+        # B-5（S-13 送审修复，2026-09-24，附 AJ／ISS-090）：原只认 `- [Q-` 标题，
+        # 非 Q 标题条目（如 `- [S-xx…]`／`- [停轮…]`）被略过 ⇒「最新交接面」落后多轮。
+        # 现＝最后一个 `- [` 引导的条目块；块内无五字段行时**全块细扫**（fail-closed）。
+        idx = [i for i, l in enumerate(lines) if l.startswith('- [')]
         if idx:
+            head = idx[-1]
+            end = head + 1
+            while end < len(lines) and not lines[end].startswith('- ['):
+                end += 1
             key = None
-            for ln, line in enumerate(lines[idx[-1]:], idx[-1] + 1):
+            for ln, line in enumerate(lines[head:end], head + 1):
                 m = re.match(r'- (产物|依据|机判|未完成|下一手)[：:]', line.strip())
                 if m:
                     key = m.group(1)
                 if key in ('未完成', '下一手'):
                     out.append(('.qoder/handoff/HANDOFF.md(最新记录)', ln, line))
+            if key is None:                     # 无字段行 ⇒ 不静默跳过：整块纳入
+                for ln, line in enumerate(lines[head:end], head + 1):
+                    out.append(('.qoder/handoff/HANDOFF.md(最新记录无字段)', ln, line))
     return out
 
 
@@ -433,7 +443,9 @@ def check_redlines(rep):
             continue
         if RA_RECORD_EXEMPT in line:
             continue
-        for m in re.finditer(r'RA(\d+)', line):
+        # B-2（S-13）：原正则只认无分隔紧邻大写形，漏「连字符/空格/全小写」等形式（含大小写混写）；
+        # 词边界（前非字母数字下划线）防「更长单词内子串」类误报。
+        for m in re.finditer(r'(?<![A-Za-z0-9_])RA[\s\-]?(\d+)', line, re.I):
             if int(m.group(1)) not in RA_DEFINED:
                 bad.append('%s:%d 引用未定义的 RA%s（知识库只定义 RA1~RA4）' % (rel, ln, m.group(1)))
     rep.res('ra-token-defined', bad, '活引用面未引用未定义 RA 编号')
