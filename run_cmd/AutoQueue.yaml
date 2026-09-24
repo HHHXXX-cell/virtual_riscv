@@ -363,12 +363,12 @@ items:
     role: R1
     basis: 计划轮篇序 13→14；G1 签署物
     done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/verify/04 §② 计划快照）；每篇独立走 §9.4 两档复核
-    state: ready
+    state: done          # 2026-09-25 S-24 交付（R-163）；G1 材料齐
     priority: P2
     depends_on: [Q-025]
     blocked_by: []
     review_rounds: 0
-    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+    landable: "**2026-09-25 S-24 交付（R-163）**：`doc/spec/14` 首版——§9.5 四段评审 list（④段汇聚清单 18 条双指针）；**G1 门槛素材齐，停等人签署**（硬停机）"
   - id: Q-027
     task: 平台 smoke 前置骨架（ModelSim-only 部分：tb 骨架 + filelist/tb.f + do/tcl 模板）
     role: R4
