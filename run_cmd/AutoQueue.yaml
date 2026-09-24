@@ -570,3 +570,15 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "**2026-09-25 落（R-172）**：p1 HANDOFF 更正条（历史行不改）；k2 ISS-094/Q-040＝38 处（19＋1＋12＋5＋1，`spec/11` 与 `verify/04` 两处经核实不入）；ISS-097 关闭；台账 97＝3/24/70；r39 收工即查 MODIFIED 0"
+
+  - id: Q-044
+    task: 附 AQ 处置批（δ 轮 6 收工）：p-1（`spec/00` L8／`doc/verify/04` L107 引述性命中记载补记）即修＋ISS-098 登记并关闭
+    role: R8
+    basis: 评审记录附 AQ（δ 轮 6 报告）；`doc/process/00` ISS-098
+    done_when: ISS-094 盘点列附注在文；ISS-098 关闭且台账计数四处一致；gate.py check 全 PASS（末行为准）
+    state: done
+    priority: P1
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "**2026-09-25 落（R-173）**：ISS-094 补「引述性命中不入盘点」注（38 处口径不变）；ISS-098 关闭；台账 98＝3/24/71；r40 收工即查 MODIFIED 0（ADDED 1＝自写探针）"
