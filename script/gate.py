@@ -977,7 +977,8 @@ def cmd_rocheck(argv):
     --baseline    对长基线比对受控目录集：MODIFIED/ADDED/DELETED 任一非空 → 退出码 1；
                   MTIME-ONLY 恒不改变退出码（仅打印）。
     --window <ISO> 扫全仓（含 script/tmp/ 等忽略区；仅排除 .git/、__pycache__/ 与工具状态件）；
-                  首次调用建立窗口快照（INIT 只记录起点、不判定），同 ISO 再调即出四分类。"""
+                  首次调用建立窗口快照（INIT 只记录起点、不判定），同 ISO 再调即出四分类；
+                  **已有旧窗口且 ISO 不等 ⇒ 默认拒跑（rc=2）**，确需重建须显式 `--reset`（A-2）。"""
     if '--baseline' in argv:
         if not os.path.exists(BASE_JSON):
             print('长基线不存在：先 `python script/gate.py snapshot`。不比对即不得宣布"无改动"。')
@@ -1013,6 +1014,14 @@ def cmd_rocheck(argv):
                 st = json.loads(read(WINDOW_STATE))
             except ValueError:
                 st = None
+        if st is not None and st.get('window_start') != iso and '--reset' not in argv:
+            # A-2（S-13 送审修复，2026-09-24，见 doc/review/01-评审记录.md 附 AJ／ISS-090）：
+            # 原行为＝静默重建窗口并 rc=0 ⇒ 可造「改后换新 ISO 重建」假绿。改为默认拒跑。
+            print('== rocheck --window %s：已有窗口 %s（建于 %s）——ISO 不等，默认拒跑（rc=2）=='
+                  % (iso, st.get('window_start'), st.get('created_at', '?')))
+            print('  规则：同 ISO 复跑＝判定；换 ISO 重建＝须显式 --reset（重建丢弃旧快照，差异此后不可再判）。')
+            print('        若本意是判定，请用原 ISO：rocheck --window %s' % st.get('window_start'))
+            return 2
         if st is None or st.get('window_start') != iso:
             if not os.path.isdir(GATEDIR):
                 os.makedirs(GATEDIR)
@@ -1020,7 +1029,8 @@ def cmd_rocheck(argv):
                 json.dump({'window_start': iso, 'created_at': _now_iso(),
                            'file_count': len(new), 'files': new}, f,
                           ensure_ascii=False, sort_keys=True)
-            print('== rocheck --window %s：窗口已建立（INIT，本次只记录起点、不判定）==' % iso)
+            print('== rocheck --window %s：窗口已建立（INIT%s，本次只记录起点、不判定）=='
+                  % (iso, '（--reset 重建）' if st is not None else ''))
             print('  全仓文件 %d（含 script/tmp/ 等忽略区；仅排除 .git/、__pycache__/ 与工具状态件）'
                   % len(new))
             print('  子代理动完手后重跑同一命令 → 四分类（判定只看内容侧 md5/size）。')
