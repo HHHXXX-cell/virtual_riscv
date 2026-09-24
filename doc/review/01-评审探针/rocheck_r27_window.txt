@@ -1,0 +1,8 @@
+== rocheck --window 2026-09-24T11:59:48（窗口快照建于 2026-09-24T11:59:48）==
+  窗口起点文件 192 / 现态文件 192
+  MODIFIED           0  
+  ADDED              0  
+  DELETED            0  
+  MTIME-ONLY(INFO)   0  
+  判定：内容侧 0 变更（纯 mtime 差仅列 INFO，不改判）。
+（R8 注，2026-09-24：本件＝A15 轮核查当场原始输出留存（逐字），按 ISS-069 纠正顺序执行——freeze（`990acc1`，r27 机判件）→ INIT `11:59:48`（写者未启动前、全仓 192 件）→ 派 `vr1-auditor`（A15，只读）→ 收工即查。结果：**MODIFIED／ADDED／DELETED／MTIME-ONLY 全 0** ⇒ 评审者零写入、窗口完全可隔离（本链首个零差异窗口，闭 ISS-069 后的加固证据）。本件为核查后产物（不参与该窗口判定）；**勿对旧 ISO 重跑**（`rocheck` 单槽窗口语义，见 C-16 更正于 `rocheck_r26_window.txt` 注内）。）
