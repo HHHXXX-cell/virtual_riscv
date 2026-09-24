@@ -352,12 +352,12 @@ items:
     role: R1
     basis: 计划轮篇序 12→13；ISS-012 ADR 下游义务
     done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/verify/04 §② 计划快照）；每篇独立走 §9.4 两档复核
-    state: ready
+    state: done          # 2026-09-25 S-23 交付（R-162）
     priority: P2
     depends_on: [Q-024]
     blocked_by: []
     review_rounds: 0
-    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+    landable: "**2026-09-25 S-23 交付（R-162）**：`doc/spec/13` 首片——拍数表/间距入参/停顿报告项（含 ISS-060 登记）/PT1·PT2 判定面/ISS-012 承接；T-13-1~5"
   - id: Q-026
     task: 写 spec/14 接口冻结记录（含 §9.5 四段评审 list 首版——G1 材料）
     role: R1
