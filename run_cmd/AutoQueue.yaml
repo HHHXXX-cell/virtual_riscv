@@ -286,12 +286,12 @@ items:
     role: R1
     basis: 计划轮篇序 06→07；G1 高风险必人读
     done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/verify/04 §② 计划快照）；每篇独立走 §9.4 两档复核
-    state: ready
+    state: done          # 2026-09-24 S-17 交付（R-154）
     priority: P2
     depends_on: [Q-018]
     blocked_by: []
     review_rounds: 0
-    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+    landable: "**2026-09-24 S-17 交付（`doc/verify/05` R-154）**：`doc/spec/07-转发与旁路.md` 首片——§1 转发面拓扑＋§2 仲裁与阻塞（FWD_MAX_SOURCES=2 保持/废截断/延迟重试）＋§3 同组前递＋**§4 单拍可实现性论证（登记＋预测＋回退点，三项回退）**；数值零自造"
   - id: Q-020
     task: 写 spec/10 特权与 CSR（G1 高风险篇；含锁定 1.13 的"规范版本声明"三段式——ISS-007 ADR）
     role: R1
