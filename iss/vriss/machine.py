@@ -192,12 +192,12 @@ class VrIss:
         mpp = (m >> MPP_SHIFT) & 0b11
         if mpp == 0b10:                        # 保留值：按规范写不进，回退为 M
             mpp = int(Priv.MACHINE)
-        new = m & ~MStatus.MIE & ~MStatus.MPIE & ~MStatus.MPP & ~MStatus.MPRV
+        new = m & ~MStatus.MIE & ~MStatus.MPIE & ~MStatus.MPP
         new |= ((m & MStatus.MPIE) >> 4)                    # MIE ← MPIE
         new |= int(MStatus.MPIE)                            # MPIE ← 1
         new |= int(Priv.USER) << MPP_SHIFT                  # MPP ← 最低可用模式（U 已实现）
         if mpp != int(Priv.MACHINE):
-            new &= ~int(MStatus.MPRV)                       # 离开 M 态时清 MPRV
+            new &= ~int(MStatus.MPRV)                       # 仅 y≠M 时清 MPRV（行 45130，ISS-064）
         self.csr[Csr.MSTATUS] = u64(new)
         self.priv = Priv(mpp)
         self.pc = u64(self.csr.get(Csr.MEPC, 0))
@@ -335,9 +335,10 @@ class VrIss:
                 rd: int, funct7: int) -> None:
         x = self._rs1(instr)
         hi6 = (instr >> 26) & 0x3F
-        # 移位的右移类型位在 **instr[30]** ⇒ hi6==0x10（0b010000），不是 0x20；
-        # 保留的 funct6=100000（hi6==0x20）必须报非法。
-        if f3 in (1, 5) and hi6 not in (0x00, 0x10):
+        # 移位合法值域（规范提取件行 3459–3462）：SLLI imm[11:6]=000000；SRLI=000000；SRAI=010000。
+        # 右移类型位在 **instr[30]**（hi6==0x10）——对 SLLI(f3=1) 属保留编码，必须非法（ISS-063）；
+        # funct6=100000（hi6==0x20）等其余值一律保留。
+        if (f3 == 1 and hi6 != 0x00) or (f3 == 5 and hi6 not in (0x00, 0x10)):
             raise Fault(Exc.ILLEGAL_INSTR, instr)
         sh = (instr >> 20) & 0x3F
         val = {
@@ -353,7 +354,13 @@ class VrIss:
                   rd: int, funct7: int) -> None:
         x = self._rs1(instr)
         hi6 = (instr >> 26) & 0x3F
-        if hi6 not in (0x00, 0x10) or (hi6 == 0x10 and f3 != 5) or f3 not in (0, 1, 5):
+        if f3 not in (0, 1, 5):
+            raise Fault(Exc.ILLEGAL_INSTR, instr)      # ADDIW/SLLIW/SRLIW/SRAIW 之外的 funct3 保留
+        # 32 位移位：imm[11:5] 必须为 0（SLLIW/SRLIW）或 0100000（SRAIW）——
+        # imm[5]≠0 是保留编码（规范提取件行 3516–3518）。ADDIW(f3=0) 的 imm 是普通 12 位
+        # 立即数（行 3417），无保留构型，不得按移位域过滤（原实现过拒绝，同片修复）。
+        if f3 in (1, 5) and (hi6 not in (0x00, 0x10) or (hi6 == 0x10 and f3 != 5)
+                             or (instr >> 25) & 1):
             raise Fault(Exc.ILLEGAL_INSTR, instr)
         sh = (instr >> 20) & 0x1F
         val = {

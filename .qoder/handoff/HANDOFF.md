@@ -576,3 +576,10 @@
   - 机判: `python script/width_check.py`＝合计 28 个 struct：可机器核对=28，不符=0，未能核实=0（转录基准行 2）；`python script/gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（末行为权威源）；行内补丁唯一命中 2/2；`git diff --numstat`＝`spec/02` +184/−2；CRLF 未翻转（裸 CR＝0）
   - 未完成: ①**互校分歧清单**：D-1＝ISS 接受 SLLI 保留编码（bit30=1∧funct3=001；探针 P1 exc=0）／D-2＝MRET 在 MPP=M 误清 mstatus.MPRV（探针 P3；规范行 45130）——两条判责＝ISS 侧，交 R8 转 verifier（红线 R2），本片写面限未改 `iss/`；D-3（CSRRW rd=x0 仍回填 `csr_old`）／D-4（SYSTEM 保留字段）＝口径注，待 `spec/10` 收口回看；②ISS 侧另报：C/A/SRET/SFENCE.VMA 未实现（与 `misa.C=1` 自账矛盾）、README 计数口径「40 条」与 §10 的 63 不符；③`spec/01` 字面同步 2 处（§3.6 is_comp／§3.12 is_jalr_ret）＋§3.19【用】§2.8 引注对照未做（跨篇）；④本片未经评审（送审由 R8 派）
   - 下一手: R8 核销 Q-010 并按《驱动计划》取队首；送审时请复核：①AN 复跑表可复现性②§10 三段链分类与 M/A 类级锚③互校分歧 D-1／D-2 取证（探针输出＋规范行 3448–3462／45130）④T-7 行级锚 2722–2746 的 Table 2 读法
+
+- [Q-010-ISS063/064 修复（verifier 面）] 角色=verifier 日期=2026-09-24 轮次=1（修 ISS-063／ISS-064＋同族移位保留构型扫描）
+  - 产物: `iss/vriss/machine.py`（`_op_imm`／`_op_imm32`／`_xret` 三处修复）；`iss/tests/probes/rr_probe13.py`＋`rr_out13.txt`（修复前 17 检查 8 失败→修复后 17/17；块头 md5 `080278a3…`→`6dd2c94d…`）；`iss/tests/test_isa_semantics.py`（新增 9 断言，合计 32 项失败 0）；`doc/verify/05` **R-097**；本条
+  - 依据: R-096 转派（D-1／D-2 判责＝ISS 侧）；规范提取件行 3459–3462／3516–3518／3417／45127–45130；`iss/README.md` §2/§5
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（写录前实跑，末行为权威源；写录后复跑见尾验）；探针 17/17 PASS（RC=0）；语义 32 项失败 0（RC=0）；冒烟 retired=30 通过（RC=0）
+  - 未完成: ①SRET 仍显式 NotImplementedError（设计缺口；MPRV 规则已落共享 `_xret`，接线自动继承）②同族新增发现＝W 型 imm[5]≠0 静默接受／ADDIW 过拒绝，本片修复并披露，**请 R8 立台账**③R-096 的 D-3/D-4 续挂待 `spec/10`；`iss/README` 计数/声明未受影响（未动）
+  - 下一手: R8 核销本片并立目（新增发现登记）＋送审；建议复核点：`rr_out13.txt` 两段块头 md5 差异、规范行 3459–3462/3516–3518/45130、`test_isa_semantics.py` 新增 9 断言

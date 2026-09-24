@@ -1,0 +1,58 @@
+== rr_probe13: ISS-063/ISS-064 reproduce + RV64 shift-reserved family sweep ==
+CMD: python iss/tests/probes/rr_probe13.py   (cwd = 仓库根；PYTHONIOENCODING=utf-8)
+machine.py md5 = 080278a30399b096e880187584504980
+spec anchors = lines 3459-3467 / 3516-3518 / 3417 / 45127-45130
+-- P1  ISS-063: SLLI reserved (f3=001, bit30=1) --
+  [P1a] FAIL  expect: illegal (exc_v=1 cause=2) | got: exc_v=0 cause=0 mnem='slli'
+-- P1c controls: legal 64-bit shifts（含 6 位 shamt 的 bit25） --
+  [P1c1] PASS  expect: slli executes (exc_v=0) | got: exc_v=0 mnem='slli'
+  [P1c2] PASS  expect: slli shamt=36 legal (bit25=1 属 RV64 六位 shamt；x11=0x10_0000_0000) | got: exc_v=0 x11=0x1000000000
+  [P1c3] PASS  expect: srli legal (exc_v=0) | got: exc_v=0 mnem='srli'
+  [P1c4] PASS  expect: srai legal (exc_v=0) | got: exc_v=0 mnem='srai'
+-- P2  SLLIW/SRLIW/SRAIW reserved configs (spec 行 3516-3518) --
+  [P2a] PASS  expect: illegal (imm[11:5]=0100000) | got: exc_v=1 cause=2 mnem=''
+  [P2b] FAIL  expect: illegal (imm[5]=1) | got: exc_v=0 cause=0 mnem='slliw'
+  [P2c] FAIL  expect: illegal (imm[5]=1) | got: exc_v=0 cause=0 mnem='srliw'
+  [P2d] FAIL  expect: illegal (imm[5]=1(hi6=0x10)) | got: exc_v=0 cause=0 mnem='sraiw'
+  [P2c1] PASS  expect: slliw legal (exc_v=0) | got: exc_v=0 mnem='slliw'
+  [P2c2] PASS  expect: sraiw legal (exc_v=0) | got: exc_v=0 mnem='sraiw'
+-- P3  ADDIW 全 12 位立即数域（spec 行 3417；无保留构型） --
+  [P3a] FAIL  expect: addiw x9=7, imm=100 -> exc_v=0, x11=107 | got: exc_v=1 x11=0
+  [P3b] FAIL  expect: addiw x9=7, imm=-1 -> exc_v=0, x11=6 | got: exc_v=1 x11=0
+  [P3c] FAIL  expect: addiw x9=0, imm=0x400 -> exc_v=0, x11=0x400 | got: exc_v=1 x11=0x0
+-- P4  ISS-064: MRET 的 MPRV 语义（spec 行 45127-45130） --
+  [P4a] FAIL  expect: MPP=M: MPRV 保持 1, MPP->0, MIE<-MPIE=1, priv=M, pc=mepc | got: mstatus=0x88 priv=3 pc=0x2000
+  [P4b] PASS  expect: MPP=U: MPRV 清 0, priv=U, MPP->0（y!=M 分支） | got: mstatus=0x80 priv=0
+  [P4c] PASS  expect: MPP=M 且 MPRV=0: 不得被置 1（防过度修正） | got: mstatus=0x88
+-- P5  记录：SRET 仍为显式未实现（README §5；不在本片修复范围） --
+  [P5] INFO  SRET -> NotImplementedError: SRET：等 doc/spec/10 的 S 态委托冻结后补
+== probe13 summary: checks=17 fail=8 | FAIL ids: P1a,P2b,P2c,P2d,P3a,P3b,P3c,P4a ==
+== rr_probe13: ISS-063/ISS-064 reproduce + RV64 shift-reserved family sweep ==
+CMD: python iss/tests/probes/rr_probe13.py   (cwd = 仓库根；PYTHONIOENCODING=utf-8)
+machine.py md5 = 6dd2c94d07cdea623b3c741a33596de9
+spec anchors = lines 3459-3467 / 3516-3518 / 3417 / 45127-45130
+-- P1  ISS-063: SLLI reserved (f3=001, bit30=1) --
+  [P1a] PASS  expect: illegal (exc_v=1 cause=2) | got: exc_v=1 cause=2 mnem=''
+-- P1c controls: legal 64-bit shifts（含 6 位 shamt 的 bit25） --
+  [P1c1] PASS  expect: slli executes (exc_v=0) | got: exc_v=0 mnem='slli'
+  [P1c2] PASS  expect: slli shamt=36 legal (bit25=1 属 RV64 六位 shamt；x11=0x10_0000_0000) | got: exc_v=0 x11=0x1000000000
+  [P1c3] PASS  expect: srli legal (exc_v=0) | got: exc_v=0 mnem='srli'
+  [P1c4] PASS  expect: srai legal (exc_v=0) | got: exc_v=0 mnem='srai'
+-- P2  SLLIW/SRLIW/SRAIW reserved configs (spec 行 3516-3518) --
+  [P2a] PASS  expect: illegal (imm[11:5]=0100000) | got: exc_v=1 cause=2 mnem=''
+  [P2b] PASS  expect: illegal (imm[5]=1) | got: exc_v=1 cause=2 mnem=''
+  [P2c] PASS  expect: illegal (imm[5]=1) | got: exc_v=1 cause=2 mnem=''
+  [P2d] PASS  expect: illegal (imm[5]=1(hi6=0x10)) | got: exc_v=1 cause=2 mnem=''
+  [P2c1] PASS  expect: slliw legal (exc_v=0) | got: exc_v=0 mnem='slliw'
+  [P2c2] PASS  expect: sraiw legal (exc_v=0) | got: exc_v=0 mnem='sraiw'
+-- P3  ADDIW 全 12 位立即数域（spec 行 3417；无保留构型） --
+  [P3a] PASS  expect: addiw x9=7, imm=100 -> exc_v=0, x11=107 | got: exc_v=0 x11=107
+  [P3b] PASS  expect: addiw x9=7, imm=-1 -> exc_v=0, x11=6 | got: exc_v=0 x11=6
+  [P3c] PASS  expect: addiw x9=0, imm=0x400 -> exc_v=0, x11=0x400 | got: exc_v=0 x11=0x400
+-- P4  ISS-064: MRET 的 MPRV 语义（spec 行 45127-45130） --
+  [P4a] PASS  expect: MPP=M: MPRV 保持 1, MPP->0, MIE<-MPIE=1, priv=M, pc=mepc | got: mstatus=0x20088 priv=3 pc=0x2000
+  [P4b] PASS  expect: MPP=U: MPRV 清 0, priv=U, MPP->0（y!=M 分支） | got: mstatus=0x80 priv=0
+  [P4c] PASS  expect: MPP=M 且 MPRV=0: 不得被置 1（防过度修正） | got: mstatus=0x88
+-- P5  记录：SRET 仍为显式未实现（README §5；不在本片修复范围） --
+  [P5] INFO  SRET -> NotImplementedError: SRET：等 doc/spec/10 的 S 态委托冻结后补
+== probe13 summary: checks=17 fail=0  ==

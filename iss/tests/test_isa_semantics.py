@@ -21,7 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from vriss import Bus, VrIss, link                                   # noqa: E402
-from vriss.consts import Csr, Exc                                    # noqa: E402
+from vriss.consts import Csr, Exc, Priv                              # noqa: E402
 from vriss.encode import (ADDI, CSRRW, JAL, LBU, LHU, LWU, MULW,     # noqa: E402
                           SRA, SRAI, SRAIW, SRLI, SW)
 
@@ -38,6 +38,13 @@ I_FENCE_I = 0x0000100F
 I_RESERVED_SRAI = 0x8044D593          # funct6=100000，RV64 保留，必须非法
 I_SRAI_LEGAL = 0x4044D593             # funct6=010000
 I_BR_F3_2 = 0x80A4A063                # BRANCH funct3=2，保留编码
+# ISS-063 同族：RV64 移位保留构型（官方位级常量；规范提取件行 3459–3462 / 3516–3518）
+I_SLLI_RESERVED = 0x4044_9593         # SLLI f3=001 且 bit30=1（imm[11:6]=010000），保留
+I_SLLI_SH5_LEGAL = 0x0244_9593        # SLLI shamt=36（bit25=1 属 RV64 六位 shamt，合法）
+I_SLLIW_RESERVED_I5 = 0x0244_959B     # SLLIW imm[5]≠0，保留
+I_SRLIW_RESERVED_I5 = 0x0244_D59B     # SRLIW imm[5]≠0，保留
+I_SRAIW_RESERVED_I5 = 0x4244_D59B     # SRAIW imm[11:5]=0100001，保留
+I_ADDIW_100 = 0x0644_859B             # addiw x11,x9,100（imm[11:6]=000001，非移位域）
 
 
 def sext32(v: int) -> int:
@@ -104,6 +111,50 @@ def t_shifts() -> None:
 
     r, _ = one(SRAIW(11, 9, 2), {9: 0xFFFF_FFFF_FFFF_F000})
     chk("合法 SRAIW 不再被判非法（Q19）", r.exc_v == 0, f"exc_v={r.exc_v}")
+
+
+def t_shift_reserved_rv64() -> None:
+    """ISS-063：RV64 移位保留构型一族 + ADDIW 立即数域（规范行 3459–3462 / 3516–3518 / 3417）。"""
+    r, _ = one(I_SLLI_RESERVED, {9: 1})
+    chk("SLLI bit30=1（f3=001）保留编码必须非法（ISS-063）",
+        r.exc_v == 1 and r.exc_cause == int(Exc.ILLEGAL_INSTR),
+        f"exc_v={r.exc_v} cause={r.exc_cause} mnem={r.instr_str!r}")
+    r, iss = one(I_SLLI_SH5_LEGAL, {9: 1})
+    chk("SLLI shamt[5]=1 合法（RV64 六位 shamt，对照项）",
+        r.exc_v == 0 and iss.regs[11] == 0x10_0000_0000,
+        f"exc_v={r.exc_v} x11=0x{iss.regs[11]:x}")
+    for nm, w in (("SLLIW", I_SLLIW_RESERVED_I5), ("SRLIW", I_SRLIW_RESERVED_I5),
+                  ("SRAIW", I_SRAIW_RESERVED_I5)):
+        r, _ = one(w, {9: 1})
+        chk(f"{nm} imm[5]≠0 保留编码必须非法（ISS-063 同族）",
+            r.exc_v == 1 and r.exc_cause == int(Exc.ILLEGAL_INSTR),
+            f"exc_v={r.exc_v} cause={r.exc_cause} mnem={r.instr_str!r}")
+    r, iss = one(I_ADDIW_100, {9: 7})
+    chk("ADDIW imm=100（hi6=000001）不得被误判非法（同族过拒绝）",
+        r.exc_v == 0 and iss.regs[11] == 107,
+        f"exc_v={r.exc_v} x11={iss.regs[11]}")
+
+
+def t_xret_mprv() -> None:
+    """ISS-064：xRET 的 MPRV 语义——仅 y≠M 时清（规范行 45127–45130）。"""
+    iss = build([I_MRET])
+    iss.csr[int(Csr.MSTATUS)] = (3 << 11) | (1 << 17) | (1 << 7)   # MPP=M, MPRV=1, MPIE=1
+    iss.csr[int(Csr.MEPC)] = 0x2000
+    r = iss.step()
+    m = iss.csr[int(Csr.MSTATUS)]
+    chk("MPP=M 的 MRET 不得清 MPRV（ISS-064）", (m >> 17) & 1 == 1,
+        f"mstatus=0x{m:x} mprv={(m >> 17) & 1}")
+    chk("MRET：MPP→最低可用模式(U)、MPIE→1、MIE←MPIE（行 45128–45129）",
+        (m >> 11) & 3 == 0 and (m >> 7) & 1 == 1 and (m >> 3) & 1 == 1,
+        f"mstatus=0x{m:x}")
+    iss = build([I_MRET])
+    iss.csr[int(Csr.MSTATUS)] = (1 << 17)                          # MPP=U, MPRV=1
+    iss.csr[int(Csr.MEPC)] = 0x2000
+    r = iss.step()
+    m = iss.csr[int(Csr.MSTATUS)]
+    chk("MPP=U 的 MRET 必须清 MPRV 并切到 U（行 45130）",
+        (m >> 17) & 1 == 0 and iss.priv == int(Priv.USER),
+        f"mstatus=0x{m:x} priv={iss.priv}")
 
 
 def t_loads() -> None:
@@ -221,6 +272,8 @@ KNOWN_OPEN = [
 
 def main() -> int:
     t_shifts()
+    t_shift_reserved_rv64()
+    t_xret_mprv()
     t_loads()
     t_mulw()
     t_official_encodings()
