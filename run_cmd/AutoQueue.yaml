@@ -73,12 +73,12 @@ items:
     role: R1
     basis: doc/process/00 ISS-003 解决方案列；【超】CPU卷/04 第 4 章「数量/端口」维度
     done_when: doc/spec/04-*.md 存在；ISS-003 转【已解决】；不变式 I1/I2 同时出现在 spec 正文与断言/覆盖清单
-    state: ready        # 2026-09-24 S-08 解阻复核（R-139）：blocked_by 已空、值前提在位（ADR-S2）⇒ 置 ready
+    state: done        # 2026-09-24 S-08 解阻复核（R-139）：blocked_by 已空、值前提在位（ADR-S2）；2026-09-25 R-175 核销（ISS-003 闭合、四要件全落）
     priority: P1
     depends_on: []
     blocked_by: []   # 2026-09-23 领队自查修正：ISS-020 已推翻"保持 64 补论证"；2026-09-24 S-08 批复核确认值前提已由 ADR-S2 满足（HIST_DEPTH/ROLLBACK_MAX=33、FWD 双项）
     review_rounds: 0
-    landable: "**2026-09-24 S-08 解阻复核（`doc/verify/05` R-139）**：`spec/04` 起稿已在（§0~§9 全篇）；`K` 定值链闭合（R-048；§3.6 三笔回写经 S-08 复核实落）；余项＝T-04-1~4/6~8 各承接＋ISS-003 关闭面（需 `INV-1`~`INV-5` 进 `spec/11` SVA 与 `doc/verify/02` 覆盖项，属后续阶段）"
+    landable: "**2026-09-24 S-08 解阻复核（`doc/verify/05` R-139）**：`spec/04` 起稿已在（§0~§9 全篇）；`K` 定值链闭合（R-048；§3.6 三笔回写经 S-08 复核实落）；余项＝T-04-1~4/6~8 各承接＋ISS-003 关闭面（需 `INV-1`~`INV-5` 进 `spec/11` SVA 与 `doc/verify/02` 覆盖项，属后续阶段）；**2026-09-25 R-175 核销**：ISS-003 转已解决——四要件全落（`spec/04` `INV-1~INV-5` 权威总表／`spec/01` §8 `INV-4` 对照注／`doc/verify/02` 覆盖四项（本批补 VP-24 `INV-2/INV-4`）／`spec/13` `perf_freelist_stall_cycles` 必报量）；Q-002 关闭"
 
   - id: Q-003
     task: spec/00 参数表升 v0.2——PRF/ROB/LQ/SQ/FWD 数值重定 + SRAM 表可复算化
