@@ -917,3 +917,24 @@
   - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----；`width_check` 28/28＋SRAM 12/12；位量面零变更
   - 未完成: 无（六项下游义务全落）；`spec/08` 收口义务（重试读需求归属）已登记为其成稿义务
   - 下一手: S-11（送审批：Q-028＋Q-031，auditor 独立片）
+
+- [S-11（送审批）] 角色=auditor（独立只读，非决定性）／R8 代录 日期=2026-09-24 轮次=（S-11）
+  - 产物: 评审记录**附 AJ**（报告＋R8 即修与补跑注）；`doc/verify/05` **R-143**；冻结件 `machine_r35_{check,width,changed_all}.txt`＋窗口 `rocheck_r35_window{,_INIT}.txt`；`script/gate.py`（`RA_LIVE_FILES` 扩五件）；台账 **ISS-090**；本条
+  - 依据: Q-028 `done_when` ⑤／Q-031 `done_when`；ADR-4 与 ISS-052 处置列；规则 22 窗口纪律（freeze→INIT→派→收工即查）
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（扩面修毕后）；B-1 双向验证（注入⇒FAIL、撤除⇒sha256 一致）；收工窗口 MODIFIED 0／ADDED 1（冻结件自身）／DELETED 0／MTIME-ONLY 0
+  - 未完成: ①余 7 项转 **Q-038**（门禁增强片，待派）②推送待网络恢复（本地 4 提交待推）
+  - 下一手: Q-038 或按 §1 次序取下一片；网络恢复即推
+
+- [Q-028] 角色=R8 日期=2026-09-24 轮次=（S-11 收口）
+  - 产物: 队列 Q-028 → done（⑤ 送审口封闭）；报告＝评审记录附 AJ；`doc/verify/05` R-143；本条
+  - 依据: Q-028 `done_when` ①~⑤（①~④ 早前落于 R-034；⑤＝本次送审）
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----；送审 14 条＝通过 4／质疑 10（即修 2）
+  - 未完成: 余 7 项非本项 `done_when` 面（转 Q-038）
+  - 下一手: 无（本项闭环）
+
+- [Q-031] 角色=auditor（独立只读）／R8 代录 日期=2026-09-24 轮次=（S-11）
+  - 产物: 质疑清单入档（附 AJ B 表 6 条）＋规则 22 窗口核查留痕（`rocheck_r35_window{,_INIT}.txt`）；队列 Q-031 → done；本条
+  - 依据: Q-031 `done_when`（质疑清单入档＋仓库清单比对与窗口核查留痕）；ISS-052 处置列
+  - 机判: 收工窗口 MODIFIED 0／ADDED 1（冻结件自身）／DELETED 0／MTIME-ONLY 0；B-1 扩面双向验证过
+  - 未完成: B-2/B-3/B-4/B-5 转 Q-038
+  - 下一手: Q-038（门禁增强片）

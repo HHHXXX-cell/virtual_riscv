@@ -1,0 +1,7 @@
+== rocheck --window 2026-09-24T22:47:44（窗口快照建于 2026-09-24T22:47:44）==
+  窗口起点文件 261 / 现态文件 262
+  MODIFIED           0  
+  ADDED              1  doc/review/01-评审探针/rocheck_r35_window_INIT.txt
+  DELETED            0  
+  MTIME-ONLY(INFO)   0  
+  判定：内容侧有变更/新增/删除（**新增/删除恒计入**）→ 退出码 1；须逐条归因；纯 mtime 差不作判据。

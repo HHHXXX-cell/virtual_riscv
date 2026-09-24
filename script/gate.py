@@ -117,7 +117,14 @@ RULE_FILES = ['AGENTS.md', os.path.join('doc', '项目开发流程.md'),
 # 活引用面（2026-09-23 R0 批扩面）：规则承载件 + 工具/队列**全件**；HANDOFF 只取**最后一条记录**的
 # 未完成/下一手（最新交接面，其下均为快照记录）。依据：ISS-049 实证——工具打印串与队列协议头
 # 曾残留未定义编号，而旧扫描面（仅 RULE_FILES）不覆盖 ⇒ 靠人工回头核查才发现。
-RA_LIVE_FILES = RULE_FILES + ['script/gate.py', os.path.join('run_cmd', 'AutoQueue.yaml')]
+RA_LIVE_FILES = (RULE_FILES + ['script/gate.py', os.path.join('run_cmd', 'AutoQueue.yaml'),
+                # 送审批补齐（Q-031/ISS-090 B-1，2026-09-24）：原扫面缺三角色件与两流程/计划件 ⇒
+                # 未定义编号可在这些文件回流；构造证据＝在其中写入未定义编号后旧扫面仍 PASS（送审报告 B-1）。
+                os.path.join('.qoder', 'agents', 'vr1-designer.md'),
+                os.path.join('.qoder', 'agents', 'vr1-planner.md'),
+                os.path.join('.qoder', 'agents', 'vr1-verifier.md'),
+                os.path.join('doc', '自动推进说明.md'),
+                os.path.join('doc', 'verify', '03-验证计划.md')])
 RA_RECORD_EXEMPT = '记录不改写'   # 行级豁免标记：行内含它即跳过（记录性出现须逐行显式标注理由）
 
 

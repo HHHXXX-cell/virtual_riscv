@@ -386,12 +386,12 @@ items:
     role: R8
     basis: doc/process/00 ISS-024 决策列（ADR-4 全文）；知识库 `virtual_test经验/05-门禁完整性基线实务.md` §2.1/§2.2/§2.4/§4
     done_when: ① 两子命令可用且四分类输出（MODIFIED/ADDED/DELETED/MTIME-ONLY）（**B5 扩充**：另加 **长基线刷新硬规则六条**——仅处置轮开工写产物前每轮≤1 次／评审轮与 FAIL 轮后禁刷／只折"已进复核面"的改动集／执行者=R8／独立提交＋`doc/verify/05` 留痕（旧→新指纹、折入集出处）／作不出折入集出处即作废回滚；并加 **`capability-landed` 判据**：规则承载件出现 `rocheck`/`integrity_baseline` 字样而实件不存在 ⇒ FAIL）② 快照 `script/gate/integrity_baseline.json` 入版本控制 ③ `AGENTS.md` 规则 22 措辞改"内容指纹窗口＋mtime 列 INFO＋新增/删除恒计" ④ 首轮实跑记实测耗时（写入 doc/verify/05） ⑤ 按 §12.5 送 auditor 一次审核（非决定性）
-    state: ready
+    state: done         # 2026-09-24 S-11 送审回收（R-143／附 AJ）：⑤ 口封闭
     priority: P2
     depends_on: []
     blocked_by: []
     review_rounds: 0
-    landable: ADR-4 派生；未开工。范围写清：窗口制（含忽略区，仅排 `.git/`、`__pycache__/`）用于规则 22；长基线只覆盖受控目录集（每轮必改件不入）
+    landable: "**2026-09-24 S-11 送审批闭环（`doc/verify/05` R-143／评审记录附 AJ）**：①~④ 早前已落（R-034）；⑤ 送审已办（auditor 独立·非决定性）：14 条＝通过 4／质疑 10；即修 2（B-1 `ra-token-defined` 扩面＋双向验证；A-7 本项队列 state 账实相抵）；余 7 项转 Q-038（门禁增强片）。范围注记与实现一致（窗口制含忽略区、长基线受控目录集）"范围写清：窗口制（含忽略区，仅排 `.git/`、`__pycache__/`）用于规则 22；长基线只覆盖受控目录集（每轮必改件不入）
   # ---------- 收尾：口径漂移修正（2026-09-23 知识库同步轮回溯，R0 指令）----------
   - id: Q-029
     task: 修正口径漂移三处（ISS-049 未定义规则号残留活引用 / ISS-050 判据与必报项计数漂移 / ISS-051 知识库流程文档版本口径过期）
@@ -421,12 +421,12 @@ items:
     role: R6
     basis: doc/process/00 ISS-052 处置列；R0 2026-09-23 选定 A 时同意的"送 auditor 一次审核（非决定性）"
     done_when: 质疑清单入档（`doc/verify/05` 一行 + 报告全文归档）且规则 22 的仓库清单比对与 mtime 窗口核查留痕；无发现亦须留痕，不得口头"已审"
-    state: ready
+    state: done         # 2026-09-24 S-11：审核入档（附 AJ）＋窗口留痕（rocheck_r35_window{,_INIT}.txt）
     priority: P3
     depends_on: [Q-030]
     blocked_by: []
     review_rounds: 0
-    landable: 未开工；派发时给硬预算（目标时长、工具调用上限）与"查不完即列盲区"授权
+    landable: "**2026-09-24 S-11 送审已办（R-143／附 AJ）**：质疑清单入档（A/B 共 14 条：通过 4／质疑 10）；规则 22 窗口核查留痕（INIT `2026-09-24T22:47:44`→收工 MODIFIED 0／ADDED 1（冻结件自身）／DELETED 0／MTIME-ONLY 0）；B-1 已即修（`RA_LIVE_FILES` 扩五件＋双向验证）；余 7 项转 Q-038"
 
   - id: Q-032
     task: ISS-053 实装——gate.py attempts 子命令（派发失败计数写入口）＋dispatch 尾行提示＋check 对账 WARN queue-attempts-ready＋队列头注与流程 §12.2 入文
@@ -498,3 +498,15 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "**2026-09-24 S-08 批转录（R-139）**：四项来源＝T-04-5d（S-08 §4.4 归属）＋`spec/02` §16.5 登记（§3.6/§3.12 字面同步）＋`spec/04` §2.1 下游义务（旧编号改引）"
+
+  - id: Q-038
+    task: 门禁增强片（S-11 送审 7 项）：①`rocheck --window` 已有旧窗口且 ISO 不等时告警/拒跑（A-2）②长基线刷新六条硬规则机判化（A-3）③`snapshot` 删件绕过防御（基线不存在时须 `--reason` 方可建立／A-4）④`capability-landed` 反例防护（子命令行为探针／声明面收窄／A-5）⑤`RA(\d+)` 词边界与 `RA-5`/`RA 5`/规则序号（B-2/B-3）⑥豁免标记粒度＋理由字段（B-4）⑦HANDOFF 末条解析＝按 `^- \[` 任取末条、字段缺失 FAIL 不静默（B-5）
+    role: R8
+    basis: `doc/process/00` ISS-090；评审记录附 AJ（A-2/A-3/A-4/A-5/B-2/B-4/B-5，含审计者所给构造）
+    done_when: 七项逐条实装或明列「不做＋理由」；每项带双向验证（构造注入 ⇒ 判据触发；撤除 ⇒ 复原）；gate.py check 全 PASS（末行为准）；规则承载件措辞与实现一致
+    state: ready
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "**2026-09-24 S-11 送审转出（R-143）**：7 项构造与后果见附 AJ；本片不涉判定口径放宽（只增判据）"
