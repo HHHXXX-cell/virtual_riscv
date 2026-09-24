@@ -524,10 +524,10 @@ items:
     landable: "**2026-09-25 落（R-169）**：N4/N5 即修＋三组双向验证；C1×7 处／C4×2／C6×1 落文，C5 批内 15 处扫除；K1＝VP-X06a~f 补建＋计数 44＋回标 §10/§3.4；ISS-039/092 已解决，ISS-093（即修）已解决、ISS-094（待建残留）新登；收工即查 r36 归因＝本批自身写面"
 
   - id: Q-040
-    task: 「（该篇待建）」残留全库扫除片（`spec/01`×19＋`spec/03`×1＋`doc/verify/01`×11；已收口篇专片）
+    task: 「（该篇待建）」残留全库扫除片（`spec/01`×19＋`spec/03`×1＋`doc/verify/01`×12；已收口篇专片）
     role: R8
     basis: `doc/process/00` ISS-094；`doc/verify/05` R-169 ④⑤
-    done_when: 31 处逐处按篇定稿态措辞改写并可回查；`spec/01`/`spec/03`/`doc/verify/01` 无「（该篇待建）」残留；片内带 δ 复核；gate.py check 全 PASS（末行为准）
+    done_when: 32 处逐处按篇定稿态措辞改写并可回查；`spec/01`/`spec/03`/`doc/verify/01` 无「（该篇待建）」残留；片内带 δ 复核；gate.py check 全 PASS（末行为准）
     state: ready
     priority: P2
     depends_on: []
@@ -545,4 +545,16 @@ items:
     depends_on: []
     blocked_by: []
     review_rounds: 0
-    landable: "**2026-09-25 落（R-170）**：N1 枚举删 ISS-073/079/080（表体已解决）；N3 L504/L505 改「判据已落地＝`spec14-905-count`／`spec/14` 已在册」；N2 并入 ISS-094（20→31 处）＋Q-040 同步；台账 95＝3/24/68；r37 收工即查 MODIFIED 0（ADDED 1＝自写探针；DELETED 2＝面外写者）"
+    landable: "**2026-09-25 落（R-170）**：N1 枚举删 ISS-073/079/080（表体已解决）；N3 §9.5 尾两句改「判据已落地＝`spec14-905-count`／`spec/14` 已在册」；N2 并入 ISS-094（20→31 处）＋Q-040 同步；台账 95＝3/24/68；r37 收工即查 MODIFIED 0（ADDED 1＝自写探针；DELETED 2＝面外写者）"
+
+  - id: Q-042
+    task: 附 AO 处置批（δ 轮 4 收工）：p1（verify/01 口径 12 处）／p2（已解决枚举补 3 项）／p3（评审产物行号→节号）／p4（ISS-094 括注镜像）即修＋ISS-096 登记并关闭
+    role: R8
+    basis: 评审记录附 AO（δ 轮 4 报告）；`doc/process/00` ISS-096
+    done_when: 四项逐处落文；ISS-096 关闭且台账计数四处一致；gate.py check 全 PASS（末行为准）
+    state: done
+    priority: P1
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "**2026-09-25 落（R-171）**：p1 ISS-094/Q-040＝32 处（19＋1＋12）；p2 枚举补 ISS-079/080/081（65→68）＋ISS-096（69）；p3 附 AN/ISS-095/Q-041 改「§9.5 尾两句」；p4 括注「32 处／R-170」；ISS-096 落点列修正；台账 96＝3/24/69；r38 收工即查 MODIFIED 0"
