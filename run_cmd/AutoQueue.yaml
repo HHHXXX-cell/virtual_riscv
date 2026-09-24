@@ -97,7 +97,7 @@ items:
     role: R1
     basis: doc/process/00 ISS-018、ISS-021；doc/review/01-评审记录.md
     done_when: 评审记录中每条阻塞项状态=已落实且附落点；纯复核轮新增 0（§6.1 C2）；位宽自检脚本输出留档
-    state: in_progress
+    state: done          # 2026-09-24 R0 裁决 C2 成立（D-14 全链闭环）→ done
     priority: P1
     depends_on: []
     blocked_by: []
@@ -452,7 +452,7 @@ items:
     role: R1
     basis: doc/verify/03 §0 D-14；doc/项目开发流程.md §9.4/§9.4b
     done_when: C2 判定成文（新增 0 + 旧问题全改 + 档位声明 + 取证范围自报）；纵片三项齐；"成立"→呈 R0
-    state: in_progress
+    state: done          # 2026-09-24 R0 裁决 C2 成立（新增 0＋旧问题全改；附 Y/R-093）→ done
     priority: P2
     depends_on: []
     blocked_by: []
