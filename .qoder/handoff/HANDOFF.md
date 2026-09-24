@@ -903,3 +903,10 @@
   - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（≈ 计数口径修毕后实跑）；`width_check` 结构 28/28＋§4.8 SRAM 12/12
   - 未完成: 无（done_when 三项满足）；`PRF_RD_PORTS` 2 恢复读口承载方＝ADR-S08（RD）待回收落文
   - 下一手: ADR-S08 回收 → S-10（`doc/verify/01` 首建）
+
+- [S-10（doc/verify/01 首建）] 角色=R8（本体） 日期=2026-09-24 轮次=（S-10）
+  - 产物: `doc/verify/01-理解清单.md`（首建；五节：接口表/寄存器表/时钟复位假设/功能点清单 F-01~F-32/异常边界＋存疑 10 项；174 行 CRLF）；`doc/verify/04` 看板 Step 1 行刷新；`doc/verify/05` **R-141**；本条
+  - 依据: `doc/verify/03` §1 S-10 行；`spec/00` §1~§4/§6/§7/§8/§9；`spec/01` §1~§6/§8.2/§9(无)；`spec/02` §10/§16/§17/§18/§19；`spec/03`/`spec/04`
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----；§引用抽查 57/57 命中；EOL CRLF（bare LF 0／双 CR 0）
+  - 未完成: ①S-11 送审批待派（Q-028/Q-031，auditor 独立片）②ADR-S08（RD 片在跑）回收后落文 ③存疑 10 项各有归口、无一项阻塞本片
+  - 下一手: S-11（送审批：Q-028 ADR-4 落件＋Q-031 `ra-token-defined` 扩面一次非决定性审核）
