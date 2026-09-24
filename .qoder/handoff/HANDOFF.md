@@ -632,3 +632,10 @@
   - 机判: 补丁逐锚点唯一命中断言 3/3（每处旧串全篇命中＝1、行内＝1；`spec/02` sha256 `b86e9cc8…`→`e2e65cb9…`）；行级 diff 断言＝仅 L796／L867／L887 变更；行尾自查＝`spec/02` CRLF 891／裸 LF 0／裸 CR 0；`python script/width_check.py`＝合计 28 个 struct：可机器核对=28，不符=0，未能核实=0（转录基准行 2）；`PYTHONIOENCODING=utf-8 python script/gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（末行为权威源）；`git diff --numstat`（记录追加前实跑）＝`spec/02` +3/−3
   - 未完成: ①本片未经评审（送审并入 A13 归档后的回查面）②附 AA（A13 报告）待 R8 归档——`附 AA 澄-A` 指针以派发口径为准、归档后回查 ③跨篇承接维持 L12 登记（`spec/03` T3-5／`spec/01` §3.12）、仍开放 ④D-3／D-4 维持现状不改 ISS
   - 下一手: R8 核销本片＋归档 A13（附 AA）→ 按复核面回查三处短注 → Q-010 呈判
+
+- [Q-010 A13 回收入库（R8）] 角色=R8（领队） 日期=2026-09-24 轮次=（回收批）
+  - 产物: `doc/review/01-评审记录.md` **附 AA**（A13 报告全文＋领队注）；`doc/verify/05` **R-104**（含更正后的窗口段）＋窗口证据件 `doc/review/01-评审探针/rocheck_r25_window.txt`；`doc/process/00` **ISS-066 关闭／ISS-067 登记即闭／ISS-068 待决策／ISS-069 处理中**（台账 69＝4/25/40）；`doc/verify/04` 镜像；`run_cmd/AutoQueue.yaml`（Q-010 landable 刷新＋Q-034 跨篇清单⑥＋Q-006 done_when）；`AGENTS.md` §1；本条
+  - 依据: 附 AA 正文；R-102／R-103 落点；规则 22（窗口核查）＋ADR-4（长基线口径）
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----（写录前/后各一次，同值）；rocheck `--window 2026-09-24T10:36:28`＝MODIFIED 10／ADDED 0／DELETED 0（10 件全数可归因、无未声明写者；评审者零写入不可由该窗隔离 → ISS-069）
+  - 未完成: ①**A14 终局 δ 复核待派**——须按「freeze → INIT → 派只读 → 收工即查（写者未启动前）」取**可隔离窗口**（闭 ISS-069 的出口判据）②Q-010 呈判材料（`done_when` 的 M/A 面口径＋ISS-068 存疑-1）待 A14 后呈 R0；门禁权在 R0，本项不得自置 done
+  - 下一手: 固化 r26 复核面（基线 312cd51，spec/02＋iss 探针＋记录面机判件）→ INIT 窗口 → 派 `vr1-auditor`（A14，增量档）→ 收工即查 → 汇呈判包呈 R0

@@ -1,0 +1,8 @@
+== rocheck --window 2026-09-24T10:36:28（窗口快照建于 2026-09-24T10:36:28）==
+  窗口起点文件 184 / 现态文件 186
+  MODIFIED          10  .qoder/handoff/HANDOFF.md AGENTS.md doc/process/00-问题记录.md doc/review/01-评审记录.md doc/spec/02-指令集与逐指令行为.md doc/verify/04-验证进度.md doc/verify/05-回归记录.md iss/tests/probes/rr_out14.txt …
+  ADDED              2  script/tmp/fix_a13_win.py script/tmp/r25_win.txt
+  DELETED            0  
+  MTIME-ONLY(INFO)   0  
+  判定：内容侧有变更/新增/删除（**新增/删除恒计入**）→ 退出码 1；须逐条归因；纯 mtime 差不作判据。
+（R8 注，2026-09-24：本件＝核查当场原始输出留存；上方 MODIFIED 行内清单被工具截断为前 8 件（`_print_classes` 显示上限），完整 10 件＝外加 `iss/tests/probes/rr_probe14.py`、`run_cmd/AutoQueue.yaml`。窗口内写者全数可归因：verifier 收口微片（R-102）＝`iss/tests/probes/rr_probe14.py`／`rr_out14.txt`；L12d（R-103）＝`doc/spec/02`；R8 归档面（R-104）＝`doc/verify/05`／HANDOFF／`AGENTS.md`／`doc/process/00`／`doc/review/01-评审记录.md`／`doc/verify/04`／`run_cmd/AutoQueue.yaml`。**无未声明写者**；评审者零写入不可由本窗口单独隔离——见 ISS-069 与 `doc/verify/05` R-104。）
