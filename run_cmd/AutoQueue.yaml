@@ -582,3 +582,15 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "**2026-09-25 落（R-173）**：ISS-094 补「引述性命中不入盘点」注（38 处口径不变）；ISS-098 关闭；台账 98＝3/24/71；r40 收工即查 MODIFIED 0（ADDED 1＝自写探针）"
+
+  - id: Q-045
+    task: 附 AR 处置批（δ 轮 7 收工）：p-1（process/00 字节级归一／评审记录实体序列改词述）＋S1（附 AQ 计数更正 4→1→1）即修＋ISS-099 登记并关闭
+    role: R8
+    basis: 评审记录附 AR（δ 轮 7 报告）；`doc/process/00` ISS-099
+    done_when: 两项逐处落文；ISS-099 关闭且台账计数四处一致；gate.py check 全 PASS（末行为准）
+    state: done
+    priority: P1
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "**2026-09-25 落（R-174）**：process/00 字节级归一（双 CR/裸 LF 归零）＋附 AQ 更正（4→1→1）＋实体序列改词述；ISS-099 关闭；台账 99＝3/24/72；r41 收工即查 MODIFIED 0"
