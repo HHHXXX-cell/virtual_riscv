@@ -128,7 +128,9 @@ items:
     role: R1
     basis: doc/verify/04 §② 下一批第 4 项；【超】CPU卷/04 第 3 章
     done_when: doc/spec/03-*.md 存在且每条数值带【超】页码；FTQ 四规则成文；T3-5 RAS/SARAS 推入/弹出细则按 `spec/02` T-7 新谓词（含 `rd≠rs1`）合并定稿（跨篇联动⑥／附 AA 澄-D）
-    state: in_progress   # 2026-09-24 派续写片（R-109）：T3-5（done_when 明文）＋T3-2/T3-3/T3-6/T3-7 成文
+    state: in_progress   # 2026-09-24 S-05c 后：**可关闭申请已备，待 R0 签署**（R8 不得自宣布阶段推进）
+    # 可关闭申请（2026-09-24，R-131）：done_when 四项＝①篇存在✓ ②数值带【超】页码✓（受限声明） ③FTQ 四规则✓ ④T3-5 按 T-7 合并定稿✓（谓词同构＋跨篇⑥；余 ISS-082 等为 G1 前承接）；S-03/S-04/S-05/S-05b/S-05c 全链已核销（R-123~R-128/R-130/R-131）；无开放阻塞（B-1/B-2 即修）。请 R0 裁：置 done 或另指。
+
     priority: P2
     depends_on: []
     blocked_by: []
