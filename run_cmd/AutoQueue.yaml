@@ -308,12 +308,12 @@ items:
     role: R1
     basis: 计划轮篇序 10→08
     done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/verify/04 §② 计划快照）；每篇独立走 §9.4 两档复核
-    state: ready
+    state: done          # 2026-09-24 S-18 交付（R-155）
     priority: P2
     depends_on: [Q-020]
     blocked_by: []
     review_rounds: 0
-    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+    landable: "**2026-09-24 S-18 交付（R-155）**：`doc/spec/08` 首片——Sv39/TLB/PTW/PMP/PMA/fault 分流/单核序纪律；行号锚明标待补（T-08-1~6）"
   - id: Q-022
     task: 写 spec/09 L1I/L1D 与取指粒度（含 `slot16_vld` 回退点对照——ISS-045 条件）
     role: R1
