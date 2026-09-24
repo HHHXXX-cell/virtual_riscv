@@ -1018,3 +1018,10 @@
   - 机判: gate 24 PASS / 0 WARN / 0 FAIL；覆盖 32/32；`width_check` 28/28＋SRAM 12/12
   - 未完成: Step 2 评审（Verification Point Review）待人确认架构
   - 下一手: 呈人做 Verification Point Review → 通过后按 §0/队列续推
+
+- [R0 门禁确认·开新片] 角色=R0（人）／R8 代录 日期=2026-09-24 轮次=（R-150）
+  - 产物: `doc/verify/05` **R-150**；看板 Step 2 → ✅ 完成（R0 确认）；§1 新增 **S-15**（`spec/05` 起稿）／**S-16**（`spec/06` 起稿）两片（待派）；本条
+  - 依据: R0 明示「架构已确认」（Verification Point Review 通过）；篇序＝Q-017→Q-018→…→Q-026
+  - 机判: `gate.py check`＝---- 24 PASS / 0 WARN / 0 FAIL ----
+  - 未完成: S-15/S-16 待派；篇序队列 Q-019~Q-026 在册
+  - 下一手: S-15（`spec/05` 时序与流水级细节，含 F2 `xw_carry` 专项）→ S-16（`spec/06`）→ 篇序续推
