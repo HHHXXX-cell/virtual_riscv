@@ -330,12 +330,12 @@ items:
     role: R1
     basis: 计划轮篇序 09→11；A20 编号在此汇总
     done_when: 见《计划轮（2026-09-23）》对应 W 项出口判据（doc/verify/04 §② 计划快照）；每篇独立走 §9.4 两档复核
-    state: ready
+    state: done          # 2026-09-25 S-21 交付（R-160）
     priority: P2
     depends_on: [Q-022]
     blocked_by: []
     review_rounds: 0
-    landable: 计划轮（vr1-planner，2026-09-23）派生物；未开工
+    landable: "**2026-09-25 S-21 交付（R-160）**：`doc/spec/11` 首片——A1~A20 断言清单（逐条引 `spec/01` §7；A20＝候选）＋绑定表口径＋lint L-01~L-07＋ModelSim 覆盖度约束；T-11-1（A20 汇总定稿）"
   - id: Q-024
     task: 写 spec/12 参数与配置区间（与 Q-011 色标联动）
     role: R1
