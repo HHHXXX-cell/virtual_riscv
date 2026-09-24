@@ -510,3 +510,27 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "**2026-09-24 七项全处置（R-147）**：A-2 窗口异 ISO 拒跑／A-3 部分（基线字段＋reason 可回查）／A-4 建立须 `--reason`／A-5 `--window` 分支探针／B-2 词边界等形式／B-4 豁免须带理由／B-5 末条记录解析——均带双向或三路验证；A-3 余四条明列「不做＋理由」（跨轮过程状态，流程面承载）"
+
+  - id: Q-039
+    task: G1 前置清账批（δ 轮 2 收工）：N4/N5 即修（`check_spec14_905` fail-closed＋§3 节内作用域）＋ISS-092 余项（C1/C4/C5/C6）＋K1（`doc/verify/02` VP-X06a~f）＋ISS-039 闭合
+    role: R8
+    basis: 评审记录附 AM（δ 轮 2 报告）；`doc/process/00` ISS-092/ISS-093；`spec/00` §10 ISS-039 行（ADR-1 下游义务）
+    done_when: N4/N5 实装且双向验证过；C1/C4/C5/C6 逐处落文；VP-X06a~f 立项并回标；ISS-039/092 关闭；gate.py check 全 PASS（末行为准）
+    state: done
+    priority: P1
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "**2026-09-25 落（R-169）**：N4/N5 即修＋三组双向验证；C1×7 处／C4×2／C6×1 落文，C5 批内 15 处扫除；K1＝VP-X06a~f 补建＋计数 44＋回标 §10/§3.4；ISS-039/092 已解决，ISS-093（即修）已解决、ISS-094（待建残留）新登；收工即查 r36 归因＝本批自身写面"
+
+  - id: Q-040
+    task: 「（该篇待建）」残留全库扫除片（`spec/01`×19＋`spec/03`×1；已收口篇专片）
+    role: R8
+    basis: `doc/process/00` ISS-094；`doc/verify/05` R-169 ④⑤
+    done_when: 20 处逐处按篇定稿态措辞改写并可回查；`spec/01`/`spec/03` 无「（该篇待建）」残留；片内带 δ 复核；gate.py check 全 PASS（末行为准）
+    state: ready
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: ""

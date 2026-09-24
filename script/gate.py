@@ -1071,8 +1071,9 @@ def cmd_rocheck(argv):
 def check_spec14_905(rep):
     """KB §6.2 机判义务落地（2026-09-25，R-168）：正文标注数 ↔ 评审 list 条数必须相等。
     本项目形态 = doc/spec/14 §3④ 汇聚清单 与 doc/verify/03 §0 D-13 行标注的对账：
-    ①加式自洽 ②声明行数=条目数-3 ③实际表体行数=声明行数 ④D-13 行 B-n/D5-n 标注逐项在 §3 出现。
-    解析失败不得默认为过（fail-closed）。"""
+    ①加式自洽 ②声明行数=条目数-3 ③实际表体行数=声明行数 ④D-13 行 B-n/D5-n 标注逐项在 §3 节内出现。
+    解析失败/取空一律 FAIL（fail-closed）——③表解析为空、§3 未定位、D-13 行缺失或 0 token 均判 FAIL，
+    取空即"看起来对"的最危险形态（附 AM N4/N5 处置，2026-09-25）。"""
     p14 = os.path.join(ROOT, 'doc', 'spec', '14-接口冻结记录.md')
     p03 = os.path.join(ROOT, 'doc', 'verify', '03-验证计划.md')
     if not os.path.exists(p14):
@@ -1100,16 +1101,36 @@ def check_spec14_905(rep):
                 cnt += 1
             elif not ln.startswith('|'):
                 break
-    if cnt and mr and cnt != int(mr.group(1)):
+    if cnt == 0:
+        bad.append('表体行未解析（未命中「| 条目 | 来源 |」表头或表体为空）——fail-closed 不得默认过')
+    elif mr and cnt != int(mr.group(1)):
         bad.append('实际表体行数 %d != 声明 %s' % (cnt, mr.group(1)))
+    sec = []; grab = False
+    for ln in t14.splitlines():
+        if re.match(r'^#{1,2}\s*3[.、\s]', ln):
+            grab = True; continue
+        if grab and re.match(r'^#{1,2}\s', ln):
+            break
+        if grab:
+            sec.append(ln)
+    sec_txt = '\n'.join(sec)
+    if not sec_txt:
+        bad.append('spec/14 §3 节未定位——fail-closed 不得默认过')
     row = ''
     for ln in t03.splitlines():
         if ln.startswith('| D-13 |'):
             row = ln; break
-    toks = sorted(set(re.findall(r'B-\d|D5-[①②③]', row)))
-    miss = [tk for tk in toks if tk not in t14]
-    if miss:
-        bad.append('D-13 行标注未在 §3 出现：%s' % ','.join(miss))
+    toks = []
+    if not row:
+        bad.append('doc/verify/03 §0 未找到 D-13 行——fail-closed 不得默认过')
+    else:
+        toks = sorted(set(re.findall(r'B-\d|D5-[①②③]', row)))
+        if not toks:
+            bad.append('D-13 行未见 B-n/D5-n 标注 token——fail-closed 不得默认过')
+    if toks and sec_txt:
+        miss = [tk for tk in toks if tk not in sec_txt]
+        if miss:
+            bad.append('D-13 行标注未在 §3 节内出现：%s' % ','.join(miss))
     if bad:
         rep.fail('spec14-905-count', '；'.join(bad))
     else:

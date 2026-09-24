@@ -5,7 +5,7 @@
 | v0.1 | 2026-09-24 | 草稿（**骨架·首片**；未评审、未定稿） | 首片：篇首三段式；§1 层次与地址流；§2 LSU 数据通路（LQ/SQ/转发/重试）；§3 MMU/TLB/PTW 衔接（walk 细则转 `spec/08`）；§4 L1/L2 与总线；§5 时序引用与待补清单；§6 出口自检 |
 
 > **① 范围**：本篇给出访存路径与 **cache 层次**的结构性口径：LSU 资源与转发纪律、MMU/PTW 与本层的交界、L1I/L1D/L2 的组织与 miss 处理、外部总线（AXI4/OBI）与 MMIO 口径。
-> **② 边界**：接口位域以 `spec/01` 为准（§3.13 `mem_req_t`、§3.14 MMU 翻译、§3.15 PTW、§3.16 L1I 取指）；**拍序与等待口径以 `spec/05` 为准**；Sv39 walk/PTE 细则与 PMP/PMA 语义归 `spec/08`（待建）；cache 条目位域与替换态归 `spec/09`（待建）；**数值一律引 `spec/00` §4**（本篇不另赋值）。
+> **② 边界**：接口位域以 `spec/01` 为准（§3.13 `mem_req_t`、§3.14 MMU 翻译、§3.15 PTW、§3.16 L1I 取指）；**拍序与等待口径以 `spec/05` 为准**；Sv39 walk/PTE 细则与 PMP/PMA 语义归 `spec/08`；cache 条目位域与替换态归 `spec/09`；**数值一律引 `spec/00` §4**（本篇不另赋值）。
 > **③ 引用纪律**：每处结论绑「篇号＋节号」；与 `spec/00`/`spec/01` 冲突时以彼为准并登记差异（红线 R20）。
 
 ---
@@ -34,14 +34,14 @@
 - **store 写入时机**：**只在 ROB 头提交后写 cache**（禁止投机 store 写 cache，`spec/00` §3/§8；`spec/01` §5.2 `S` 行）。
 - **AMO**：读改写在一期 **L1D 内 RMW 原子完成、不发到 AXI**（`spec/00` §8）；μop＝2（`spec/02` §18.4）。
 - **异常与抑制写**：异常提交时内存写不发生（对照表见 `spec/02` §19）。
-- **在途/SCB**：MSHR 唤醒（`mshr_wake_t`，`spec/01` §3.16）与未命中合并口径归 `spec/09`（待建）细化。
+- **在途/SCB**：MSHR 唤醒（`mshr_wake_t`，`spec/01` §3.16）与未命中合并口径归 `spec/09` 细化。
 
 ## 3. MMU / TLB / PTW 衔接
 
 - **接口**：`mmu_transl_req_t` / `mmu_transl_rsp_t`（成员与位宽＝`spec/01` §3.14，本篇不复述）；**`ptw_mem_req_t`＝`spec/00` §6 M12 行/X5 注所列「G1 冻结前必须闭合」型，`spec/01` 现文未定义 ⇒ 定义落点按 X5 注＝「规格篇」列所指篇目（**M12→`spec/08`**），G1 前闭合（ISS-092）**。
 - **翻译口径**：Sv39 三级页表（`VA_BITS=39`）；大页级别（4K/2M/1G）在 `rsp.super` 域；`rw` 域值域＝{R,W,X,保留}（`spec/01` §3.14）。
 - **PMP/PMA**：PMP 8 项；PMA 静态区域表（non-cacheable/strong-order/no-prefetch）；**MAG PMA 不配置**（不实现 `Zama16b`，ADR-S06-A，`spec/00` §2/§8）。
-- **walk 与 A/D 位**：`spec/08`（待建）为权威；本期口径：A/D 位**硬件置**（`spec/00` §5 D8）。
+- **walk 与 A/D 位**：`spec/08` 为权威；本期口径：A/D 位**硬件置**（`spec/00` §5 D8）。
 - **fault 分流**：page-fault 与 access-fault 的判定点与优先级归 `spec/08`；本层只承载 `mem_req_t` 的请求语义（`spec/01` §3.13）。
 
 ## 4. L1 / L2 / 总线
@@ -49,22 +49,22 @@
 | 层 | 组织（引 `spec/00` §4.6/§4.7） | miss 处理 |
 |---|---|---|
 | L1I | 32KB/8w/64B VIPT；L1I TLB16；取指粒度 32B 窗口 | miss ⇒ PTW/回填；`xw_carry` 跨窗拼接见 `spec/05` §3 |
-| L1D | 32KB/8w/64B VIPT | miss ⇒ MSHR 合并 ⇒ L2；store 未命中走 write-allocate 口径归 `spec/09`（待建） |
+| L1D | 32KB/8w/64B VIPT | miss ⇒ MSHR 合并 ⇒ L2；store 未命中走 write-allocate 口径归 `spec/09` |
 | L2 | `L2_SIZE`/`L2_WAYS`/`L2_LINE`；**non-inclusive**（避免写回风暴、一期无一致性需求） | miss ⇒ AXI4 读；回填粒度归 `spec/09` |
 | 总线 | AXI4：128 bit data／44 bit addr／ID 4 bit；burst 仅 **INCR**；`AXI_OUTSTANDING`＝2R+2W | 从端错误响应 ⇒ 转 access-fault（`spec/08` 口径） |
 | MMIO | non-cacheable 区**单拍**（`MMIO_BURST`：len=0，size=2..8B） | 不经 cache；`fence` 处排空 SQ（`spec/00` §8） |
 
-- **CLINT/PLIC**：8 source PLIC-lite（3 bit 优先级＋3 bit threshold，claim/complete）；CLINT 为单 hart（`mtimecmp`/`msip`/`mtime`）——**挂接与中断语义归 `spec/10`（待建）**（`spec/00` §4.7）。
+- **CLINT/PLIC**：8 source PLIC-lite（3 bit 优先级＋3 bit threshold，claim/complete）；CLINT 为单 hart（`mtimecmp`/`msip`/`mtime`）——**挂接与中断语义归 `spec/10`**（`spec/00` §4.7）。
 
 ## 5. 时序引用与待补清单
 
 - **拍序**：访问发起/完成拍、转发拍序、重试拍序、MSHR 唤醒时序**一律引 `spec/05`**（本篇不定义拍序）。
-- **T-06-1**：L1D store 未命中策略（write-allocate vs no-write-allocate）与行粒度 → `spec/09`（待建）。
+- **T-06-1**：L1D store 未命中策略（write-allocate vs no-write-allocate）与行粒度 → `spec/09`。
 - **T-06-2**：MSHR 条目数、合并规则与请求 ID 分配（`req_id` 3 bit）→ `spec/09` + `spec/01` §3.13 对账。
 - **T-06-3**：L2 回填/写回粒度与 non-inclusive 目录位 → `spec/09`。
 - **T-06-4**：预取/预读口径（一期不实现，登记）→ `spec/09`/二期。
-- **T-06-5**：`ptw_mem_req_t` 的优先级与 L1D 竞争（walk 请求与数据请求仲裁）→ `spec/08`（待建）。
-- **T-06-6**：perf 计数（`MPKI`/`fwd_blocked_replay`）的采样点 → `spec/13`（待建）与 `spec/01` §3.22。
+- **T-06-5**：`ptw_mem_req_t` 的优先级与 L1D 竞争（walk 请求与数据请求仲裁）→ `spec/08`。
+- **T-06-6**：perf 计数（`MPKI`/`fwd_blocked_replay`）的采样点 → `spec/13` 与 `spec/01` §3.22。
 
 ## 6. 出口自检（每项附复核手段）
 

@@ -1,0 +1,7 @@
+== rocheck --window 2026-09-25T00:27:19（窗口快照建于 2026-09-25T00:27:20）==
+  窗口起点文件 336 / 现态文件 343
+  MODIFIED          14  .qoder/handoff/HANDOFF.md AGENTS.md doc/AI角色与职责.md doc/process/00-问题记录.md doc/review/01-评审探针/rocheck_r36_window_INIT.txt doc/review/01-评审记录.md doc/spec/06-访存与cache层次.md doc/spec/08-访存一致性与虚拟内存.md …
+  ADDED              7  doc/review/01-评审探针/rocheck_r36_window_FINAL.txt script/tmp/al_dispose.py script/tmp/kb_p2.py script/tmp/merge_finish.py script/tmp/merge_process.py script/tmp/p1_judge.py script/tmp/r168.py
+  DELETED            0  
+  MTIME-ONLY(INFO)   1  doc/spec/14-接口冻结记录.md
+  判定：内容侧有变更/新增/删除（**新增/删除恒计入**）→ 退出码 1；须逐条归因；纯 mtime 差不作判据。
