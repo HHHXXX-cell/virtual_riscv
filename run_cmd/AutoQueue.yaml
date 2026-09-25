@@ -594,3 +594,15 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "**2026-09-25 落（R-174）**：process/00 字节级归一（双 CR/裸 LF 归零）＋附 AQ 更正（4→1→1）＋实体序列改词述；ISS-099 关闭；台账 99＝3/24/72；r41 收工即查 MODIFIED 0"
+
+  - id: Q-046
+    task: Q-040 片 δ 复核归档（附 AS）：首派空报告事件记录＋重派紧凑版取报告（新增 0）＋盲区本体补核
+    role: R8
+    basis: Q-040 `done_when`「片内带 δ 复核」；`doc/review/01-评审记录.md` 附 AS
+    done_when: δ 报告入档（附 AS）；盲区补核结论可回查；r42 收工即查在案
+    state: done
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "**2026-09-25 落（R-177）**：紧凑版 δ 报告＝新增 0（核对 4/5，两处部分＝盲区）；盲区本体补核全过；r42 收工即查 MODIFIED 0；首派空报告如实记录、不作收敛见证"
