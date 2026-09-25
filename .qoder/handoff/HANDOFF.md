@@ -1279,3 +1279,17 @@
   - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）
   - 未完成: Q-011 片 δ 复核未归档；余项 Q-009（13 类 KNOWN_OPEN）／Q-027／Q-033
   - 下一手: Q-011 片 δ 复核 → 归档附 AT → 余项核销
+
+- [Q-047] Q-011 片 δ 复核归档＋Q-033 核销＋Q-027 置 blocked 角色=R8（本体） 日期=2026-09-25 轮次=（R-179）
+  - 产物: `doc/review/01-评审记录.md`（**附 AT**）；`doc/verify/05` **R-179**；`run_cmd/AutoQueue.yaml`（Q-047／Q-033→done／Q-027→blocked）；本条
+  - 依据: `audit-q011` 报告（5/5、新增 0）；r43 收工即查；Q-033 证据＝`spec14-905-count` 机判 PASS
+  - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）；r43 收工即查＝MODIFIED 1（自写探针重取，已归因）
+  - 未完成: Q-009（13 类 KNOWN_OPEN）未开工；G1 前置余项清点未做
+  - 下一手: Q-009 子片化开工 → G1 前置余项（`spec/00` RR／04~13 T-xx／`spec/10` T-10-1）
+
+- [Q-033] D-13 ④段材料核销（随 Q-011 片同批） 角色=R8（本体） 日期=2026-09-25 轮次=（R-179）
+  - 产物: `run_cmd/AutoQueue.yaml`（Q-033→done＋landable）；本条
+  - 依据: `doc/spec/14` §3 §9.5 四段在文（S-24/R-163）；`gate.py check` 判据 `spec14-905-count`（R-168/R-169）实跑 PASS
+  - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（`spec14-905-count` 在列）
+  - 未完成: 无
+  - 下一手: —（随 G1 材料一并呈 R0 读）
