@@ -1272,3 +1272,10 @@
   - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）；r42 收工即查＝MODIFIED 0
   - 未完成: 首派空报告成因未定位（记为事件，不作见证）；Q-009（13 类 KNOWN_OPEN）／Q-011（色标件）／Q-027／Q-033 未办
   - 下一手: Q-011（`run_cmd/vr1_configs.yaml`＋`spec/12` §4 映射回引，T-12-2）→ Q-009 子片化 → 余项核销
+
+- [Q-011] 建成配置色标件＋`spec/12` §4 映射表（T-12-2 办结） 角色=R8（本体） 日期=2026-09-25 轮次=（R-178）
+  - 产物: `run_cmd/vr1_configs.yaml`（**新建**；11 配置：Green×5／Amber×1／Red×5）；`doc/spec/12-参数与配置区间.md`（§4 映射表／§6 T-12-2／版本表 `v0.1 续1`）；`doc/verify/05` **R-178**；`run_cmd/AutoQueue.yaml`（Q-011→done＋landable）；本条
+  - 依据: `run_cmd/AutoQueue.yaml` Q-011；`doc/spec/12` §4 字段与判定口径；`spec/00` §4（数值唯一权威源）
+  - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）
+  - 未完成: Q-011 片 δ 复核未归档；余项 Q-009（13 类 KNOWN_OPEN）／Q-027／Q-033
+  - 下一手: Q-011 片 δ 复核 → 归档附 AT → 余项核销

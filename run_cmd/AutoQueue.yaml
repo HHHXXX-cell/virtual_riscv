@@ -192,12 +192,12 @@ items:
     role: R4
     basis: doc/项目开发流程.md §6.3；【ibex】配置色标治理
     done_when: 文件存在，每配置有成熟度字段与依据；spec/12 参数区间可与其一一映射
-    state: ready
+    state: done
     priority: P3
     depends_on: []
     blocked_by: []
     review_rounds: 0
-    landable: ""
+    landable: "**2026-09-25 建成（R-178）**：`run_cmd/vr1_configs.yaml` 已建——11 配置（六组现值 Green／转发组 Amber（单拍可实现性登记）／A-1~A-5 Red），字段=id/title/params/maturity/basis/spec_refs（口径引 `spec/12` §4）；`spec/12` §4 增映射表、§6 T-12-2 办结、版本表加 `v0.1 续1` 批行"
 
   - id: Q-012
     task: 建 L1 单元 TB 骨架（9 个模块共用一套 + Python 对拍模型规范）

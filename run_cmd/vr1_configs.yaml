@@ -1,0 +1,77 @@
+# VR1 配置色标（run_cmd/vr1_configs.yaml）——由队列 Q-011 建立（2026-09-25，R-178）
+# 口径 = doc/spec/12 §4（字段与 Red/Amber/Green 判定）；数值唯一权威源 = doc/spec/00 §4
+# 本件不另赋值：params 只列覆盖项名与出处；仅 Green 配置可进签核（spec/12 §4）
+version: 1
+schema:
+  fields: [id, title, params, maturity, basis, spec_refs]
+  maturity_def:
+    Green: "参数取自 spec/00 §4 现值且无未闭合承接项 ⇒ 可进签核"
+    Amber: "参数已定但存在登记性风险（单拍可实现性/条件性指标）⇒ 可评审、不进签核"
+    Red: "含未定值/未闭合 ADR（如抬档变体未过 RR）⇒ 不得用于签核"
+configs:
+  - id: CAP
+    title: 容量组（PRF/ROB/LQ/SQ）
+    params: [PRF_INT_ENTRIES, ROB_ENTRIES, LQ_ENTRIES, SQ_ENTRIES, HIST_DEPTH, ROLLBACK_MAX, PADDR_W]
+    maturity: Green
+    basis: "参数值均取 spec/00 §4 现值（ADR-S2：HIST_DEPTH/ROLLBACK_MAX=33；容量上限口径，数值零改动）；无未闭合 ADR"
+    spec_refs: ["spec/12 §2 容量组", "spec/00 §4.3/§4.8", "spec/04 §5"]
+  - id: RDPORT
+    title: 读口组（PRF 读端口）
+    params: [PRF_RD_PORTS]
+    maturity: Green
+    basis: "ADR-S08：16（4 提交＋12 发射级，逐消费者枚举）；小计 16=4+12 已回写 spec/04 §4.2"
+    spec_refs: ["spec/12 §2 读口组", "spec/00 §4.3", "spec/07 §2"]
+  - id: FWD
+    title: 转发组（源数/比较键）
+    params: [FWD_MAX_SOURCES, FWD_CMP_BITS]
+    maturity: Amber
+    basis: "参数已定（ADR-S2-2：源数=2、废『截断』语义；比较键=PA 全宽 44）；登记性风险=单拍可实现性（spec/07 §4 登记＋预测＋回退点，待综合/形式化复核）"
+    spec_refs: ["spec/12 §2 转发组", "spec/00 §4.4/§4.6", "spec/07 §2/§4"]
+  - id: PIPE
+    title: 流水组（级数/宽度）
+    params: [BP_STAGES, IF_STAGES, DECODE_WIDTH, ISSUE_WIDTH, COMMIT_WIDTH]
+    maturity: Green
+    basis: "现值为基准（spec/00 §4.2~§4.5）；改动=抬档级（spec/12 §3，须升版＋RR）"
+    spec_refs: ["spec/12 §2 流水组", "spec/00 §4.2~§4.5"]
+  - id: MEM
+    title: 存储组（L1/L2 容量与组织）
+    params: [L1I_SIZE, L1D_SIZE, L1_LINE, L1_WAYS, L2_SIZE, L2_LINE, L2_WAYS]
+    maturity: Green
+    basis: "现值 32KB/8w、256KB/16w（L2 值引 spec/00 §4.6；256KB 为 B1 更正后口径）；改 L1_SIZE 触发 VIPT 别名约束复算（spec/00 §5 D7）"
+    spec_refs: ["spec/12 §2 存储组", "spec/00 §4.6/§4.8"]
+  - id: WIDE
+    title: 宽面（地址/比较位宽同源）
+    params: [PA_BITS, FWD_CMP_BITS, ALEN]
+    maturity: Green
+    basis: "三者同源＝PA_BITS（44，spec/00 §4.1/§4.6）"
+    spec_refs: ["spec/12 §2 宽面", "spec/00 §4.1/§4.6"]
+  - id: A-1
+    title: 抬档 A-1 依赖间距（ALU→ALU 3 拍 → 2 拍）
+    params: [SAME_GROUP_BYPASS_DEPTH]
+    maturity: Red
+    basis: "抬档变体，未过 Requirement Review ⇒ Red（spec/12 §3 禁则）；触发=M5 实测 IPC 达门槛后评估"
+    spec_refs: ["spec/12 §3 A-1 行", "spec/00 §1.0／§10（ISS-012）", "spec/07 §4.5"]
+  - id: A-2
+    title: 抬档 A-2 D 提一期（D-cache 提前实现）
+    params: []
+    maturity: Red
+    basis: "抬档变体，未过 RR ⇒ Red；走升版＋RR"
+    spec_refs: ["spec/12 §3 A-2 行", "spec/00 §1.0"]
+  - id: A-3
+    title: 抬档 A-3 μop cache（前端）
+    params: []
+    maturity: Red
+    basis: "抬档变体，未过 RR ⇒ Red；走升版＋RR"
+    spec_refs: ["spec/12 §3 A-3 行", "spec/00 §1.0"]
+  - id: A-4
+    title: 抬档 A-4 L2→1MB＋L3 预留
+    params: [L2_SIZE]
+    maturity: Red
+    basis: "抬档变体，未过 RR ⇒ Red；连带 §4.8 复算与 width_check"
+    spec_refs: ["spec/12 §3 A-4 行", "spec/00 §1.0/§4.8"]
+  - id: A-5
+    title: 抬档 A-5 RVV 架构位（仅留架构位）
+    params: []
+    maturity: Red
+    basis: "抬档变体，未过 RR ⇒ Red；走升版＋RR"
+    spec_refs: ["spec/12 §3 A-5 行", "spec/00 §1.0"]
