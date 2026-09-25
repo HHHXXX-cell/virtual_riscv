@@ -691,3 +691,15 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "**2026-09-25 落（R-185）**：N-a/N-b 改引 §2.1；同类六型全库复扫（残留 0；`spec/03`/`verify/01` L154 判定为仍开放项保留）；ISS-102 关闭；台账 102＝3/22/77；r47 收工即查 MODIFIED 0"
+
+  - id: Q-054
+    task: ptw 链 δ 终局确认归档（附 AX）：核对 14/14、新增 0；链收敛（见证，呈 R0）
+    role: R8
+    basis: 评审记录附 AX（`audit-ptw3` 报告）；规则 24②（处置必复）；`doc/项目开发流程.md` §9.4
+    done_when: 终局报告入档；收敛状态写明「只见证、判定权在 R0」；r48 收工即查在案
+    state: done
+    priority: P2
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "**2026-09-25 落（R-186）**：`audit-ptw3`＝14/14、新增 0（同类复扫独立复核：spec 面零残留）；ptw 链 4 轮收敛（6/6→+3→+2→0）；r48 收工即查 MODIFIED 0；收敛判定呈 R0"
