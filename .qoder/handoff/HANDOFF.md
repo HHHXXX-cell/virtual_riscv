@@ -1314,3 +1314,10 @@
   - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）；r45 收工即查＝MODIFIED 0
   - 未完成: `ptw_mem_req_t` 片落文未办（RD ADR 已在手）；G1 余项续清
   - 下一手: `ptw_mem_req_t` 闭合片落文（`spec/08` §2 子节＋`spec/00` §6＋`spec/06` T-06-5）→ δ 复核
+
+- [Q-051] `ptw_mem_req_t` 闭合片落文（spec/08 §2.1／T-08-3/5 闭／T-08-7 登）＋RD ADR-1~4 角色=R8（本体） 日期=2026-09-25 轮次=（R-183）
+  - 产物: `doc/spec/08-访存一致性与虚拟内存.md`（§2.1＋§6＋版本行续1）；`doc/spec/06-访存与cache层次.md`（T-06-5 闭＋版本行续1）；`doc/spec/00-总体规格.md`（§6 M12＋X5 注＋版本行续8）；`doc/verify/05` **R-183**；`run_cmd/AutoQueue.yaml`（Q-051）；本条
+  - 依据: RD 裁决 ADR-1~4；X5 注（G1 冻结前必须闭合）；T-06-5 同源；【权】1725／7453–7454
+  - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）
+  - 未完成: 片内 δ 复核未派；T-08-7（A/D 写回载体）登记未闭；ADR-3 参考核锚未取
+  - 下一手: δ 复核（`audit-ptw`）→ 归档附 AV → G1 余项续（`spec/03` T3-1/T3-4 → RR 材料）
