@@ -77,7 +77,7 @@
 | `minstret` | 0xB02 | 0 | 64 位；`IR` 门控 | — | M=R/W | 45940–45965 |
 | `mvendorid`/`marchid`/`mimpid`/`mhartid` | 0xF11/0xF12/0xF13/0xF14 | 0 | 恒 0（非商业实现合规） | 只读 | M=RO | 44842–44899／44913–44916 |
 | `mhpmcounter3..31`（含 h 组） | 0xB03..0xB1F | 0 | **读回 0**（不实现） | 只读 0 | M=RO | `spec/00` §4.7；44004–44013（*h 组 RV32 only ⇒ 不存在） |
-| `pmpcfg0`/`pmpcfg2` | 0x3A0/0x3A2 | 0 | RV64 每寄存器 8 条（`R/W/X/A[1:0]/L`）；**奇号寄存器不存在** | WARL（A∈{OFF,NA4,NAPOT}；L=1 后写忽略） | M=R/W | 47481–47492／47761–47762 |
+| `pmpcfg0`（**仅此一个**） | 0x3A0 | 0 | RV64 每寄存器 8 条（`R/W/X/A[1:0]/L`）；`PMP_ENTRIES=8` ⇒ 仅 entries 0~7 存在；**`pmpcfg2`（entries 8~15）与奇号 ⇒ 不存在（访问 illegal，见 §4.2）** | WARL（A∈{OFF,NA4,NAPOT}；L=1 后写忽略） | M=R/W | 47481–47492／47761–47762 |
 | `pmpaddr0..7` | 0x3B0..0x3B7 | 0 | NAPOT/NA4 编码；`G`＝4B（G=0 无强制置零位） | WARL | M=R/W | 47680／47693–47729／47748–47752 |
 | `sstatus` | 0x100 | 0 | ＝`mstatus` 的 S 可见子集（`SIE/SPIE/SPP/SUM/MXR`；`FS` 恒 0） | 同 `mstatus` | S=R/W | 47960 |
 | `sie`/`sip` | 0x104/0x144 | 0 | 位 {1,5,9}（SSIE/STIE/SEIE）／{1,5,9}（SSIP 可写、其余 CLINT 置位） | 部分 R/W | S=R/W | `spec/00` §4.7 |
