@@ -1342,3 +1342,10 @@
   - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）；r48 收工即查＝MODIFIED 0
   - 未完成: G1 余项（`spec/03` T3-1/T3-4；`spec/00` §10 ISS-041 行待核；`spec/00` RR）未办；收敛判定待 R0
   - 下一手: G1 硬阻塞第 3/4 项（`spec/03` T3-1/T3-4）→ RR 材料 → 呈判包
+
+- [Q-055] ADR-TS1 落文（T3-1 闭合：66→64 B＋证明式） 角色=R8（本体；决策＝RD） 日期=2026-09-25 轮次=（R-187）
+  - 产物: `doc/spec/03-分支预测与取指前端.md`（§2.3 B-3 三处／§2.4 T-12／§4 T3-1 标闭／§7-2／版本行续6）；`doc/verify/02-验证点清单.md`（VP-14）；`doc/process/00`（ISS-039 补记）；`doc/verify/05` **R-187**；评审记录**附 AY**；`run_cmd/AutoQueue.yaml`（Q-055）；本条
+  - 依据: RD ADR-TS1（附 AY 全文要点）；`spec/01` §3.1 `nib` 契约；鸽巢/穷举证明式
+  - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）
+  - 未完成: **ADR-TS2 接口升版批未落**（`spec/01` 三 struct＋8 bit／§4.8／版本行／`width_check`）；`spec/11` 断言候选与 `spec/05` 时序核未落；ISS-082 未闭
+  - 下一手: ADR-TS2 接口升版批 → 合批 δ 复核（附 AY 续）

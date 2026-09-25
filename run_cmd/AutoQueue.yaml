@@ -703,3 +703,15 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "**2026-09-25 落（R-186）**：`audit-ptw3`＝14/14、新增 0（同类复扫独立复核：spec 面零残留）；ptw 链 4 轮收敛（6/6→+3→+2→0）；r48 收工即查 MODIFIED 0；收敛判定呈 R0"
+
+  - id: Q-055
+    task: ADR-TS1 落文（T3-1 闭合）：`spec/03` 66→可达紧界 64 B＋鸽巢证明＋等号两构型；`verify/02` VP-14；ISS-039 补记
+    role: R8（本体；决策＝RD）
+    basis: RD ADR-TS1；`spec/01` §3.1 `nib` 契约；`doc/process/00` ISS-039
+    done_when: `spec/03` 四处改毕且 T3-1 标闭；VP-14 补负例；片内 δ 复核；gate.py check 全 PASS（末行为准）
+    state: done
+    priority: P1
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "**2026-09-25 落（R-187）**：可达紧界 64 B（2a+4b≤64；66 需 n≥17 违 `nib`≤16 契约）＋等号两构型；T3-1 标闭、`spec/04` 联片消解；回退点＝`nib` 扩版；gate 25 PASS；ADR-TS2（接口升版）为紧邻子片"
