@@ -667,3 +667,15 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "**2026-09-25 落（R-183）**：`spec/08` §2.1（视图规则/仲裁/err 映射）＋`ptw_mem_rsp_t` 70 bit 定义；T-08-3/T-08-5/T-06-5 闭合、T-08-7 新登；`spec/00` §6 M12＋X5 注改引（`ptw_mem_req_t` 出列）；三篇版本行齐；gate 25 PASS；δ 复核见附 AV"
+
+  - id: Q-052
+    task: 附 AV 处置批（ptw 片 δ 收工）：N1/N2/N3（同篇旧句同步）即修＋ISS-101 登记并关闭
+    role: R8
+    basis: 评审记录附 AV（`audit-ptw` 报告）；`doc/process/00` ISS-101
+    done_when: 三处逐处落文；ISS-101 关闭且台账计数四处一致；gate.py check 全 PASS（末行为准）
+    state: done
+    priority: P1
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "**2026-09-25 落（R-184）**：`spec/08` §2/§7 与 `spec/06` §3 旧句改引 §2.1；ISS-101 关闭；台账 101＝3/22/76；r46 收工即查 MODIFIED 0"

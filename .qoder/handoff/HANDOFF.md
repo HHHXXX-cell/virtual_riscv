@@ -1321,3 +1321,10 @@
   - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）
   - 未完成: 片内 δ 复核未派；T-08-7（A/D 写回载体）登记未闭；ADR-3 参考核锚未取
   - 下一手: δ 复核（`audit-ptw`）→ 归档附 AV → G1 余项续（`spec/03` T3-1/T3-4 → RR 材料）
+
+- [Q-052] 附 AV 处置批（ptw 片 δ 收工）——N1/N2/N3 即修＋ISS-101 关闭 角色=R8（本体） 日期=2026-09-25 轮次=（R-184）
+  - 产物: `doc/spec/08`（§2 PTW 条、§7 自检行）；`doc/spec/06`（§3 接口条）；`doc/process/00`（ISS-101 新登＋计数 101）；`doc/verify/05` **R-184**；评审记录**附 AV**；`run_cmd/AutoQueue.yaml`（Q-052）；本条
+  - 依据: `audit-ptw` 报告（6/6、新增 3＝同篇旧句未同步）；r46 收工即查
+  - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）；r46 收工即查＝MODIFIED 0
+  - 未完成: 收敛确认 δ 轮未派；G1 余项（`spec/03` T3-1/T3-4）未办
+  - 下一手: δ 轮（处置必复）→ G1 余项续 → RR 材料
