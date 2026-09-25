@@ -631,3 +631,15 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "**2026-09-25 落（R-180）**：未闭 T 50＝硬阻塞 4 类（T-10-1／`ptw_mem_req_t`／`spec/03` T3-1／T3-4 之 `bp_upd_id`）＋46 项带归属（口径满足）；`spec/00` RR 未过（待呈）；ISS-041 行「G1 前必须闭合」待核"
+
+  - id: Q-049
+    task: T-10-1 深化片：CSR 全表（地址/复位值/位段/WARL/权限）＋委托细则＋T-10-2/T-10-3/T-10-6 终裁（RD ADR-1~5 自决）
+    role: R8（本体；决策＝RD 独立子代理）
+    basis: `doc/spec/10` §6 T-10-1（G1 硬阻塞）；RD ADR-1~5；【权】实读锚
+    done_when: `spec/10` §4.1~§4.3 在文且 T-10-1/2/3/6 标闭合；`spec/00` §4.7 新参数落表＋版本行；片内 δ 复核；gate.py check 全 PASS（末行为准）
+    state: done
+    priority: P1
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "**2026-09-25 落（R-181）**：`spec/10` §4.1（25 行 CSR 全表）＋§4.2 委托细则＋§4.3 终裁；`spec/00` §4.7 `MISA_VALUE`／`CSR_ID_VALUES`／`PMP_A_MODES` 三行＋版本行；T-10-1/2/3/6 闭合；RD ADR-1~5 在案；gate 25 PASS；δ 复核见附 AU"

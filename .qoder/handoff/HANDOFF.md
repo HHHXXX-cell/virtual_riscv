@@ -1300,3 +1300,10 @@
   - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）
   - 未完成: T-10-1 深化片未开工；`ptw_mem_req_t`／`spec/03` 两项／ISS-041 行核未办；`spec/00` RR 材料未组
   - 下一手: T-10-1（CSR 全表＋委托细则）深化片 → 其余硬阻塞逐项 → RR 材料呈 R0
+
+- [Q-049] T-10-1 深化片落文（CSR 全表／委托细则／终裁）＋RD ADR-1~5 自决 角色=R8（本体） 日期=2026-09-25 轮次=（R-181）
+  - 产物: `doc/spec/10-特权与CSR.md`（§4.1/§4.2/§4.3＋版本行 `v0.1 续1`＋§6 四项闭合）；`doc/spec/00-总体规格.md`（§4.7 三行新参数＋版本行）；`doc/verify/05` **R-181**；`run_cmd/AutoQueue.yaml`（Q-049）；本条
+  - 依据: RD 裁决 ADR-1~5（`vr1-decider` 只读片）；【权】逐处实读行号（见 R-181 ③）
+  - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）；r44 收工即查＝MODIFIED 0（ADDED 1＝自写探针）
+  - 未完成: 片内 δ 复核未派；RD 降级/待补清单（`sfence.vma` U 侧句等）部分未补锚；T-10-4/T-10-5 留出口
+  - 下一手: δ 复核（`audit-t101`）→ 归档附 AU → G1 余项次项（`ptw_mem_req_t` 闭合片）
