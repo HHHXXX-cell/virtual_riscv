@@ -643,3 +643,15 @@ items:
     blocked_by: []
     review_rounds: 0
     landable: "**2026-09-25 落（R-181）**：`spec/10` §4.1（26 行 CSR 全表）＋§4.2 委托细则＋§4.3 终裁；`spec/00` §4.7 `MISA_VALUE`／`CSR_ID_VALUES`／`PMP_A_MODES` 三行＋版本行；T-10-1/2/3/6 闭合；RD ADR-1~5 在案；gate 25 PASS；δ 复核见附 AU"
+
+  - id: Q-050
+    task: 附 AU 处置批（T-10-1 片 δ 收工）：N1 计数（25→26）／N2 `pmpcfg2` 不存在性即修＋ISS-100 登记并关闭
+    role: R8
+    basis: 评审记录附 AU（`audit-t101` 报告）；`doc/process/00` ISS-100
+    done_when: 两项逐处落文；ISS-100 关闭且台账计数四处一致；gate.py check 全 PASS（末行为准）
+    state: done
+    priority: P1
+    depends_on: []
+    blocked_by: []
+    review_rounds: 0
+    landable: "**2026-09-25 落（R-182）**：计数改 26（R-181②/Q-049 landable）；§4.1 `pmpcfg*` 行改「仅 `pmpcfg0` 存在、其余 illegal」；ISS-100 关闭；台账 100＝3/22/75；r45 收工即查 MODIFIED 0"

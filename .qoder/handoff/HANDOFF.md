@@ -1307,3 +1307,10 @@
   - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）；r44 收工即查＝MODIFIED 0（ADDED 1＝自写探针）
   - 未完成: 片内 δ 复核未派；RD 降级/待补清单（`sfence.vma` U 侧句等）部分未补锚；T-10-4/T-10-5 留出口
   - 下一手: δ 复核（`audit-t101`）→ 归档附 AU → G1 余项次项（`ptw_mem_req_t` 闭合片）
+
+- [Q-050] 附 AU 处置批（T-10-1 片 δ 收工）——N1/N2 即修＋ISS-100 关闭 角色=R8（本体） 日期=2026-09-25 轮次=（R-182）
+  - 产物: `doc/spec/10-特权与CSR.md`（§4.1 `pmpcfg*` 行修正）；`doc/process/00`（ISS-100 新登＋计数 100）；`doc/verify/05` **R-182**；评审记录**附 AU**；`run_cmd/AutoQueue.yaml`（Q-050）；本条
+  - 依据: `audit-t101` 报告（6/6、新增 2）；r45 收工即查；计数笔误与 `PMP_ENTRIES=8` 对账
+  - 机判: `gate.py check`＝**25 PASS** / 0 WARN / 0 FAIL（修后实跑）；r45 收工即查＝MODIFIED 0
+  - 未完成: `ptw_mem_req_t` 片落文未办（RD ADR 已在手）；G1 余项续清
+  - 下一手: `ptw_mem_req_t` 闭合片落文（`spec/08` §2 子节＋`spec/00` §6＋`spec/06` T-06-5）→ δ 复核
