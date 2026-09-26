@@ -2,7 +2,7 @@
  "_note": "新方案 v1 唯一台账（doc/process/01）。编号自动自增，禁手写；历史台账见 doc/process/00-问题记录.md（归档，不再续写）。",
  "next": {
   "ISS": 130,
-  "R": 274,
+  "R": 275,
   "ADR": 4
  },
  "entries": [
@@ -696,6 +696,12 @@
    "kind": "R",
    "text": "心跳第十六轮（2026-09-26）＝R0 两裁定落地（① 列缺豁免机制改判据本体（已授权）＋ ② ISS-129 Spike 对手方口径按裁定②执行）。① 机制：两条 M3 判据（script/flow.py:chk_m3_code_cov／chk_m3_func_cov）新增'解析 doc/verify/02 列缺清单（§7 机器可读豁免集 §7.2／§6 未纳入节表体）→ 从分母扣除 → 消息逐条回显（含清单位置行号与依据/归属）'通道；四条硬边界写进判据 docstring 与消息：①豁免仅限清单内且依据可查（code 面每条须回指非'已纳入/处置项'的 CC- 主表行＋非空归属＋行号能在 rtl.f 在册单元源码里落到非空行）；②豁免不改任何 bin／采样条件／阈值／检查器逻辑（只改分母口径）；③不得靠新增/改写列缺条目凑达标——判据用**报告现值设反向上界**（同一 单元×面 ≤ 该格 misses、同一面 ≤ 该面 misses ⇒ 报告没报缺的项豁免不了）；④豁免集为空时判据行为与消息**与落地前逐字一致**（已实测核过），而'清单本体解析不到'一律 FAIL（fail-closed）。自证伪：4 种造假注入（超上界／回指已纳入行／凭空行号／对全命中单元灌豁免）全被拦。结果：m3-code-cov＝Statements 98.56%（1025/1040，15 处未命中不在清单内照旧计分母）／Branches 100.00%（447/447，原 447/463 扣豁免 16）／Conditions 100.00%（71/71，原 71/79 扣豁免 8）／FSM Transitions 100.00%（6/6，原 6/8 扣豁免 2）；m3-func-cov＝cg_fetch 8/8／cg_lsu_fsm 12/12／cg_retire 34/34（原 34/35，扣豁免 1＝priv_u）⇒ 两条转 PASS，M3 单轮达成（记账 R-272）。Conditions 差的 1 项按 R0 指示先试对账/激励：8 项逐项源码复核（doc/verify/02 §7.3，含源码行原文）全部为结构性/无产生者/死路径/无中断源，且非 ISA 行为面 ⇒ ISS-128 对账路子构造性不适用，确**啃不掉**，保留在豁免集内并写明。② ISS-129：先试 R0 优先项（原版 Spike 不改源码）——实测两条 rc=255（带项目 -m ⇒ devices at [1000,5000) and [1000,2000) overlap；不带 -m ⇒ Memory address 0x1000 is invalid），两常量皆编译期、DTB/命令行均不可覆盖（riscv/platform.h:6/:30；sim.cc:485；devices.h:37）⇒ 按裁定②执行：补丁固化＝iss/tools/patches/spike-vr1-platform-map.patch（含应用说明；改动面经逐文件核验＝2104 件对 2104 件、内容不同仅 riscv/platform.h 1 件）；纳入版本指纹＝iss/tools/spike_oracles.json（上游/改后 platform.h+改后二进制+patch 四件套 md5；iss/tools/spike_run.py 的 check/run 每次逐次核、不符即拒跑，自证伪 4 注入全拦）；口径明写'改过的 oracle，非原版 Spike'并约定'两侧不一致先核补丁本身'；落点＝doc/verify/02 §8（指针 doc/环境搭建.md §5.5）。口径下重跑确认：ISS-vs-ISS 五用例 rv64ui-p-{simple,add,slti,jalr,ld} 与 vriss 侧逐条比对仍 0 mismatch（41/470/237/115/435 条 × 列 pc,binary,gpr,csr；证据 sim/run_iss_vs_iss/run.log＋compare_<case>.txt）。边界：未改 rtl/**、rtl/vr1/include/*.svh、doc/spec/**、冻结端口面、覆盖模型 bin/采样条件；无 waiver/exclude/删 bin；台账编号脚本自增。",
    "ts": "2026-09-26 13:04"
+  },
+  {
+   "id": "R-274",
+   "kind": "R",
+   "text": "首次上传 git：commit f0bd2f3（204 文件、+38969/-292）推送到 origin/main（726b9a7→f0bd2f3）。提交范围＝流程A落地＋六里程碑（M0.5/M1a/M1-I/M1/M2/M3）＋RTL 12 单元＋riscv-tests/arch-test 接入＋覆盖率与回归机制＋规格复核与对账。**排除三件未上传**：debug/ISS-104-ModelSim-license-双网卡漂移-处置包.md（含本机 MAC/HOSTID）、.qoder/handoff/HANDOFF.md、.qoder-cn/settings.json（旧工具面）——待 R0 明确后才考虑纳入",
+   "ts": "2026-09-26 13:30"
   }
  ]
 }

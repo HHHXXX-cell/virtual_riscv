@@ -52,3 +52,8 @@ script/tmp/*
 .idea/
 .vscode/
 *.swp
+
+# ---- 工具面与含机器标识的本地件（R0 2026-09-26 要求更干净，不入库）----
+.qoder/
+.qoder-cn/
+debug/ISS-104-*
