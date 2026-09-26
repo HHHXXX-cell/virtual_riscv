@@ -1,0 +1,102 @@
+# run_cmd/cover_m3_testlist.txt — **覆盖率批用例清单**（M3-(a)/(b) 补激励批；2026-09-26 心跳第 12 轮建）
+#
+# 定位（与 `run_cmd/rv64ui_testlist.txt` 的分工，务必读）：
+#   · `run_cmd/rv64ui_testlist.txt` = **回归面**用例清单（`m2-regress`／`m3-regress-stab` 的同配置签名
+#     成员之一）。**本清单不改它** —— 改它会换掉回归的"同配置"，使已跑的 3 轮（r5/r6/r7）不再同配置
+#     （红线：不得用"换配置"绕开稳定性判据）。
+#   · 本清单 = **覆盖率批**（`python run_cmd/cover_rv1.py --batch m3cov_r1 --testlist run_cmd/cover_m3_testlist.txt`）
+#     的用例来源：内容 = 回归面 50 条 ＋ 2 条**补激励**用例（见下）。覆盖率批与回归批的逐例判定口径
+#     **完全相同**（ISS `halt_val=0x1` ＋ RTL `HALT_PASS` ＋ `trace_compare` 0 mismatch；不放宽）。
+#
+# 为什么多 2 条（**逐条对上缺 bin**；证据＝`doc/verify/07-m2cov_r2.txt` §A 的 ZERO 清单）：
+#   · `vr1dir-p-dir_csr` —— **定向**用例（源 `sw/tests/direct/dir_csr.S`，VP-05）：7 条 CSR 纯读
+#     （`csrrs rd=x0, csr, rs1=x0`）⇒ 命中 `cg_retire.cp_csr` 的 7 个 bin（0x300/0x301/0x305/
+#     0x340/0x341/0x342/0x343），其中 6 个此前为 ZERO（`csr_mtvec` 由 env 的 `reset_vector` 命中）。
+#   · `m_smoke` —— **导入**用例（既有自研镜像 `sim/image/m_smoke.hex`；M1 判据 `rtl-vs-iss` 的激励，
+#     ISS↔RTL 30 条 0 mismatch）。含**非对齐 store → M 态 trap 退休**（`cg_retire.cp_exc.exc`）
+#     与 `L_IDLE => L_DONE`（`cg_lsu_fsm.t_idle_done`：非对齐 ⇒ 不发请求直接报 fault）——
+#     这两条不能用 riscv-tests 的 env 触发（其 `trap_vector` 只把 ecall 类引向 tohost，
+#     其余异常一律 TESTNUM=1337 ⇒ HALT_FAIL）。
+#
+# 条数：**52** ＝ 50 ＋ 2。两条新用例同为 `sim/image/rv64ui/MANIFEST.json` 的 `tests` 成员
+#   （由 `sw/tests/build_rv64ui.py` 产），故**同样**受 `m2-rv64ui` 判据的逐条真跑判定——
+#   不存在"只给覆盖率批用、不受判据"的免判通道。
+#
+# 解析口径与 `run_cmd/rv64ui_testlist.txt` 逐字相同：一行一条用例名，须逐字匹配 `tests[].name`；
+#   `#` 注释、空行忽略；不支持任何 per-case 开关（比对列/放宽开关一律不走 testlist，红线 R6）。
+#
+# ---------------------------------------------------------------------------
+# **受控复位注入通道**（2026-09-26 心跳第 13 轮；**R0 2026-09-26 三项裁定①**＝
+# `doc/verify/02` §6 NU-2 受控通道）——`rst_` 前缀条目的**唯一例外**，逐条写明防误读：
+#   · 解析源不同：`rst_*` 条目从 MANIFEST 的 **`cov_only_tests`**（非 `tests`）解析；
+#   · 判定不同：只跑 **RTL 单侧**（`+RESET_INJECT=<cycle>` ＋ HALT_PASS ＋ 无 HALT_FAIL/
+#     WATCHDOG ＋ `[rst_inj]` 证据行；`run_cmd/cover_rv1.py:run_case_rst`）——**不做 ISS↔RTL
+#     比对**，因为复位注入使 trace 出现"重启后第二段"，与 ISS 单段 golden 构造性不可比；
+#   · 通道隔离：回归面（`run_cmd/rv64ui_testlist.txt`）**不含** `rst_` 前缀 ⇒ 回归"同配置"
+#     签名不变（**不污染 M2 的同配置口径**）；条目也不进 `MANIFEST.tests` ⇒ 不进 `m2-rv64ui`；
+#   · 目的：命中 `cg_lsu_fsm.cp_trans` 的 `t_req_idle`/`t_rsp_idle`（该两迁移只有运行中复位
+#     能产生）；bin 不删、判定阈值不改（红线 R7；判据侧通道标注见
+#     `script/flow.py:chk_m3_func_cov`）。
+# ---------------------------------------------------------------------------
+
+rv64ui-p-add
+rv64ui-p-addi
+rv64ui-p-addiw
+rv64ui-p-addw
+rv64ui-p-and
+rv64ui-p-andi
+rv64ui-p-auipc
+rv64ui-p-beq
+rv64ui-p-bne
+rv64ui-p-simple
+rv64ui-p-jal
+rv64ui-p-lui
+rv64ui-p-or
+rv64ui-p-ori
+rv64ui-p-xor
+rv64ui-p-xori
+rv64ui-p-slt
+rv64ui-p-sltiu
+rv64ui-p-sltu
+rv64ui-p-sll
+rv64ui-p-slli
+rv64ui-p-slliw
+rv64ui-p-sllw
+rv64ui-p-srl
+rv64ui-p-srli
+rv64ui-p-srliw
+rv64ui-p-srlw
+rv64ui-p-sra
+rv64ui-p-srai
+rv64ui-p-sraiw
+rv64ui-p-sraw
+rv64ui-p-sub
+rv64ui-p-slti
+rv64ui-p-subw
+rv64ui-p-lw
+rv64ui-p-sw
+rv64ui-p-blt
+rv64ui-p-bge
+rv64ui-p-bltu
+rv64ui-p-bgeu
+rv64ui-p-jalr
+rv64ui-p-lb
+rv64ui-p-lbu
+rv64ui-p-lh
+rv64ui-p-lhu
+rv64ui-p-lwu
+rv64ui-p-ld
+rv64ui-p-sb
+rv64ui-p-sh
+rv64ui-p-sd
+# ---- 补激励 3 条（2026-09-26 心跳第 12 轮 2 条 ＋ 第 14 轮 1 条；逐条对缺项见文件头）----
+vr1dir-p-dir_csr
+# 心跳第 14 轮（M3-(a) 逐条分类后的 (i) 类补激励）：保留编码/未激励面探针 —— 逐条对上
+# `doc/verify/07-m3cov_r2.txt` §B 的逐行未命中清单（RTL 行号写在 `sw/tests/direct/dec_probe.S`
+# 文件头）；全部编码逐一核过 RTL 与 ISS **两侧同为非法**（两侧口径差者已排除并列缺）。
+# 与 dir_csr 同为 `MANIFEST.tests` 成员 ⇒ 同受 `m2-rv64ui` 逐条真跑判定（无免判通道）；
+# **不进** `run_cmd/rv64ui_testlist.txt` ⇒ 回归"同配置"签名不变（该清单只有 50 条 rv64ui）。
+vr1dir-p-dec_probe
+m_smoke
+# ---- 受控复位注入通道 1 条（2026-09-26 心跳第 13 轮；R0 三项裁定①＝NU-2，见文件头）----
+rst_lsu

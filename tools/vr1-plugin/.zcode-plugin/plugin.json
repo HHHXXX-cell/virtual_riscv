@@ -1,0 +1,12 @@
+{
+  "name": "vr1-plugin",
+  "version": "0.1.0",
+  "description": "VR1 project-local subagents (planner/designer/verifier/auditor/decider) with mechanically enforced write boundaries.",
+  "description_i18n": {
+    "en": "VR1 project-local subagents with mechanically enforced write boundaries (auditor is read-only: no Bash/Write/Edit).",
+    "zh-CN": "VR1 项目本地子代理（计划/设计/验证/审计/决策）；写边界由 tools 白名单机械执行——auditor 无 Bash/Write/Edit，天然只读。"
+  },
+  "author": { "name": "VR1" },
+  "license": "Proprietary",
+  "agents": "agents"
+}

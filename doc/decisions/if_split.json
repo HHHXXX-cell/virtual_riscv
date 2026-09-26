@@ -1,0 +1,344 @@
+{
+  "_note": "doc/decisions/ADR-P-2 的可机判切分表。键 = struct 名（与 script/width_check.py --json 的 struct 清单一一对应，28 个，含 17 个空表）；值 = 该 struct 的『非标量成员行』逐行切分。规则 R1~R4 定义见 ADR-P-2 §1。自检脚本：doc/decisions/check_if_split.py。",
+  "_invariant": "对每个 struct：已生成标量字段位宽 + Σ(本表各行 net) == width_check.py --json 的 sum_computed；其中 net = Σfields.width - Σ(replaces.width，无该键则 0)。口径：全非标量 struct 的『不透明位宽兜底类型』不计入已生成标量位宽（兜底在本表生效后被真实字段取代）。",
+  "ftq_req_t": [],
+  "ftq_entry_t": [
+    {
+      "raw": "`= ftq_req_t`（全字段复用）",
+      "fields": [
+        {"name": "valid", "width": 1},
+        {"name": "pc", "width": 40},
+        {"name": "nib", "width": 5},
+        {"name": "br_vld", "width": 1},
+        {"name": "br_type", "width": 2},
+        {"name": "taken", "width": 1},
+        {"name": "target", "width": 40},
+        {"name": "ras_op", "width": 2},
+        {"name": "ras_top", "width": 40},
+        {"name": "pred_conf", "width": 2},
+        {"name": "bp_upd_id", "width": 8},
+        {"name": "bad_va", "width": 1}
+      ],
+      "rule": "R2",
+      "width_total": 143,
+      "expand": "ftq_req_t"
+    }
+  ],
+  "fetch_raw_t": [],
+  "uop_t": [
+    {
+      "raw": "`rs1_en`/`rs2_en`",
+      "fields": [
+        {"name": "rs1_en", "width": 1},
+        {"name": "rs2_en", "width": 1}
+      ],
+      "rule": "R1",
+      "width_total": 2
+    },
+    {
+      "raw": "`rs1`/`rs2`",
+      "fields": [
+        {"name": "rs1", "width": 5},
+        {"name": "rs2", "width": 5}
+      ],
+      "rule": "R1",
+      "width_total": 10
+    },
+    {
+      "raw": "`aq`/`rl`",
+      "fields": [
+        {"name": "aq", "width": 1},
+        {"name": "rl", "width": 1}
+      ],
+      "rule": "R1",
+      "width_total": 2
+    }
+  ],
+  "rmap_uop_t": [
+    {
+      "raw": "`= uop_t`（全字段复用）",
+      "fields": [
+        {"name": "valid", "width": 1},
+        {"name": "pc", "width": 40},
+        {"name": "raw32", "width": 32},
+        {"name": "is_c", "width": 1},
+        {"name": "isop", "width": 10},
+        {"name": "cls", "width": 3},
+        {"name": "rs1_en", "width": 1},
+        {"name": "rs2_en", "width": 1},
+        {"name": "rs1", "width": 5},
+        {"name": "rs2", "width": 5},
+        {"name": "rd_en", "width": 1},
+        {"name": "rd", "width": 5},
+        {"name": "dst_kind", "width": 2},
+        {"name": "imm", "width": 44},
+        {"name": "imm_kind", "width": 2},
+        {"name": "src_sel", "width": 2},
+        {"name": "dm", "width": 2},
+        {"name": "sext", "width": 1},
+        {"name": "is_w", "width": 1},
+        {"name": "aq", "width": 1},
+        {"name": "rl", "width": 1},
+        {"name": "fm", "width": 4},
+        {"name": "csr_addr", "width": 12},
+        {"name": "csr_wr_type", "width": 2},
+        {"name": "pred_taken", "width": 1},
+        {"name": "pred_target", "width": 40},
+        {"name": "bp_upd_id", "width": 8},
+        {"name": "ftq_id", "width": 5},
+        {"name": "pre_exc", "width": 1},
+        {"name": "pre_exc_code", "width": 4},
+        {"name": "bad_va", "width": 1}
+      ],
+      "rule": "R2",
+      "width_total": 239,
+      "expand": "uop_t"
+    },
+    {
+      "raw": "`rs1`/`rs2`（架构号 5+5）→ `psrc1`/`psrc2`（`paddr_t` 6+6）",
+      "fields": [
+        {"name": "psrc1", "width": 6},
+        {"name": "psrc2", "width": 6}
+      ],
+      "rule": "R1",
+      "width_total": 12,
+      "replaces": [
+        {"name": "rs1", "width": 5},
+        {"name": "rs2", "width": 5}
+      ],
+      "net": 2
+    },
+    {
+      "raw": "新增 `rs1_arch`",
+      "fields": [
+        {"name": "rs1_arch", "width": 5}
+      ],
+      "rule": "R3",
+      "width_total": 5
+    },
+    {
+      "raw": "新增 `rd_paddr`",
+      "fields": [
+        {"name": "rd_paddr", "width": 6}
+      ],
+      "rule": "R3",
+      "width_total": 6
+    },
+    {
+      "raw": "新增 `rd_old_paddr`",
+      "fields": [
+        {"name": "rd_old_paddr", "width": 6}
+      ],
+      "rule": "R3",
+      "width_total": 6
+    },
+    {
+      "raw": "新增 `rd_is_new`",
+      "fields": [
+        {"name": "rd_is_new", "width": 1}
+      ],
+      "rule": "R3",
+      "width_total": 1
+    },
+    {
+      "raw": "新增 `ckpt_id`",
+      "fields": [
+        {"name": "ckpt_id", "width": 2}
+      ],
+      "rule": "R3",
+      "width_total": 2
+    },
+    {
+      "raw": "新增 `is_br`",
+      "fields": [
+        {"name": "is_br", "width": 1}
+      ],
+      "rule": "R3",
+      "width_total": 1
+    },
+    {
+      "raw": "新增 `needs_ckpt`",
+      "fields": [
+        {"name": "needs_ckpt", "width": 1}
+      ],
+      "rule": "R3",
+      "width_total": 1
+    },
+    {
+      "raw": "新增 `rs1_val`",
+      "fields": [
+        {"name": "rs1_val", "width": 64}
+      ],
+      "rule": "R3",
+      "width_total": 64
+    }
+  ],
+  "rob_alloc_t": [
+    {
+      "raw": "`type[6:0]`",
+      "fields": [
+        {"name": "type_f", "width": 7}
+      ],
+      "rule": "R4",
+      "width_total": 7,
+      "rename": {"from": "type", "to": "type_f", "why": "SV 保留字（IEEE 1800 Annex B）；沿 flow.py 既有约定加 _f 后缀"}
+    }
+  ],
+  "rob_entry_t": [
+    {
+      "raw": "`type[6:0]`",
+      "fields": [
+        {"name": "type_f", "width": 7}
+      ],
+      "rule": "R4",
+      "width_total": 7,
+      "rename": {"from": "type", "to": "type_f", "why": "SV 保留字（IEEE 1800 Annex B）；沿 flow.py 既有约定加 _f 后缀"}
+    },
+    {
+      "raw": "`lq_v`/`lq_id`",
+      "fields": [
+        {"name": "lq_v", "width": 1},
+        {"name": "lq_id", "width": 6}
+      ],
+      "rule": "R1",
+      "width_total": 7
+    },
+    {
+      "raw": "`sq_v`/`sq_id`",
+      "fields": [
+        {"name": "sq_v", "width": 1},
+        {"name": "sq_id", "width": 5}
+      ],
+      "rule": "R1",
+      "width_total": 6
+    }
+  ],
+  "iq_wr_t": [
+    {
+      "raw": "`grp[1:0]`",
+      "fields": [
+        {"name": "grp", "width": 2}
+      ],
+      "rule": "R4",
+      "width_total": 2
+    },
+    {
+      "raw": "`aq`/`rl`",
+      "fields": [
+        {"name": "aq", "width": 1},
+        {"name": "rl", "width": 1}
+      ],
+      "rule": "R1",
+      "width_total": 2
+    }
+  ],
+  "iq_entry_t": [
+    {
+      "raw": "`rdy1`/`rdy2`",
+      "fields": [
+        {"name": "rdy1", "width": 1},
+        {"name": "rdy2", "width": 1}
+      ],
+      "rule": "R1",
+      "width_total": 2
+    }
+  ],
+  "wb_t": [],
+  "disp_x_t": [
+    {
+      "raw": "`rs1_val`/`rs2_val`",
+      "fields": [
+        {"name": "rs1_val", "width": 64},
+        {"name": "rs2_val", "width": 64}
+      ],
+      "rule": "R1",
+      "width_total": 128
+    },
+    {
+      "raw": "`dm`/`sext`/`is_w`/`aq`/`rl`",
+      "fields": [
+        {"name": "dm", "width": 2},
+        {"name": "sext", "width": 1},
+        {"name": "is_w", "width": 1},
+        {"name": "aq", "width": 1},
+        {"name": "rl", "width": 1}
+      ],
+      "rule": "R1",
+      "width_total": 6
+    },
+    {
+      "raw": "`csr_addr`/`csr_wr_type`",
+      "fields": [
+        {"name": "csr_addr", "width": 12},
+        {"name": "csr_wr_type", "width": 2}
+      ],
+      "rule": "R1",
+      "width_total": 14
+    },
+    {
+      "raw": "`lq_id`/`sq_id`",
+      "fields": [
+        {"name": "lq_id", "width": 6},
+        {"name": "sq_id", "width": 5}
+      ],
+      "rule": "R1",
+      "width_total": 11
+    }
+  ],
+  "br_resolve_t": [
+    {
+      "raw": "`pred_taken`/`pred_target`",
+      "fields": [
+        {"name": "pred_taken", "width": 1},
+        {"name": "pred_target", "width": 40}
+      ],
+      "rule": "R1",
+      "width_total": 41
+    }
+  ],
+  "mem_req_t": [
+    {
+      "raw": "`lq_id`/`sq_id`",
+      "fields": [
+        {"name": "lq_id", "width": 6},
+        {"name": "sq_id", "width": 5}
+      ],
+      "rule": "R1",
+      "width_total": 11
+    }
+  ],
+  "mmu_transl_req_t": [],
+  "mmu_transl_rsp_t": [],
+  "miss_req_t": [],
+  "fill_t": [],
+  "mshr_wake_t": [],
+  "icache_rsp_t": [],
+  "dcache_rsp_t": [],
+  "commit_t": [
+    {
+      "raw": "`lq_dealloc`/`lq_id`",
+      "fields": [
+        {"name": "lq_dealloc", "width": 1},
+        {"name": "lq_id", "width": 6}
+      ],
+      "rule": "R1",
+      "width_total": 7
+    },
+    {
+      "raw": "`sq_dealloc`/`sq_id`",
+      "fields": [
+        {"name": "sq_dealloc", "width": 1},
+        {"name": "sq_id", "width": 5}
+      ],
+      "rule": "R1",
+      "width_total": 6
+    }
+  ],
+  "excp_t": [],
+  "ret_ctrl_t": [],
+  "csr_wr_t": [],
+  "csrq_entry_t": [],
+  "x_complete_t": [],
+  "ls_complete_t": [],
+  "rt_t": []
+}

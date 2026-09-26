@@ -266,6 +266,14 @@ class VrIss:
             self._rd(rec, instr, next_pc)
             self._branch(rec, u64(self.pc + imm), taken=True)
         elif op == OP_JALR:
+            # funct3≠000 是**保留编码**：规范只为 JALR 定义 f3=000（提取件行 2686–2698 编码表
+            # 逐字段值：rd=dest／**funct3=0**／rs1=base／imm=offset[11:0]）⇒ f3≠0 的字不映射任何
+            # 合法指令；保留编码的译码行为 **UNSPECIFIED**（行 2026–2029），本项目取
+            # 「RES 编码点一律非法化」为平台选择（`doc/spec/02` §9.3 依据句）⇒ 必须 illegal，
+            # 不得按 f3=000 的语义执行（ISS-128 ①；与同族 ISS-063 的 SLLI/SRLI funct6 保留位
+            # 检查同一口径）。检查置于一切状态变更之前（不写 link、不跳转）。
+            if f3 != 0:
+                raise Fault(Exc.ILLEGAL_INSTR, instr)
             tgt = u64((self._rs1(instr) + imm_i) & ~1)
             self._rd(rec, instr, next_pc)
             self._branch(rec, tgt, taken=True)
@@ -341,8 +349,12 @@ class VrIss:
         if (f3 == 1 and hi6 != 0x00) or (f3 == 5 and hi6 not in (0x00, 0x10)):
             raise Fault(Exc.ILLEGAL_INSTR, instr)
         sh = (instr >> 20) & 0x3F
+        # SLTI（f3=2，ISS-124 修复）：`imm` 由 `_exec` 经 `sext(...,12)` **已是 Python 有符号**值，
+        # 不得再送 `_s()`（`_s` 是 u64→有符号；对已是负数的 Python 整数会再减 2**64 ⇒ 比较恒错）。
+        # 权（一级依据）：riscv_spec_full.txt 行 2382-2383「SLTI … rs1 is less than the sign-extended
+        # immediate when both are treated as signed numbers」。
         val = {
-            0: x + imm, 2: int(_s(x) < _s(imm)), 3: int(x < u64(imm)),
+            0: x + imm, 2: int(_s(x) < imm), 3: int(x < u64(imm)),
             4: x ^ u64(imm), 6: x | u64(imm), 7: x & u64(imm),
             1: u64(x << sh),
             5: self._shift_r(x, sh, hi6 & 0x10, 64),
@@ -396,8 +408,13 @@ class VrIss:
                 or f3 not in (0, 1, 5):
             raise Fault(Exc.ILLEGAL_INSTR, instr)
         w = x & MASK32LOCAL
+        wy = y & MASK32LOCAL
+        # f3=000：ADDW／SUBW 由 **funct7** 分流（ISS-125 修复）——原式只做 `w + y` ⇒ SUBW（funct7=0x20）
+        # 被当 ADDW 执行（同函数 f3=5 分支已按 funct7 分 SRLW/SRAW，仅此支漏）。
+        # 权（一级依据）：riscv_spec_full.txt 行 3609-3611「ADDW and SUBW … defined analogously to ADD
+        # and SUB but operate on 32-bit values and produce signed 32-bit results」。
         val = {
-            0: sext32(u64((w + (y & MASK32LOCAL)) & MASK32LOCAL)),
+            0: sext32(u64(((w + wy) if funct7 != 0x20 else (w - wy)) & MASK32LOCAL)),
             1: sext32(u64((w << (y & 31)) & MASK32LOCAL)),
             5: (sext32(u64((w >> (y & 31)) & MASK32LOCAL)) if funct7 != 0x20
                 else sext32(_s32(w) >> (y & 31) & MASK32LOCAL)),
@@ -516,6 +533,13 @@ class VrIss:
                 return
             raise Fault(Exc.ILLEGAL_INSTR, instr)
         if funct7 == 0x18 and low5 == 2:                       # MRET  0x30200073
+            # MRET 的 rs1／rd 在特权指令表里是**固定 00000**（提取件行 55952–55964 的六字段表：
+            # 0011000／00010／**00000(rs1)**／000／**00000(rd)**／1110011）⇒ 非零组合是保留编码点
+            # （同表 SRET 行 55945–55951、WFI 行 55967–55973 同为 rs1=rd=00000）；
+            # 平台选择同 ①（`doc/spec/02` §9.3 依据句）⇒ 报 illegal，不得当 MRET 执行
+            # （ISS-128 ②）。检查置于 `_xret` 之前（不改 mstatus／mepc／priv／pc）。
+            if ((instr >> 15) & 0x1F) != 0 or ((instr >> 7) & 0x1F) != 0:
+                raise Fault(Exc.ILLEGAL_INSTR, instr)
             self._xret(rec)
             return
         if funct7 == 0x08:

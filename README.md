@@ -37,7 +37,7 @@ golden ISS + UVM 1.2 验证平台，按"**规格先行 → 接口冻结 → 一�
 | `sw/` | 链接脚本 / crt0 / bare-metal 测试 / riscv-tests 接入 | AI 工作区 |
 | `filelist/` | 编译清单 `.f` | AI 工作区 |
 | `run_cmd/` | Makefile、vsim do/tcl、回归 runner、riscv-dv target | AI 工作区 |
-| `script/` | 构建与解析脚本；临时件放 `script/tmp/` 用完即删 | AI 工作区 |
+| `script/` | 构建与解析脚本；归档工具放 `script/tools/`；临时件放 `script/tmp/` 用完即删 | AI 工作区 |
 | `sim/` | 仿真工作目录；`sim/covdb/` 为**签核证据受保护区** | 产物区 |
 | `debug/` | 问题定位/取证文档（按《问题分析方法论》§4A 七段骨架） | AI 工作区 |
 

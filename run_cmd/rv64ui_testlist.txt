@@ -1,0 +1,74 @@
+# run_cmd/rv64ui_testlist.txt — rv64ui 定向子集的回归用例清单（M2 exit (b)/(c) 的唯一用例来源）
+#
+# 口径（务必读）：
+#   · 一行一条用例名，**必须**逐字匹配 `sim/image/rv64ui/MANIFEST.json` 里 `tests[].name`
+#     （解析不到即 fail-closed 报错，不静默跳过——"跑了 49 条"不得冒称"跑全 50 条"）；
+#   · `#` 起头为注释；空行忽略；**不支持**任何 per-case 开关（比对列/放宽开关一律不走 testlist，
+#     红线 R6：`--final-only` 之类只允许白名单 + 逐次登记）；
+#   · 清单本身受 md5 记账（runner 写进 `config.json`）：换 testlist 即换配置 ⇒ **不得**拿它当"同配置两轮"。
+#
+# 当前集合 = MANIFEST 在册全量 50 条（riscv-tests rv64ui-p-*，`sw/tests/build_rv64ui.py` 产）。
+# 条数口径：M2 exit (a) 的 ≥5 条只约束 `m2-rv64ui` 判据；本清单是回归面，**全量在册即全量跑**。
+#
+# **为什么是 50 而不是 52**（2026-09-26 心跳第 10 轮 M3-(d)「补缺指令」批实测面）：
+#   · 36 条（心跳第 8 轮）＋ 新纳入 14 条（blt/bge/bltu/bgeu/jalr/lb/lbu/lh/lhu/lwu/ld/sb/sh/sd；
+#     RTL 侧补入分支余 4 条／JALR／载入余 6 条／存储余 3 条，TB 访存桩同期扩到双字窗＋字节使能）
+#     ⇒ 50 条在册（＝本清单 ＝ `MANIFEST.tests` ＝ `m2-rv64ui` 的判定子集）；
+#   · 2 条不在册，**逐条原因落 `sim/image/rv64ui/GAP.json` 的 `pending_subset`**（不静默跳过）：
+#       缺机制 1 条（fence_i：自修改代码——测试体 `sh` 进**代码窗**再 `fence.i` 后 `jalr` 跳入；
+#       本 TB 取指桩 `fmem` 是 `$readmemh` 只读镜像、写落盘只覆盖数据窗 ⇒ 代码窗 store 无承载；
+#       `fence.i` 的"无效化 L1I"亦无对象（首版无 L1I）），
+#       缺机制 1 条（ma_data：非对齐访存，`MISALIGNED_EN=0`／ISS-010，两侧口径一致地不支持）；
+#   · 入集四条（机械）：能编 ∧ 缺口仅剩 `unimp` ∧ TB 数据窗可承载 ∧ 真跑 0 失败 —— 详见
+#     `sw/tests/build_rv64ui.py` 的 JUDGE_SUBSET 注释与 `doc/verify/05` 的 R 记录。
+
+rv64ui-p-add
+rv64ui-p-addi
+rv64ui-p-addiw
+rv64ui-p-addw
+rv64ui-p-and
+rv64ui-p-andi
+rv64ui-p-auipc
+rv64ui-p-beq
+rv64ui-p-bne
+rv64ui-p-simple
+rv64ui-p-jal
+rv64ui-p-lui
+rv64ui-p-or
+rv64ui-p-ori
+rv64ui-p-xor
+rv64ui-p-xori
+rv64ui-p-slt
+rv64ui-p-sltiu
+rv64ui-p-sltu
+rv64ui-p-sll
+rv64ui-p-slli
+rv64ui-p-slliw
+rv64ui-p-sllw
+rv64ui-p-srl
+rv64ui-p-srli
+rv64ui-p-srliw
+rv64ui-p-srlw
+rv64ui-p-sra
+rv64ui-p-srai
+rv64ui-p-sraiw
+rv64ui-p-sraw
+rv64ui-p-sub
+rv64ui-p-slti
+rv64ui-p-subw
+rv64ui-p-lw
+rv64ui-p-sw
+rv64ui-p-blt
+rv64ui-p-bge
+rv64ui-p-bltu
+rv64ui-p-bgeu
+rv64ui-p-jalr
+rv64ui-p-lb
+rv64ui-p-lbu
+rv64ui-p-lh
+rv64ui-p-lhu
+rv64ui-p-lwu
+rv64ui-p-ld
+rv64ui-p-sb
+rv64ui-p-sh
+rv64ui-p-sd

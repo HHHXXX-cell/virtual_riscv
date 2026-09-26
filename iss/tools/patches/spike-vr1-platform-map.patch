@@ -1,0 +1,82 @@
+========================================================================
+spike-vr1-platform-map.patch — VR1 项目映射版 Spike（oracle 变体）的唯一改动面
+========================================================================
+
+【这是什么 / 为什么必须固化】
+  本文件是 `iss/tools/spike_run.py` 的 `--preset project` 所用 oracle 的**全部源码改动**：
+  上游 Spike 的两个**编译期常量**（`riscv/platform.h` 的 `DEFAULT_RSTVEC` 与 `DRAM_BASE`）
+  改到项目映射上。**没有第二处改动**——2026-09-26 逐文件核过（2104 件对 2104 件：
+  仅上游有 0 件、仅本副本有 0 件、内容不同 1 件＝本文件所指的 `riscv/platform.h`）。
+
+【为什么必须改（实测锚点，2026-09-26 心跳第十六轮）】
+  上游（未改）那份跑项目 ELF 的两条实测失败（皆 rc=255，log 在 `sim/run_iss129_upstream/`）：
+    ① 带项目内存区域 `-m0x1000:0x4000,0x20000000:0x1000,0x40000000:0x10000`：
+       `devices at [1000, 5000) and [1000, 2000) overlap` ⇒ abort
+       —— boot ROM 恒被 `add_device(DEFAULT_RSTVEC, boot_rom)`（`riscv/sim.cc:485`）挂在 `0x1000`，
+       与项目代码窗（`sw/env/link.ld` 的 `_start` = `spec/00` §4.1 `RESET_PC` = `0x1000`）**必然重叠**；
+    ② 不带 `-m`（上游默认 `DRAM_BASE=0x8000_0000`）：
+       `Access exception occurred while loading payload … Memory address 0x1000 is invalid`
+       —— ELF 段落在 `0x1000`，那里只有**只读** boot ROM（`rom_device_t::store` 写不进）。
+  两个常量都**不是** DTB 或命令行可覆盖的：`DEFAULT_RSTVEC` 只在 `sim.cc` 的 boot ROM 挂载处用，
+  `DRAM_BASE` 只在 `riscv/cfg.cc:44`（默认内存布局）与 `spike_main/spike.cc:237`（`-m<size>` 旧式写法）用。
+  ⇒ **不改源码没有"原版跑通"的路**；另一条路（按上游 link.ld 另出一份 Spike 版 ELF）会让两侧 `pc`
+  不同址、逐条比对须做地址归一化＝放宽（红线 R6），与 `AGENTS.md` §3.4 坑 2「一份镜像喂两边」相抵。
+
+【改了什么（两处，逐字）】
+  文件：`riscv/platform.h`（上游 md5=`7db38c268794b66fd2ef354fbbfc8deb`；改后 md5=`2882221f15380972de1ca72b34612760`）
+    ① `DEFAULT_RSTVEC` : `0x00001000` → `0x90000000`
+       （boot ROM 让位到项目映射之外：项目用 0x0~0x3FFF 作代码/取指窗）
+    ② `DRAM_BASE`     : `0x80000000` → `0x00001000`
+       （＝项目代码窗基址 `spec/00` §4.1 `RESET_PC`；配合 `-m` 显式区域使用）
+  改后**必须**给内存区域（Spike 自带 CLINT `0x2000000` 与默认 2048 MB DRAM 重叠⇒`devices … overlap`）：
+    `-m0x1000:0x4000,0x20000000:0x1000,0x40000000:0x10000`（＝项目映射：代码窗／signature 窗／数据窗）
+  （这一串已固化进 `iss/tools/spike_run.py` 的 `PROJECT_MEM_ARGS`，不必手写。）
+
+【怎么用（复现命令）】
+  # 1) 取上游源（与 §5.1 同源；tar md5 见 iss/tools/spike_oracles.json）
+  mkdir -p /d/tools && cd /d/tools
+  curl.exe -L -s -o riscv-isa-sim.tar.gz \
+    https://codeload.github.com/riscv-software-src/riscv-isa-sim/tar.gz/refs/heads/master
+  tar -xzf riscv-isa-sim.tar.gz && mv riscv-isa-sim-master riscv-isa-sim-vr1
+  # 2) 打本补丁（-p1；须在源码树根执行）
+  cd /d/tools/riscv-isa-sim-vr1
+  patch -p1 --dry-run < /d/virtual_riscv/iss/tools/patches/spike-vr1-platform-map.patch   # 先干跑
+  patch -p1        < /d/virtual_riscv/iss/tools/patches/spike-vr1-platform-map.patch
+  #    校验：md5sum riscv/platform.h  ⇒  2882221f15380972de1ca72b34612760
+  # 3) 编译（口径同 doc/环境搭建.md §5.1/§5.3）
+  mkdir -p build_vr1 && cd build_vr1
+  ../configure --prefix=/d/tools/spike-vr1 --without-boost-regex
+  make -j16 spike            # 只编 spike 目标：libcustomext.so 链不过（本项目不用 --extension）
+  # 4) 版本指纹核对（改后二进制 md5 见 iss/tools/spike_oracles.json）
+  md5sum spike.exe           # 期望 3be1be0c3d98a6211057f88420d1077c
+  # 5) 调用一律走封装（别手写 spike 命令行）
+  python iss/tools/spike_run.py check
+
+【纪律（与生成件同等待遇；ISS-129 R0 2026-09-26 裁定②）】
+  · 这是**改过的 oracle，不是原版 Spike**：任何"ISS-vs-ISS"结论都必须写明对手方＝本变体；
+  · 两侧不一致时**先核补丁本身**（本文件 + `iss/tools/spike_oracles.json` 的 md5 三件套：
+    上游 platform.h／改后 platform.h／改后二进制），再判"谁错"；
+  · 本补丁与 `spike_run.py` 的 `--preset upstream`（上游映射那份，**原样保留**）并存：
+    `upstream` 只作留证/对照，跑不了项目 ELF（见上"两条实测失败"）。
+
+========================================================================
+--- a/riscv/platform.h
++++ b/riscv/platform.h
+@@ -3,7 +3,7 @@
+ #define _RISCV_PLATFORM_H
+ 
+ #define DEFAULT_KERNEL_BOOTARGS "console=ttyS0 earlycon"
+-#define DEFAULT_RSTVEC     0x00001000
++#define DEFAULT_RSTVEC  0x90000000   /* VR1: boot ROM 挪出项目映射（0x0~0x3FFF 归项目代码/TB 取指窗）*/ 
+ #define DEFAULT_ISA        "rv64imafdc_zicntr_zihpm"
+ #define DEFAULT_PRIV       "MSU"
+ #define CLINT_BASE         0x02000000
+@@ -27,7 +27,7 @@
+ #define NS16550_REG_IO_WIDTH 1
+ #define NS16550_INTERRUPT_ID 1
+ #define EXT_IO_BASE        0x40000000
+-#define DRAM_BASE          0x80000000
++#define DRAM_BASE        0x00001000   /* VR1: 项目代码窗基址（spec/00 §4.1 RESET_PC）*/ 
+ #define DEBUG_START        0x0
+ #define DEBUG_SIZE         0x1000
+ 

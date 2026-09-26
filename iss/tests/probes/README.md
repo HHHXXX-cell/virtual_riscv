@@ -14,6 +14,8 @@
 | `rr_probe7.py` | Q1/Q2/Q5/Q6/Q20（无异常列、取指失败丢记录、保留编码崩溃、MULW 族） | 假绿路径清单 |
 | `rr_probe8.py` | Q2/Q12/Q14/Q21（跑飞静默、tohost 判定、自旋穿过） | 停机与流完整性 |
 | `rr_probe9.py` ~ `rr_probe12.py` | Q22~Q27（MPP/mip/mtvec/mepc WARL、移位编码复核） | CSR 边界实跑 |
+| `rr_probe14.py` | 附 Z 澄-1：`spec/02` §16.3.1 的 D-3（CSRRW rd=x0）／D-4（ECALL rd=2 现状观察） | 口径注落盘 |
+| `rr_probe16_iss128_reserved.py` | **ISS-128**（五组保留编码对账：组 1 JALR `f3≠000`／组 2 MRET `rs1≠0`·`rd≠0` 的 ISS 侧补齐；组 3/4/5 反向裁决＝在册成员、ISS 不窄化） | 对账与消解实跑（`rr_out16.txt` 含负控） |
 | `_e.txt` `_m1.txt` `_m2.txt` `_m3.txt` `_sm.txt` | 中间输出片段 | 原始 stdout 留档 |
 
 ## 使用注意

@@ -1,0 +1,998 @@
+==============================================================================
+VR1 覆盖率报告 ｜ batch=m3cov_r4 ｜ 生成 2026-09-26 11:21:02
+==============================================================================
+【定位】M2 exit (c) 的**机制件产物**：本阶段只要求"机制在环"，**不要求达阈值**。
+        阈值判定（功能覆盖率 100%／代码覆盖率 ≥90% 逐项）归 M3／签核（AGENTS.md §4）。
+【溯源】编译指纹：sim/covdb/FINGERPRINT.json（RTL filelist md5=10f20a514e84ce23267d1dc6bc6f2302）
+【合并】vcover merge 的合并集 = 本批**同一次** vlog/vopt 产生的 54 份逐例 ucdb
+        （AGENTS.md §3.4 坑 3：跨编译版本不可相加；本批无跨版本合并）
+【命令】vlog -64 -sv -cover bcesf …（15 单元）／vopt +cover=bcesf／vsim -64 -c -coverage -do "coverage save -onexit <case>.ucdb; run -all; quit -f"
+【逐例】用例 54 条：PASS 54 ／ 非 PASS 0（覆盖率批的"在环"不依赖逐例全过，逐例状态见沙箱 cases
+        沙箱 sim/run_cover_m3cov_r4/ 的 summary.txt ＋ ucdb/ 目录）
+【
+受
+控
+通
+道
+】
+用
+例
+ 
+r
+s
+t
+_
+l
+s
+u
+ 
+走
+ 
+R
+0
+ 
+2
+0
+2
+6
+-
+0
+9
+-
+2
+6
+ 
+裁
+定
+的
+*
+*
+受
+控
+复
+位
+注
+入
+通
+道
+*
+*
+（
+N
+U
+-
+2
+）
+：
+仅
+覆
+盖
+率
+批
+、
+R
+T
+L
+ 
+单
+侧
+判
+定
+（
+H
+A
+L
+T
+_
+P
+A
+S
+S
+＋
+无
+ 
+H
+A
+L
+T
+_
+F
+A
+I
+L
+/
+W
+A
+T
+C
+H
+D
+O
+G
+＋
+[
+r
+s
+t
+_
+i
+n
+j
+]
+ 
+证
+据
+行
+）
+，
+不
+做
+ 
+I
+S
+S
+↔
+R
+T
+L
+ 
+比
+对
+（
+复
+位
+注
+入
+使
+ 
+t
+r
+a
+c
+e
+ 
+出
+现
+第
+二
+段
+，
+构
+造
+性
+不
+可
+比
+）
+；
+不
+进
+回
+归
+同
+配
+置
+与
+ 
+m
+2
+-
+r
+v
+6
+4
+u
+i
+（
+通
+道
+口
+径
+见
+ 
+s
+w
+/
+t
+e
+s
+t
+s
+/
+b
+u
+i
+l
+d
+_
+r
+v
+6
+4
+u
+i
+.
+p
+y
+ 
+C
+O
+V
+_
+O
+N
+L
+Y
+ 
+段
+）
+。
+【如实声明】下列数字是**原样**的 vcover 输出：不作 exclude、不作 waiver、不挑数字
+        （红线 R7：waiver/exclude 一律逐条附理由并经人批，本批一条都没有）。
+【当前水平·照实】§A（`-cvg -detail`，AGENTS.md §3.1 的指定口径）**本批有数据** —— 功能覆盖模型落 TB 侧 `tb/unit/m1_e2e_cov.sv`（3 个 covergroup／12 个 coverpoint；VP 号见该件头），工具自报合计行：TOTAL COVERGROUP COVERAGE: 97.61%  COVERGROUP TYPES: 3。
+        工具自报合计行（代码覆盖率）：Total Coverage By Instance (filtered view): 87.68%
+        DUT 面逐单元数字＝§C 原文（`rtl/vr1/**` 编译单元，含 `vr1_core` 顶层实例）。
+§D（`-assert -detail`）**本批有数据**：Assertions bins=6 hits=6 misses=0 coverage=100.00%（`-assert -detail` 段首合计行，原文照录） ⇒ 断言**真的在跑**（逐条 `Failure/Pass` 计数原文即证据；红线 R8 的"断言通过"面由此可证）；`Pass=0 且 Failure=0` 的条目＝本批**未被激励**（如实标注，见件头 TODO(M2-c-2-b)）
+【DUT/TB 面】编译集含 TB 三件（`filelist/tb_m1_e2e.f`：写出器／覆盖模型／TB 顶层，心跳第 8 轮起为三件）；§B 是所有实例的原文（含 TB），
+        §C 只保留 `Design Unit: work.<rtl.f 单元名>` 的实例节，切分规则写在那一节里，
+        **未改任何数字**（TB 面覆盖率因此只在 §B 里读；covergroup 数据在 §A 独立成面）。
+【已知缺口】`spec/11` §1 的 A1~A19 断言**尚未落**（其归属面 free-list/RAT/PRF/`csrq`/
+        checkpoint 等机制未实现）⇒ 本批 §D 只有首批 6 条（VP-32/18/X02/24/09 面）；
+        验证点→covergroup 的全量映射归 M3（TODO(M2-c-2)）。
+【已知缺口】未开 toggle（t/x）：本批口径 ＝ AGENTS.md §3.1 的 `bcesf`（TODO(M2-c-3)）。
+==============================================================================
+
+──────────── §A `vcover report -cvg -detail`（AGENTS.md §3.1 口径原文）────────────
+Model Technology ModelSim SE-64 vcover 2020.4 Coverage Utility 2020.10 Oct 13 2020
+Start time: 11:21:02 on Sep 26,2026
+vcover report -cvg -detail D:\virtual_riscv\sim\covdb\m3cov_r4.ucdb 
+Coverage Report by instance with details
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_cov
+=== Design Unit: work.m1_e2e_cov
+=================================================================================
+
+Covergroup Coverage:
+    Covergroups                      3        na        na    97.61%
+        Coverpoints/Crosses         12        na        na        na
+            Covergroup Bins         55        54         1    98.18%
+----------------------------------------------------------------------------------------------------------
+Covergroup                                             Metric       Goal       Bins    Status               
+                                                                                                         
+----------------------------------------------------------------------------------------------------------
+ TYPE /m1_e2e_tb/u_cov/cg_retire                       92.85%        100          -    Uncovered            
+    covered/total bins:                                    34         35          -                      
+    missing/total bins:                                     1         35          -                      
+    % Hit:                                             97.14%        100          -                      
+    Coverpoint cp_op                                  100.00%        100          -    Covered              
+        covered/total bins:                                11         11          -                      
+        missing/total bins:                                 0         11          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_f3                                  100.00%        100          -    Covered              
+        covered/total bins:                                 8          8          -                      
+        missing/total bins:                                 0          8          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_wb                                  100.00%        100          -    Covered              
+        covered/total bins:                                 2          2          -                      
+        missing/total bins:                                 0          2          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_mem                                 100.00%        100          -    Covered              
+        covered/total bins:                                 3          3          -                      
+        missing/total bins:                                 0          3          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_csr                                 100.00%        100          -    Covered              
+        covered/total bins:                                 7          7          -                      
+        missing/total bins:                                 0          7          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_exc                                 100.00%        100          -    Covered              
+        covered/total bins:                                 2          2          -                      
+        missing/total bins:                                 0          2          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_priv                                 50.00%        100          -    Uncovered            
+        covered/total bins:                                 1          2          -                      
+        missing/total bins:                                 1          2          -                      
+        % Hit:                                         50.00%        100          -                      
+ Covergroup instance \/m1_e2e_tb/u_cov/cg_retire_i  
+                                                       92.85%        100          -    Uncovered            
+    covered/total bins:                                    34         35          -                      
+    missing/total bins:                                     1         35          -                      
+    % Hit:                                             97.14%        100          -                      
+    Coverpoint cp_op                                  100.00%        100          -    Covered              
+        covered/total bins:                                11         11          -                      
+        missing/total bins:                                 0         11          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin op_lui                                       1545          1          -    Covered              
+        bin op_auipc                                      356          1          -    Covered              
+        bin op_jal                                        145          1          -    Covered              
+        bin op_branch                                    2914          1          -    Covered              
+        bin op_load                                       756          1          -    Covered              
+        bin op_store                                      646          1          -    Covered              
+        bin op_opimm                                    11359          1          -    Covered              
+        bin op_op                                         519          1          -    Covered              
+        bin op_opimm32                                   1866          1          -    Covered              
+        bin op_op32                                       290          1          -    Covered              
+        bin op_system                                     150          1          -    Covered              
+        default bin op_other                               12                     -    Occurred             
+    Coverpoint cp_f3                                  100.00%        100          -    Covered              
+        covered/total bins:                                 8          8          -                      
+        missing/total bins:                                 0          8          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin auto[0]                                     13733          1          -    Covered              
+        bin auto[1]                                      3948          1          -    Covered              
+        bin auto[2]                                      1310          1          -    Covered              
+        bin auto[3]                                       223          1          -    Covered              
+        bin auto[4]                                       209          1          -    Covered              
+        bin auto[5]                                       470          1          -    Covered              
+        bin auto[6]                                       145          1          -    Covered              
+        bin auto[7]                                       520          1          -    Covered              
+    Coverpoint cp_wb                                  100.00%        100          -    Covered              
+        covered/total bins:                                 2          2          -                      
+        missing/total bins:                                 0          2          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin no_wb                                        5001          1          -    Covered              
+        bin has_wb                                      15557          1          -    Covered              
+    Coverpoint cp_mem                                 100.00%        100          -    Covered              
+        covered/total bins:                                 3          3          -                      
+        missing/total bins:                                 0          3          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin no_mem                                      19158          1          -    Covered              
+        bin load                                          755          1          -    Covered              
+        bin store                                         644          1          -    Covered              
+    Coverpoint cp_csr                                 100.00%        100          -    Covered              
+        covered/total bins:                                 7          7          -                      
+        missing/total bins:                                 0          7          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin csr_mstatus                                     2          1          -    Covered              
+        bin csr_misa                                        2          1          -    Covered              
+        bin csr_mtvec                                      58          1          -    Covered              
+        bin csr_mscratch                                    3          1          -    Covered              
+        bin csr_mepc                                       40          1          -    Covered              
+        bin csr_mcause                                     20          1          -    Covered              
+        bin csr_mtval                                       2          1          -    Covered              
+        default bin csr_other                           20431                     -    Occurred             
+    Coverpoint cp_exc                                 100.00%        100          -    Covered              
+        covered/total bins:                                 2          2          -                      
+        missing/total bins:                                 0          2          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin no_exc                                      20539          1          -    Covered              
+        bin exc                                            19          1          -    Covered              
+    Coverpoint cp_priv                                 50.00%        100          -    Uncovered            
+        covered/total bins:                                 1          2          -                      
+        missing/total bins:                                 1          2          -                      
+        % Hit:                                         50.00%        100          -                      
+        bin priv_u                                          0          1          -    ZERO                 
+        bin priv_m                                      20558          1          -    Covered              
+ TYPE /m1_e2e_tb/u_cov/cg_fetch                       100.00%        100          -    Covered              
+    covered/total bins:                                     8          8          -                      
+    missing/total bins:                                     0          8          -                      
+    % Hit:                                            100.00%        100          -                      
+    Coverpoint cp_req_hs                              100.00%        100          -    Covered              
+        covered/total bins:                                 3          3          -                      
+        missing/total bins:                                 0          3          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_rsp_hs                              100.00%        100          -    Covered              
+        covered/total bins:                                 3          3          -                      
+        missing/total bins:                                 0          3          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_first_pc                            100.00%        100          -    Covered              
+        covered/total bins:                                 2          2          -                      
+        missing/total bins:                                 0          2          -                      
+        % Hit:                                        100.00%        100          -                      
+ Covergroup instance \/m1_e2e_tb/u_cov/cg_fetch_i     100.00%        100          -    Covered              
+    covered/total bins:                                     8          8          -                      
+    missing/total bins:                                     0          8          -                      
+    % Hit:                                            100.00%        100          -                      
+    Coverpoint cp_req_hs                              100.00%        100          -    Covered              
+        covered/total bins:                                 3          3          -                      
+        missing/total bins:                                 0          3          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin idle                                         4266          1          -    Covered              
+        bin req_wait                                     4267          1          -    Covered              
+        bin req_bite                                     4267          1          -    Covered              
+    Coverpoint cp_rsp_hs                              100.00%        100          -    Covered              
+        covered/total bins:                                 3          3          -                      
+        missing/total bins:                                 0          3          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin idle                                        48226          1          -    Covered              
+        bin rsp_wait                                      399          1          -    Covered              
+        bin rsp_bite                                     4133          1          -    Covered              
+    Coverpoint cp_first_pc                            100.00%        100          -    Covered              
+        covered/total bins:                                 2          2          -                      
+        missing/total bins:                                 0          2          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin first_is_reset_pc                              56          1          -    Covered              
+        bin later_or_other                              52702          1          -    Covered              
+ TYPE /m1_e2e_tb/u_cov/cg_lsu_fsm                     100.00%        100          -    Covered              
+    covered/total bins:                                    12         12          -                      
+    missing/total bins:                                     0         12          -                      
+    % Hit:                                            100.00%        100          -                      
+    Coverpoint cp_state                               100.00%        100          -    Covered              
+        covered/total bins:                                 4          4          -                      
+        missing/total bins:                                 0          4          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_trans                               100.00%        100          -    Covered              
+        covered/total bins:                                 8          8          -                      
+        missing/total bins:                                 0          8          -                      
+        % Hit:                                        100.00%        100          -                      
+ Covergroup instance \/m1_e2e_tb/u_cov/cg_lsu_fsm_i  
+                                                      100.00%        100          -    Covered              
+    covered/total bins:                                    12         12          -                      
+    missing/total bins:                                     0         12          -                      
+    % Hit:                                            100.00%        100          -                      
+    Coverpoint cp_state                               100.00%        100          -    Covered              
+        covered/total bins:                                 4          4          -                      
+        missing/total bins:                                 0          4          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin s_idle                                      47800          1          -    Covered              
+        bin s_req                                        2802          1          -    Covered              
+        bin s_rsp                                         756          1          -    Covered              
+        bin s_done                                       1400          1          -    Covered              
+    Coverpoint cp_trans                               100.00%        100          -    Covered              
+        covered/total bins:                                 8          8          -                      
+        missing/total bins:                                 0          8          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin t_idle_req                                   1401          1          -    Covered              
+        bin t_idle_done                                     1          1          -    Covered              
+        bin t_req_rsp                                     756          1          -    Covered              
+        bin t_req_done                                    644          1          -    Covered              
+        bin t_req_idle                                      1          1          -    Covered              
+        bin t_rsp_done                                    755          1          -    Covered              
+        bin t_rsp_idle                                      1          1          -    Covered              
+        bin t_done_idle                                  1346          1          -    Covered              
+
+COVERGROUP COVERAGE:
+----------------------------------------------------------------------------------------------------------
+Covergroup                                             Metric       Goal       Bins    Status               
+                                                                                                         
+----------------------------------------------------------------------------------------------------------
+ TYPE /m1_e2e_tb/u_cov/cg_retire                       92.85%        100          -    Uncovered            
+    covered/total bins:                                    34         35          -                      
+    missing/total bins:                                     1         35          -                      
+    % Hit:                                             97.14%        100          -                      
+    Coverpoint cp_op                                  100.00%        100          -    Covered              
+        covered/total bins:                                11         11          -                      
+        missing/total bins:                                 0         11          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_f3                                  100.00%        100          -    Covered              
+        covered/total bins:                                 8          8          -                      
+        missing/total bins:                                 0          8          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_wb                                  100.00%        100          -    Covered              
+        covered/total bins:                                 2          2          -                      
+        missing/total bins:                                 0          2          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_mem                                 100.00%        100          -    Covered              
+        covered/total bins:                                 3          3          -                      
+        missing/total bins:                                 0          3          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_csr                                 100.00%        100          -    Covered              
+        covered/total bins:                                 7          7          -                      
+        missing/total bins:                                 0          7          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_exc                                 100.00%        100          -    Covered              
+        covered/total bins:                                 2          2          -                      
+        missing/total bins:                                 0          2          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_priv                                 50.00%        100          -    Uncovered            
+        covered/total bins:                                 1          2          -                      
+        missing/total bins:                                 1          2          -                      
+        % Hit:                                         50.00%        100          -                      
+ Covergroup instance \/m1_e2e_tb/u_cov/cg_retire_i  
+                                                       92.85%        100          -    Uncovered            
+    covered/total bins:                                    34         35          -                      
+    missing/total bins:                                     1         35          -                      
+    % Hit:                                             97.14%        100          -                      
+    Coverpoint cp_op                                  100.00%        100          -    Covered              
+        covered/total bins:                                11         11          -                      
+        missing/total bins:                                 0         11          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin op_lui                                       1545          1          -    Covered              
+        bin op_auipc                                      356          1          -    Covered              
+        bin op_jal                                        145          1          -    Covered              
+        bin op_branch                                    2914          1          -    Covered              
+        bin op_load                                       756          1          -    Covered              
+        bin op_store                                      646          1          -    Covered              
+        bin op_opimm                                    11359          1          -    Covered              
+        bin op_op                                         519          1          -    Covered              
+        bin op_opimm32                                   1866          1          -    Covered              
+        bin op_op32                                       290          1          -    Covered              
+        bin op_system                                     150          1          -    Covered              
+        default bin op_other                               12                     -    Occurred             
+    Coverpoint cp_f3                                  100.00%        100          -    Covered              
+        covered/total bins:                                 8          8          -                      
+        missing/total bins:                                 0          8          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin auto[0]                                     13733          1          -    Covered              
+        bin auto[1]                                      3948          1          -    Covered              
+        bin auto[2]                                      1310          1          -    Covered              
+        bin auto[3]                                       223          1          -    Covered              
+        bin auto[4]                                       209          1          -    Covered              
+        bin auto[5]                                       470          1          -    Covered              
+        bin auto[6]                                       145          1          -    Covered              
+        bin auto[7]                                       520          1          -    Covered              
+    Coverpoint cp_wb                                  100.00%        100          -    Covered              
+        covered/total bins:                                 2          2          -                      
+        missing/total bins:                                 0          2          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin no_wb                                        5001          1          -    Covered              
+        bin has_wb                                      15557          1          -    Covered              
+    Coverpoint cp_mem                                 100.00%        100          -    Covered              
+        covered/total bins:                                 3          3          -                      
+        missing/total bins:                                 0          3          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin no_mem                                      19158          1          -    Covered              
+        bin load                                          755          1          -    Covered              
+        bin store                                         644          1          -    Covered              
+    Coverpoint cp_csr                                 100.00%        100          -    Covered              
+        covered/total bins:                                 7          7          -                      
+        missing/total bins:                                 0          7          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin csr_mstatus                                     2          1          -    Covered              
+        bin csr_misa                                        2          1          -    Covered              
+        bin csr_mtvec                                      58          1          -    Covered              
+        bin csr_mscratch                                    3          1          -    Covered              
+        bin csr_mepc                                       40          1          -    Covered              
+        bin csr_mcause                                     20          1          -    Covered              
+        bin csr_mtval                                       2          1          -    Covered              
+        default bin csr_other                           20431                     -    Occurred             
+    Coverpoint cp_exc                                 100.00%        100          -    Covered              
+        covered/total bins:                                 2          2          -                      
+        missing/total bins:                                 0          2          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin no_exc                                      20539          1          -    Covered              
+        bin exc                                            19          1          -    Covered              
+    Coverpoint cp_priv                                 50.00%        100          -    Uncovered            
+        covered/total bins:                                 1          2          -                      
+        missing/total bins:                                 1          2          -                      
+        % Hit:                                         50.00%        100          -                      
+        bin priv_u                                          0          1          -    ZERO                 
+        bin priv_m                                      20558          1          -    Covered              
+ TYPE /m1_e2e_tb/u_cov/cg_fetch                       100.00%        100          -    Covered              
+    covered/total bins:                                     8          8          -                      
+    missing/total bins:                                     0          8          -                      
+    % Hit:                                            100.00%        100          -                      
+    Coverpoint cp_req_hs                              100.00%        100          -    Covered              
+        covered/total bins:                                 3          3          -                      
+        missing/total bins:                                 0          3          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_rsp_hs                              100.00%        100          -    Covered              
+        covered/total bins:                                 3          3          -                      
+        missing/total bins:                                 0          3          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_first_pc                            100.00%        100          -    Covered              
+        covered/total bins:                                 2          2          -                      
+        missing/total bins:                                 0          2          -                      
+        % Hit:                                        100.00%        100          -                      
+ Covergroup instance \/m1_e2e_tb/u_cov/cg_fetch_i     100.00%        100          -    Covered              
+    covered/total bins:                                     8          8          -                      
+    missing/total bins:                                     0          8          -                      
+    % Hit:                                            100.00%        100          -                      
+    Coverpoint cp_req_hs                              100.00%        100          -    Covered              
+        covered/total bins:                                 3          3          -                      
+        missing/total bins:                                 0          3          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin idle                                         4266          1          -    Covered              
+        bin req_wait                                     4267          1          -    Covered              
+        bin req_bite                                     4267          1          -    Covered              
+    Coverpoint cp_rsp_hs                              100.00%        100          -    Covered              
+        covered/total bins:                                 3          3          -                      
+        missing/total bins:                                 0          3          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin idle                                        48226          1          -    Covered              
+        bin rsp_wait                                      399          1          -    Covered              
+        bin rsp_bite                                     4133          1          -    Covered              
+    Coverpoint cp_first_pc                            100.00%        100          -    Covered              
+        covered/total bins:                                 2          2          -                      
+        missing/total bins:                                 0          2          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin first_is_reset_pc                              56          1          -    Covered              
+        bin later_or_other                              52702          1          -    Covered              
+ TYPE /m1_e2e_tb/u_cov/cg_lsu_fsm                     100.00%        100          -    Covered              
+    covered/total bins:                                    12         12          -                      
+    missing/total bins:                                     0         12          -                      
+    % Hit:                                            100.00%        100          -                      
+    Coverpoint cp_state                               100.00%        100          -    Covered              
+        covered/total bins:                                 4          4          -                      
+        missing/total bins:                                 0          4          -                      
+        % Hit:                                        100.00%        100          -                      
+    Coverpoint cp_trans                               100.00%        100          -    Covered              
+        covered/total bins:                                 8          8          -                      
+        missing/total bins:                                 0          8          -                      
+        % Hit:                                        100.00%        100          -                      
+ Covergroup instance \/m1_e2e_tb/u_cov/cg_lsu_fsm_i  
+                                                      100.00%        100          -    Covered              
+    covered/total bins:                                    12         12          -                      
+    missing/total bins:                                     0         12          -                      
+    % Hit:                                            100.00%        100          -                      
+    Coverpoint cp_state                               100.00%        100          -    Covered              
+        covered/total bins:                                 4          4          -                      
+        missing/total bins:                                 0          4          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin s_idle                                      47800          1          -    Covered              
+        bin s_req                                        2802          1          -    Covered              
+        bin s_rsp                                         756          1          -    Covered              
+        bin s_done                                       1400          1          -    Covered              
+    Coverpoint cp_trans                               100.00%        100          -    Covered              
+        covered/total bins:                                 8          8          -                      
+        missing/total bins:                                 0          8          -                      
+        % Hit:                                        100.00%        100          -                      
+        bin t_idle_req                                   1401          1          -    Covered              
+        bin t_idle_done                                     1          1          -    Covered              
+        bin t_req_rsp                                     756          1          -    Covered              
+        bin t_req_done                                    644          1          -    Covered              
+        bin t_req_idle                                      1          1          -    Covered              
+        bin t_rsp_done                                    755          1          -    Covered              
+        bin t_rsp_idle                                      1          1          -    Covered              
+        bin t_done_idle                                  1346          1          -    Covered              
+
+TOTAL COVERGROUP COVERAGE: 97.61%  COVERGROUP TYPES: 3
+
+Total Coverage By Instance (filtered view): 97.61%
+
+End time: 11:21:02 on Sep 26,2026, Elapsed time: 0:00:00
+Errors: 0, Warnings: 0
+
+──────────── §B `vcover report -code sbcef`（代码覆盖率原文）────────────
+Model Technology ModelSim SE-64 vcover 2020.4 Coverage Utility 2020.10 Oct 13 2020
+Start time: 11:21:02 on Sep 26,2026
+vcover report -code sbcef D:\virtual_riscv\sim\covdb\m3cov_r4.ucdb 
+Coverage Report Summary Data by instance
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_dut/u_bp
+=== Design Unit: work.vr1_bp
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         4         4         0   100.00%
+    Statements                      22        22         0   100.00%
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_dut/u_ftq
+=== Design Unit: work.vr1_ftq
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        10        10         0   100.00%
+    Expressions                      4         4         0   100.00%
+    Statements                      32        32         0   100.00%
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_dut/u_ifetch
+=== Design Unit: work.vr1_ifetch
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        18        16         2    88.88%
+    Conditions                       5         4         1    80.00%
+    Expressions                      4         3         1    75.00%
+    Statements                      54        53         1    98.14%
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_dut/u_decode
+=== Design Unit: work.vr1_decode
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                       137       133         4    97.08%
+    Conditions                      34        31         3    91.17%
+    Expressions                      8         8         0   100.00%
+    Statements                     297       285        12    95.95%
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_dut/u_rob
+=== Design Unit: work.vr1_rob
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        36        36         0   100.00%
+    Conditions                       7         5         2    71.42%
+    Expressions                     29        24         5    82.75%
+    Statements                     135       135         0   100.00%
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_dut/u_exu
+=== Design Unit: work.vr1_exu_int
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        61        60         1    98.36%
+    Conditions                       9         9         0   100.00%
+    Expressions                      4         3         1    75.00%
+    Statements                      78        77         1    98.71%
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_dut/u_bru
+=== Design Unit: work.vr1_bru
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        24        24         0   100.00%
+    Conditions                       3         3         0   100.00%
+    Expressions                     13         7         6    53.84%
+    Statements                      38        38         0   100.00%
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_dut/u_lsu
+=== Design Unit: work.vr1_lsu
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        41        37         4    90.24%
+    Expressions                     14        10         4    71.42%
+    FSM States                       4         4         0   100.00%
+    FSM Transitions                  8         6         2    75.00%
+    Statements                      67        66         1    98.50%
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_dut/u_csr
+=== Design Unit: work.vr1_csr
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        41        37         4    90.24%
+    Conditions                       8         8         0   100.00%
+    Expressions                      5         3         2    60.00%
+    Statements                      60        58         2    96.66%
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_dut/u_trap
+=== Design Unit: work.vr1_trap
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         4         3         1    75.00%
+    Conditions                       2         0         2     0.00%
+    Expressions                      2         2         0   100.00%
+    Statements                      27        26         1    96.29%
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_dut
+=== Design Unit: work.vr1_core
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        87        86         1    98.85%
+    Conditions                      11         8         3    72.72%
+    Expressions                     62        55         7    88.70%
+    Statements                     230       230         0   100.00%
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_writer
+=== Design Unit: work.rt_t_trace_writer
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        29        19        10    65.51%
+    Conditions                      10         5         5    50.00%
+    Expressions                      5         5         0   100.00%
+    Statements                      46        33        13    71.73%
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_cov
+=== Design Unit: work.m1_e2e_cov
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         9         9         0   100.00%
+    Conditions                       2         2         0   100.00%
+    Expressions                      4         4         0   100.00%
+    Statements                      11        11         0   100.00%
+
+=================================================================================
+=== Instance: /m1_e2e_tb
+=== Design Unit: work.m1_e2e_tb
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        55        46         9    83.63%
+    Conditions                      25        15        10    60.00%
+    Expressions                     14        12         2    85.71%
+    Statements                     132       122        10    92.42%
+
+
+Total Coverage By Instance (filtered view): 87.68%
+
+End time: 11:21:02 on Sep 26,2026, Elapsed time: 0:00:00
+Errors: 0, Warnings: 0
+
+──────────── §C DUT 面（`rtl/vr1/**`）代码覆盖率（只做单元名过滤）────────────
+过滤口径：按 `=== Instance:` 切节，只保留 `Design Unit: work.<名>` 的 <名> 属于
+`filelist/rtl.f` 编译单元名集合（模块名 = 文件名 stem）的节；节内文字**原文照录**。
+TB 两件（`m1_e2e_tb`／`rt_t_trace_writer`）与 DUT 同批编译，故只在 §B 里读它们的数字。
+
+C-1 本脚本自算的 DUT 面汇总（口径：Σhits/Σbins，与 AGENTS.md §4 功能覆盖率行同形；
+    **不是** vcover 自报数；工具自报合计行见 §B 末）：
+    Branches 446/463 = 96.33%；Conditions 68/79 = 86.08%；Expressions 119/145 = 82.07%；FSM States 4/4 = 100.0%；FSM Transitions 6/8 = 75.0%；Statements 1022/1040 = 98.27%
+
+C-2 DUT 面逐实例原文：
+=== Design Unit: work.vr1_bp
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         4         4         0   100.00%
+    Statements                      22        22         0   100.00%
+
+=================================================================================
+
+=== Design Unit: work.vr1_ftq
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        10        10         0   100.00%
+    Expressions                      4         4         0   100.00%
+    Statements                      32        32         0   100.00%
+
+=================================================================================
+
+=== Design Unit: work.vr1_ifetch
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        18        16         2    88.88%
+    Conditions                       5         4         1    80.00%
+    Expressions                      4         3         1    75.00%
+    Statements                      54        53         1    98.14%
+
+=================================================================================
+
+=== Design Unit: work.vr1_decode
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                       137       133         4    97.08%
+    Conditions                      34        31         3    91.17%
+    Expressions                      8         8         0   100.00%
+    Statements                     297       285        12    95.95%
+
+=================================================================================
+
+=== Design Unit: work.vr1_rob
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        36        36         0   100.00%
+    Conditions                       7         5         2    71.42%
+    Expressions                     29        24         5    82.75%
+    Statements                     135       135         0   100.00%
+
+=================================================================================
+
+=== Design Unit: work.vr1_exu_int
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        61        60         1    98.36%
+    Conditions                       9         9         0   100.00%
+    Expressions                      4         3         1    75.00%
+    Statements                      78        77         1    98.71%
+
+=================================================================================
+
+=== Design Unit: work.vr1_bru
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        24        24         0   100.00%
+    Conditions                       3         3         0   100.00%
+    Expressions                     13         7         6    53.84%
+    Statements                      38        38         0   100.00%
+
+=================================================================================
+
+=== Design Unit: work.vr1_lsu
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        41        37         4    90.24%
+    Expressions                     14        10         4    71.42%
+    FSM States                       4         4         0   100.00%
+    FSM Transitions                  8         6         2    75.00%
+    Statements                      67        66         1    98.50%
+
+=================================================================================
+
+=== Design Unit: work.vr1_csr
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        41        37         4    90.24%
+    Conditions                       8         8         0   100.00%
+    Expressions                      5         3         2    60.00%
+    Statements                      60        58         2    96.66%
+
+=================================================================================
+
+=== Design Unit: work.vr1_trap
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         4         3         1    75.00%
+    Conditions                       2         0         2     0.00%
+    Expressions                      2         2         0   100.00%
+    Statements                      27        26         1    96.29%
+
+=================================================================================
+
+=== Design Unit: work.vr1_core
+=================================================================================
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        87        86         1    98.85%
+    Conditions                      11         8         3    72.72%
+    Expressions                     62        55         7    88.70%
+    Statements                     230       230         0   100.00%
+
+=================================================================================
+
+──────────── §D `vcover report -assert -detail`（断言覆盖原文；**心跳第 8 轮加**）────────────
+口径：逐条 `Failure Count / Pass Count` ＝该断言**失败/被求值且未失败**的次数（工具自报）；
+`0/0` ＝本批**未被激励**（前提条件从未成立 ⇒ 空真），**不是**"通过"——本批只有 6 条首批断言，
+不覆盖任何阈值判定。本节的用途是**证"断言真的在跑且 0 失败"**（红线 R8：断言通过是判据之一，
+而"配了没生效"不算）；阈值归 M3。
+Model Technology ModelSim SE-64 vcover 2020.4 Coverage Utility 2020.10 Oct 13 2020
+Start time: 11:21:02 on Sep 26,2026
+vcover report -assert -detail D:\virtual_riscv\sim\covdb\m3cov_r4.ucdb 
+Coverage Report by instance with details
+
+=================================================================================
+=== Instance: /m1_e2e_tb/u_cov
+=== Design Unit: work.m1_e2e_cov
+=================================================================================
+
+Assertion Coverage:
+    Assertions                       6         6         0   100.00%
+--------------------------------------------------------------------
+Name                 File(Line)                   Failure      Pass 
+                                                  Count        Count
+--------------------------------------------------------------------
+/m1_e2e_tb/u_cov/a1_reset_visible_zero
+                     D:/virtual_riscv/tb/unit/m1_e2e_cov.sv(276)
+                                                        0         54
+/m1_e2e_tb/u_cov/a2_first_fetch_reset_pc
+                     D:/virtual_riscv/tb/unit/m1_e2e_cov.sv(283)
+                                                        0         54
+/m1_e2e_tb/u_cov/a3_x0_no_wb
+                     D:/virtual_riscv/tb/unit/m1_e2e_cov.sv(290)
+                                                        0         54
+/m1_e2e_tb/u_cov/a4_exc_cause_nonzero
+                     D:/virtual_riscv/tb/unit/m1_e2e_cov.sv(297)
+                                                        0          2
+/m1_e2e_tb/u_cov/a5_disp_mem_needs_idle_lsu
+                     D:/virtual_riscv/tb/unit/m1_e2e_cov.sv(304)
+                                                        0         54
+/m1_e2e_tb/u_cov/a6_misalign_no_dmem_req
+                     D:/virtual_riscv/tb/unit/m1_e2e_cov.sv(313)
+                                                        0          1
+
+
+ASSERTION RESULTS:
+--------------------------------------------------------------------
+Name                 File(Line)                   Failure      Pass 
+                                                  Count        Count
+--------------------------------------------------------------------
+/m1_e2e_tb/u_cov/a1_reset_visible_zero
+                     D:/virtual_riscv/tb/unit/m1_e2e_cov.sv(276)
+                                                        0         54
+/m1_e2e_tb/u_cov/a2_first_fetch_reset_pc
+                     D:/virtual_riscv/tb/unit/m1_e2e_cov.sv(283)
+                                                        0         54
+/m1_e2e_tb/u_cov/a3_x0_no_wb
+                     D:/virtual_riscv/tb/unit/m1_e2e_cov.sv(290)
+                                                        0         54
+/m1_e2e_tb/u_cov/a4_exc_cause_nonzero
+                     D:/virtual_riscv/tb/unit/m1_e2e_cov.sv(297)
+                                                        0          2
+/m1_e2e_tb/u_cov/a5_disp_mem_needs_idle_lsu
+                     D:/virtual_riscv/tb/unit/m1_e2e_cov.sv(304)
+                                                        0         54
+/m1_e2e_tb/u_cov/a6_misalign_no_dmem_req
+                     D:/virtual_riscv/tb/unit/m1_e2e_cov.sv(313)
+                                                        0          1
+
+Total Coverage By Instance (filtered view): 100.00%
+
+End time: 11:21:02 on Sep 26,2026, Elapsed time: 0:00:00
+Errors: 0, Warnings: 0
+

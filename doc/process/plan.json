@@ -1,0 +1,76 @@
+{
+ "milestone": "M1.0 已达成 2026-09-25（ISS 冒烟 32/0 + 比对器自检 0 mismatch）；下一步 M1 需 S3",
+ "dispatch_mode": "core2",
+ "verified": "2026-09-25 方案1+3+2 落地（orchestrator+角色+验证先行+runner）",
+ "stop_conditions": "①M1.0/M1 达成 ②需人物理项（H-2 装工具链）③同一错误连续 2 次 ④R0 叫停。其余一路跑到底，中途不请示。",
+ "max_steps_per_run": 3,
+ "steps": [
+  {
+   "id": "S1",
+   "role": "verifier",
+   "task": "ISS 冒烟：跑 iss/tests/test_isa_semantics.py 与 test_smoke.py",
+   "done": "两个脚本退出码 0（断言全过）",
+   "status": "done",
+   "evidence": "2026-09-25 semantics 32/0 + smoke PASS，双退出码 0（顺带修掉 GBK 崩溃 ISS-103）",
+   "budget": "<=15 分钟"
+  },
+  {
+   "id": "S2",
+   "role": "verifier",
+   "task": "trace 比对器自检：同一份 golden trace 对自身 -> 0 mismatch",
+   "done": "trace_compare 报 0 mismatch 且输出可回查",
+   "status": "done",
+   "evidence": "sim/run_S2/run.log 末行 0 mismatch | 2026-09-25 runner OK：[trace_compare] 比对 30 条 x 列 ['pc','binary','gpr','csr']，mismatch=0",
+   "budget": "<=20 分钟"
+  },
+  {
+   "id": "S2b",
+   "role": "verifier",
+   "task": "可复现性自检：同一程序连跑两次，trace 逐条一致（无未初始化状态）",
+   "done": "trace_compare 两次运行结果 -> 0 mismatch",
+   "status": "done",
+   "evidence": "sim/run_S2b/run.log 末行 0 mismatch；a/b 两份 trace 均为证据 | 2026-09-25 runner OK：mismatch=0",
+   "budget": "<=10 分钟"
+  },
+  {
+   "id": "S4a",
+   "role": "verifier",
+   "task": "冻结 golden 语料：iss_smoke trace 入 sim/golden/ + MANIFEST(md5/行数)，并回比对一次",
+   "done": "sim/golden/MANIFEST.txt 存在且 trace_compare(golden, 复现跑) -> 0 mismatch",
+   "status": "done",
+   "cmd": [
+    [
+     "python",
+     "script/freeze_golden.py"
+    ],
+    [
+     "python",
+     "iss/tools/trace_compare.py",
+     "sim/golden/iss_smoke.csv",
+     "sim/run_S2b/a.csv"
+    ]
+   ],
+   "evidence": "sim/golden/MANIFEST.txt；sim/run_S4a/run.log 末行 0 mismatch | 2026-09-25 runner OK：[trace_compare] 比对 30 条 × 列 ['pc', 'binary', 'gpr', 'csr']，mismatch=0",
+   "budget": "<=10 分钟",
+   "fail_note": "2026-09-25 runner FAIL：FileNotFoundError: [Errno 2] No such file or directory: 'sim/run_S2/iss_smoke_trace.csv'"
+  },
+  {
+   "id": "S3",
+   "role": "human",
+   "task": "[需人] H-2：装 WSL2 + riscv64 工具链（管理员 + 重启）",
+   "done": "doc/环境搭建.md §7 M0 验收表 7/7",
+   "status": "waiting_human",
+   "budget": "-"
+  },
+  {
+   "id": "S4",
+   "role": "verifier+designer",
+   "task": "riscv-tests rv64ui 编译 + 1 条通过（= M1 冒烟）",
+   "done": "编译 0 error + 1 条 PASS + trace 比对 0 mismatch",
+   "status": "pending",
+   "cmd": [],
+   "evidence": "待补（需 S3 完成后写 cmd）",
+   "budget": "<=45 分钟"
+  }
+ ]
+}

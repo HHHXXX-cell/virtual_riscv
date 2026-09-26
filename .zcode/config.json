@@ -1,0 +1,61 @@
+{
+  "hooks": {
+    "enabled": true,
+    "timeoutMs": 60000,
+    "events": {
+      "SessionStart": [
+        {
+          "matcher": "startup|resume|clear|compact",
+          "hooks": [
+            {
+              "type": "process",
+              "command": "python",
+              "args": ["${ZCODE_PROJECT_DIR}/script/flow.py", "ctx"],
+              "timeoutMs": 20000,
+              "statusMessage": "注入 VR1 流程状态（里程碑/exit/禁令）"
+            }
+          ]
+        }
+      ],
+      "PreToolUse": [
+        {
+          "matcher": "Write|Edit",
+          "hooks": [
+            {
+              "type": "process",
+              "command": "python",
+              "args": ["${ZCODE_PROJECT_DIR}/script/flow.py", "guard-write"],
+              "timeoutMs": 10000,
+              "statusMessage": "VR1 写边界检查"
+            }
+          ]
+        },
+        {
+          "matcher": "Bash",
+          "hooks": [
+            {
+              "type": "process",
+              "command": "python",
+              "args": ["${ZCODE_PROJECT_DIR}/script/flow.py", "guard-bash"],
+              "timeoutMs": 10000,
+              "statusMessage": "VR1 破坏性命令拦截"
+            }
+          ]
+        }
+      ],
+      "Stop": [
+        {
+          "hooks": [
+            {
+              "type": "process",
+              "command": "python",
+              "args": ["${ZCODE_PROJECT_DIR}/script/flow.py", "gate-stop"],
+              "timeoutMs": 60000,
+              "statusMessage": "VR1 待跑步骤检查"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

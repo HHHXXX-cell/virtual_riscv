@@ -1,0 +1,46 @@
+== rr_probe16: ISS-128 五组保留编码对账（组 1/2 实修 ISS；组 3/4/5 反向裁决=ISS 对） ==
+CMD: python iss/tests/probes/rr_probe16_iss128_reserved.py   (cwd = 仓库根；PYTHONIOENCODING=utf-8)
+machine.py md5 = a3075524582308527215e8e704bdcc94
+spec anchors = lines 2686-2698 / 2026-2029 / 44835-44839 / 55945-55973 / 5455-5469+5591
+-- P16-0 常量自检：位域独立复算（防常量写错自洽） --
+  [P16-0a] PASS  expect: JALR 常量位域 = opcode 0x67 / f3=1 / rs1=6 / rd=5 | got: op=0x67 f3=1 rs1=6 rd=5
+  [P16-0b] PASS  expect: JALR 变体位域 = opcode 0x67 / f3=7 / rs1=6 / rd=5 | got: op=0x67 f3=7 rs1=6 rd=5
+  [P16-0c] PASS  expect: 对照 JALR 位域 = opcode 0x67 / f3=0 / rs1=6 / rd=5 | got: op=0x67 f3=0 rs1=6 rd=5
+  [P16-0d] PASS  expect: MRET 族位域 = opcode 0x73 / f3=0 / f7=0x18 / rs2=2 / rs1=0 / rd=0 | got: op=0x73 f3=0 f7=0x18 rs2=2 rs1=0 rd=0
+  [P16-0e] PASS  expect: MRET 族位域 = opcode 0x73 / f3=0 / f7=0x18 / rs2=2 / rs1=3 / rd=0 | got: op=0x73 f3=0 f7=0x18 rs2=2 rs1=3 rd=0
+  [P16-0f] PASS  expect: MRET 族位域 = opcode 0x73 / f3=0 / f7=0x18 / rs2=2 / rs1=0 / rd=2 | got: op=0x73 f3=0 f7=0x18 rs2=2 rs1=0 rd=2
+  [P16-0g] PASS  expect: MRET 族位域 = opcode 0x73 / f3=0 / f7=0x18 / rs2=2 / rs1=3 / rd=2 | got: op=0x73 f3=0 f7=0x18 rs2=2 rs1=3 rd=2
+  [P16-0h] PASS  expect: 对照 MULH 位域 = opcode 0x33 / f7=1 / f3=1（§9.1.6 在册成员） | got: op=0x33 f7=0x1 f3=1
+  [P16-0i] PASS  expect: encode.py 的构造器与写死常量同源（JALR f3=0／MRET／MULH） | got: jalr=0x000302e7 mret=0x30200073 mulh=0x02b090b3
+-- P16-1  组 1：JALR funct3≠000（保留）⇒ illegal；对照 f3=000 合法且 link=pc+4 --
+  [P16-1a] PASS  expect: f3=1：illegal（cause=2，mepc=故障指令 pc，落 mtvec）／不写 link／无跳转 | got: exc_v=1 cause=2 x5=0x0 mepc=0x1000 pc=0x3000 rd_wb=0
+  [P16-1b] PASS  expect: f3=7：illegal（cause=2，mepc=故障指令 pc，落 mtvec）／不写 link／无跳转 | got: exc_v=1 cause=2 x5=0x0 mepc=0x1000 pc=0x3000 rd_wb=0
+  [P16-1c] PASS  expect: 对照 f3=0：合法 jalr，link=pc+4=0x1004，目标=0x2002（bit0 清零） | got: exc_v=0 x5=0x1004 pc=0x2002 mnem='jal'
+  [P16-1] INFO  观察（**本次不改**，仅登记）：ISS 的 JALR 记录 `instr_str` 由 `_branch()`
+                 统一写成 'jal'（machine.py `_branch` 尾行；JAL/JALR 同源）——该列**不进**
+                 比对列集（`iss/README.md` §3：instr_str/operand 默认关）⇒ 无可观测分叉，
+                 属可读性面；如要收口归 ISS 侧独立小片（本件只落盘观察）。
+-- P16-2  组 2：MRET 的 rs1≠0 / rd≠0（保留字段）⇒ illegal；对照规范形合法 --
+  [P16-2a] PASS  expect: rs1=3：illegal／未执行 _xret（mstatus 保持 MPP=M、priv 仍 M、未跳 mepc）／落 mtvec | got: exc_v=1 cause=2 mstatus=0x1800 mepc=0x1000 pc=0x3000 rd_wb=0
+  [P16-2b] PASS  expect: rd=2：illegal／未执行 _xret（mstatus 保持 MPP=M、priv 仍 M、未跳 mepc）／落 mtvec | got: exc_v=1 cause=2 mstatus=0x1800 mepc=0x1000 pc=0x3000 rd_wb=0
+  [P16-2c] PASS  expect: rs1=3 且 rd=2：illegal／未执行 _xret（mstatus 保持 MPP=M、priv 仍 M、未跳 mepc）／落 mtvec | got: exc_v=1 cause=2 mstatus=0x1800 mepc=0x1000 pc=0x3000 rd_wb=0
+  [P16-2d] PASS  expect: 对照规范形 MRET（rs1=rd=0）：合法，pc=mepc=0x2000，MPP→U、MPIE→1、MIE←MPIE=1 | got: exc_v=0 pc=0x2000 mstatus=0x88 mnem='mret'
+  [P16-2e] PASS  expect: 邻项对照：f7=MRET 但 rs2=0 ⇒ illegal（原有检查未受影响） | got: exc_v=1 cause=2 pc=0x3000
+-- P16-3  组 3/4/5（**不是保留编码**）：ISS 照 `doc/spec/02` §9.1 成员表合法执行 = 正确 --
+  [P16-3a] PASS  expect: 组 3：MULH（0x201，§9.1.6 在册成员）合法且语义正确：(-3)×5 高 64 位 = -1 | got: exc_v=0 x1=0xffffffffffffffff mnem='mulh'
+  [P16-3b] PASS  expect: 组 4：MULW（0x210）合法且按 bit31 符号扩展（既有语义回归 t_mulw 同口径） | got: exc_v=0 x1=0x6 mnem='mulw'
+  [P16-3c] PASS  expect: 组 5：CSRRC（0x302，§9.1.7 在册成员）合法且清位语义正确（0b1111 & ~0b1010 = 0b0101） | got: exc_v=0 mscratch=0x5 mnem='csrrc'
+  [P16-3d] PASS  expect: 组 5：CSRRWI（0x303）合法且 uimm 语义正确（写 3） | got: exc_v=0 mscratch=0x3 mnem='csrrwi'
+  [P16-3] INFO  裁决：组 3/4/5 的差异源＝**RTL 首版实现子集**（`vr1_decode.sv` 头 53–63 行
+                 自述这 30 个成员是'G1-F 后才入面的合法 RV64 指令'，非保留段）＋
+                 `doc/spec/02` §9.3 只在**保留段**上取'一律非法化'的平台选择 ⇒
+                 **ISS 侧不改**（收窄＝与 §9.1 成员表相抵＋抹掉 DUT 真实缺口）；
+                 归属＝G1-F／T-2／T-3 实现面增量批（同 `doc/verify/02` §7 CC-4/CC-15 行）。
+== probe16 summary: checks=21 fail=0  ==
+== rr_probe16 [SELF-FALSIFY]：单点注入负控（每个检查点配一次反证） ==
+CMD: python iss/tests/probes/rr_probe16_iss128_reserved.py --self-falsify
+machine.py md5 = a3075524582308527215e8e704bdcc94
+  [FS-A] RED-CAUGHT  inject: P16-2a 的 MRET rs1=3 -> 官方 MRET（rs1=rd=0） | pred=False（主运行该点将报 FAIL） got: exc_v=0 cause=0 pc=0x2000 mnem='mret'
+  [FS-B] RED-CAUGHT  inject: P16-1a 的 JALR f3=1 -> f3=0（拨回规范形） | pred=False（主运行该点将报 FAIL） got: exc_v=0 cause=0 x5=0x1004 pc=0x2000
+  [FS-C] RED-CAUGHT  inject: P16-1/2 的保留编码 -> 在册合法成员 MULH（跨类注入） | pred=False（主运行该点将报 FAIL） got: exc_v=0 cause=0 mnem='mulh'
+== falsify summary: injections=3 red caught=3（检查器有效：主运行会报红） ==

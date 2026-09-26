@@ -45,6 +45,17 @@ I_SLLIW_RESERVED_I5 = 0x0244_959B     # SLLIW imm[5]≠0，保留
 I_SRLIW_RESERVED_I5 = 0x0244_D59B     # SRLIW imm[5]≠0，保留
 I_SRAIW_RESERVED_I5 = 0x4244_D59B     # SRAIW imm[11:5]=0100001，保留
 I_ADDIW_100 = 0x0644_859B             # addiw x11,x9,100（imm[11:6]=000001，非移位域）
+# ISS-128（2026-09-26 心跳第 15 轮）：保留编码面两侧口径对齐后的**钉住**项——
+# 组 1 JALR funct3≠000（规范只定义 f3=000：提取件行 2686–2698 编码表逐字段值）、
+# 组 2 MRET 且 rs1≠0／rd≠0（特权表 rs1=rd=00000：行 55952–55964）；
+# 保留译码行为 UNSPECIFIED（行 2026–2029），本项目平台选择＝RES 编码点一律非法化
+# （`doc/spec/02` §9.3 依据句）⇒ 两侧同判 illegal。
+I_JALR_F3_1 = 0x0003_12E7             # jalr 位型（rd=x5,rs1=x6,imm=0）但 funct3=001，保留
+I_JALR_F3_7 = 0x0003_72E7             # 同型 funct3=111，保留
+I_JALR_F3_0 = 0x0003_02E7             # 同型 funct3=000（对照：合法 JALR）
+I_MRET_RS1_3 = 0x3021_8073            # MRET 但 rs1=3（保留字段组合）
+I_MRET_RD_2 = 0x3020_0173             # MRET 但 rd=2（保留字段组合）
+I_MULH_LEGAL = 0x02B0_90B3            # mulh x1,x1,x11（**在册合法成员** 0x201，§9.1.6）
 
 
 def sext32(v: int) -> int:
@@ -203,6 +214,44 @@ def t_official_encodings() -> None:
         f"mnem={r.instr_str!r}")
 
 
+def t_iss128_reserved() -> None:
+    """ISS-128（心跳第 15 轮）：保留编码面 ISS 侧补齐——组 1 JALR `f3≠000`、组 2 MRET `rs1≠0`／`rd≠0`。
+
+    规范锚：JALR 只定义 f3=000（提取件行 2686–2698）；MRET 的 rs1／rd 固定 00000
+    （行 55952–55964）；保留译码行为 UNSPECIFIED、平台可选非法化（行 2026–2029）
+    ⇒ 本项目取「RES 编码点一律非法化」（`doc/spec/02` §9.3 依据句）。同族先例＝ISS-063
+    （SLLI/SRLI 的 funct6 保留位）。实跑落盘：`probes/rr_probe16_iss128_reserved.py`。
+    **边界项**（须保持合法）：MULH 是 `doc/spec/02` §9.1.6 在册成员，**不是**保留编码；
+    其两侧差异属 RTL 首版实现子集（归属 G1-F），不得靠收窄 ISS 抹平（红线 R6/R8 精神）。
+    """
+    for nm, w, f3 in (("f3=001", I_JALR_F3_1, 1), ("f3=111", I_JALR_F3_7, 7)):
+        r, iss = one(w, {6: 0x2000})
+        chk(f"JALR {nm} 保留编码必须非法（ISS-128 组 1）",
+            r.exc_v == 1 and r.exc_cause == int(Exc.ILLEGAL_INSTR) and iss.regs[5] == 0
+            and r.rd_wb_en == 0,
+            f"exc_v={r.exc_v} cause={r.exc_cause} x5=0x{iss.regs[5]:x} rd_wb={r.rd_wb_en}")
+    r, iss = one(I_JALR_F3_0, {6: 0x2002})
+    chk("对照：JALR f3=000 合法，link=pc+4 且目标 bit0 清零（ISS-128 组 1 对照）",
+        r.exc_v == 0 and iss.regs[5] == BASE + 4 and iss.pc == 0x2002,
+        f"exc_v={r.exc_v} x5=0x{iss.regs[5]:x} pc=0x{iss.pc:x}")
+
+    for nm, w in (("rs1=3", I_MRET_RS1_3), ("rd=2", I_MRET_RD_2)):
+        iss = build([w])
+        iss.csr[int(Csr.MSTATUS)] = 3 << 11
+        iss.csr[int(Csr.MEPC)] = 0x2000
+        r = iss.step()
+        chk(f"MRET 且 {nm} 保留字段必须非法（ISS-128 组 2）",
+            r.exc_v == 1 and r.exc_cause == int(Exc.ILLEGAL_INSTR)
+            and iss.csr[int(Csr.MSTATUS)] == 3 << 11 and r.instr_str != "mret",
+            f"exc_v={r.exc_v} cause={r.exc_cause} mstatus=0x{iss.csr[int(Csr.MSTATUS)]:x} "
+            f"mnem={r.instr_str!r}")
+
+    r, iss = one(I_MULH_LEGAL, {1: MASK64 - 2, 11: 5})       # (-3) × 5 的高 64 位 = -1
+    chk("边界项：MULH（§9.1.6 在册成员 0x201）**仍须合法**——保留≠在册成员（ISS-128 组 3 裁决）",
+        r.exc_v == 0 and r.instr_str == "mulh" and iss.regs[1] == MASK64,
+        f"exc_v={r.exc_v} x1=0x{iss.regs[1]:x} mnem={r.instr_str!r}")
+
+
 def t_reserved_and_spin() -> None:
     """Q6 / Q21：保留编码与自旋。"""
     r, _ = one(I_BR_F3_2, {})
@@ -271,12 +320,17 @@ KNOWN_OPEN = [
 
 
 def main() -> int:
+    try:
+        sys.stdout.reconfigure(errors='replace')   # GBK 控制台下 ⇒ 等非 GBK 字符不得炸掉退出码（2026-09-25 实测修复）
+    except Exception:
+        pass
     t_shifts()
     t_shift_reserved_rv64()
     t_xret_mprv()
     t_loads()
     t_mulw()
     t_official_encodings()
+    t_iss128_reserved()
     t_reserved_and_spin()
     t_tohost_verdict()
     t_mpp_reserved()

@@ -1,3 +1,4 @@
+# [已退役 2026-09-25] 队列制已由 state/flow.json + python script/flow.py 取代（流程 A，SSOT=doc/process/03）。原文保留以支撑历史引用，不再续写。
 # VR1 自动编排队列（run_cmd/AutoQueue.yaml）
 #
 # 用途：R8「项目编排 AI（PM）」的唯一状态载体。每轮会话由 R8 执行

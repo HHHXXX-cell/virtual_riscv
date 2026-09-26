@@ -5,6 +5,29 @@
 
 ---
 
+## 0. 流程唯一入口（2026-09-25 起：方案 A · Runner-in-the-Loop）
+
+- **日常只跑一条命令**：`python script/flow.py check`（全判据，0 FAIL 才算过）与
+  `python script/flow.py next`（下一步，唯一权威）。状态唯一真值 = **`state/flow.json`**；
+  编号由脚本自增（**禁手写**）。
+- **流程定义（SSOT）**：`doc/process/03-自动化流程重构-三方案.md`（A 为骨架 / B 判据按模块增量 /
+  C 里程碑边界启用）。人读镜像：`doc/当前目标卡.md`。
+- **循环由系统件承载，不靠提示词、不靠定时任务**：`.zcode/config.json` 的
+  `Stop`（有可跑的确定性步骤即请求继续，上限 3 次）、`SessionStart(startup|resume|clear|compact)`
+  （压缩/续跑后强制重注入里程碑、exit 与禁令）、`PreToolUse`（写边界机械执行）。
+  **改 hooks 后须重开一次会话**（hook 在会话启动时快照）。
+- **角色**：`tools/vr1-plugin/agents/`（先在 设置→插件管理 装一次本地插件才可派发）；
+  `vr1-auditor` 的工具白名单无 `Bash/Write/Edit`，机械只读。
+- **退役件**：`doc/_legacy/2026-09-25-流程v1/`（自动推进说明 / 派发词模板 / 自动循环定时任务 / flow_run.py）；
+  `script/gate.py`、`run_cmd/AutoQueue.yaml`、`doc/verify/03-验证计划.md` 原位保留但已打退役横幅。
+- **ADR 编号分区（2026-09-25）**：`doc/decisions/ADR-P-<n>-*.md` ＝ 流程侧 ADR 分区（`P`＝process），
+  由 `python script/flow.py record ADR` 自增（**禁手写**；台账 `next.ADR` 计数沿用，写入 id 形如 `ADR-P-<n>`，
+  当前下一条＝4 号）。
+  裸号 `ADR-<n>` 是规格/历史面既有编号（`spec/**` 内 `ADR-1~5`、`doc/verify/05` 的 `ADR-D3/D4/D5/S06` 等），
+  **保留原义、不得再发新号**；两分区撞车与 `ADR-P-<n>` 断链由 `flow.py check` 的 `id-unique` 判据拦截。
+
+---
+
 ## 1. 项目信息
 
 - **项目名**：virtual_riscv / **VR1**（RV64GC 超标量乱序处理器核，规格先行）
@@ -25,18 +48,88 @@
     不再一律标 `待锚点`（红线 R20 仍要求"关键结论必绑锚点"，只是锚点现已可用）。
   - 设计空间与选型依据：`D:\IC验证知识库\Verilog与CPU设计知识库\CPU卷\04-高性能超标量CPU精读.md`
 - **验证阶段**（AI 每次会话结束前更新此项）：
-  **Step 1 理解规格**（进行中——`doc/spec/` 已成 2/14 篇；**`spec/01` v0.3 返工链＝D-14 全量复核**：
-  章①~⑤＋纵①~③＋十三轮复核（A1~A12，评审记录**附 M~附 Y**；决策批 ADR-B1~B9/D3/D4/D5、落文批 L1~L11），
-  **R0 裁决走最严格口径（三度）：A7 复判 C2 未成立 → 处置 → A8/A9 收口 → A10 再裁全量（56/56＋4 低烈度→L11→A11）→ A12 第三轮全量：新增 0＋旧问题 56/56＋缺失型清单为空 ⇒ 2026-09-24 R0 裁断「成立」，D-14 关闭；续跑下一件 Q-010（`spec/02`）**
-  （`doc/verify/05` R-093/R-094；**R0 裁决 C2 成立（2026-09-24）→ D-14/Q-004/Q-034 已关闭**，转 Q-010 `spec/02` 收口——收口片（R-096/R-097）→ 增量复核附 Z（1 阻塞／4 澄清）→ 处置批 L12/L12b/L12c＋verifier 探针落盘（R-099~R-103）→ **A13 增量复核（附 AA：阻塞 0／澄清 6 已同批处置／存疑 1＝ISS-068 待决策）** → 处置批（R-102~R-104）→ **A14 终局 δ 复核（附 AB：技术面阻塞 0／新增 2 记录面＋存量 2，已同批处置；干净窗口达成、闭 ISS-069）** → **A15 δ 复核（附 AC：阻塞 0／相抵 0／技术面新增 0；新增 3＋承接 2 已同批处置；干净窗口 0 变更）** → **A16 δ 终局确认（附 AD：技术面新增 0；新增 4＋存量 1 全记录/文本面，已同批处置；干净窗口全 0；`review_rounds`＝5/5 达 REVIEW_CAP）** → **呈判包呈 R0** → **2026-09-24 R0 裁决「全 A」：ISS-068 认可替代核验、M/A 24 成员与跨篇清单①转后续 `spec/02` 片、不补 §9.4b 整篇、Q-010 关闭（R-108）**；下一件＝按《驱动计划》`dispatch` 取队首）。**Step 1 状态：`doc/spec/` 00~14 全 15 篇在册（**00 待评审**；**01/02/03 已收口**（01 经 D-14、02 经 Q-010、03 经 Q-006）；**04~14 已起稿**——篇序经 S-15~S-24 连续推进完成，**G1 接口冻结材料齐（`spec/14` 首版＋§9.5 四段评审 list；R-163／2026-09-25）**，现**停等 R0 签署**（硬停机，§12.1 P1）**；G1 前置余项：`spec/00` 过 RR／04~13 各余项 T-xx 清零或列缺带归属／**`spec/10` T-10-1（CSR 全表）闭合**；台账 102 条＝3 待决策／22 处理中／77 已解决；δ 轮 2 处置批（R-169）＝N4/N5 即修＋ISS-092 余项清账＋K1（`doc/verify/02` VP-X06a~f）＋ISS-039 闭合，δ 轮 3 处置批（R-170）＝N1/N2/N3 即修＋ISS-095 关闭；δ 轮 4 处置批（R-171）＝p1~p4 即修＋ISS-096 关闭；δ 轮 5 处置批（R-172）＝p1/k2 即修＋ISS-097 关闭；δ 轮 6 处置批（R-173）＝p-1 记载补记＋ISS-098 关闭；`ptw_mem_req_t` 闭合片收敛（R-183~186：终局确认 14/14、新增 0，附 AX）；下一手＝G1 余项续（`spec/03` T3-1/T3-4 → `spec/00` RR 材料））
-  **换机相关记录已按实况收敛**：`_tools/` 已补拷（ISS-032 关闭）、git 已可用（ISS-001 关闭）；
-  WSL2/工具链仍缺（**ISS-002 待人执行 `doc/环境搭建.md`**）。**当前权威进度看 `doc/verify/04` 看板**，
-  待办与阻塞由 `run_cmd/AutoQueue.yaml` + `script/gate.py` 驱动（规则 23）。
-- **基线状态**：**未基线**
-  - 基线触发点预告（满足其一即可由人宣布）：① Review G1 接口冻结签署；② UVM 平台 smoke 用例通过。
-    二者取先。基线后 `rtl/` 转只读、平台改动走 R5。
-- **工作流规则**：项目级流程定义（阶段/门禁/度量/管理）见 **`doc/项目开发流程.md`**；
-  AI 角色分工与独立性机制（**R0~R8**、读写边界、对抗评审、编排与核销）见 **`doc/AI角色与职责.md`**；
+  **流程 A 已落地（2026-09-25），实时状态一律看 `state/flow.json` + `python script/flow.py next`**
+  （本节只留指针，不再镜像长文本——旧写法正是"状态住在对话/长文里"的病根）。
+  - 已达成：**M0.5 流水线自证 + 参数单源**（2026-09-25 15:15；六项 exit：params-drift /
+    params-coverage / params-invariants / params-compile / image-hex / trace-self 全过）；
+    **M1a 接口类型单源**（2026-09-25 15:24）；**M1-I G1-I 机判面**（22:47，11 条 exit 全过）；
+    **M1 RTL-vs-ISS 首条闭环**（2026-09-26 02:24；`rtl-compile` + `rtl-vs-iss` 两条 exit 全过，
+    步骤 P7 由 `flow.py run` 收口置 done）；**M2 riscv-tests rv64ui 定向子集闭环**
+    （2026-09-26 08:43 met；三条 exit 全过，证据在心跳第 10 轮刷新，见下）。
+  - **G1-I 已由 R0 签署**（2026-09-25；记录 `doc/spec/14` §7；状态件 `state/freeze.json`）
+    ⇒ `rtl/` 进**实现期**（写边界＝`guard-write` 三档：未冻／G1-I 已签授权／基线宣布后先批后改）。
+  - **M2 三条 exit（met；2026-09-26 心跳第 10 轮刷新证据，第 12 轮随激励面变更复验）**：
+    `m2-rv64ui`（判定子集 **52/52 全过**——第 12 轮把定向用例 `vr1dir-p-dir_csr` 与导入镜像
+    `m_smoke` 纳入 `MANIFEST.tests`，判定面随之扩到 52 条；逐条 ISS `halt_val=0x1` ＋ RTL
+    `HALT_PASS` ＋ `trace_compare` 列 pc,binary,gpr,csr 0 mismatch；数据面逐条 `+DATA=` 预载）／
+    `m2-regress`（两轮 r6/r7 各 50/50、`new_fail=0`、`same_config=yes`、R9/R10 在环）／
+    `m2-cov`（**读最新批 `m3cov_r1`**：报告 `doc/verify/07-m3cov_r1.txt`＋编译指纹；**不判阈值**，
+    阈值属 M3）。
+  - **已达成：M3 覆盖率与回归收敛（2026-09-26 心跳第十六轮；`flow.py check` 末行 PASS，记账 R-272）**——
+    三条 exit 已是**已注册真判据**（`m3-code-cov`／`m3-func-cov`／`m3-regress-stab`，本体在 `script/flow.py`；
+    口径＝**只核证据＋时效**、不重跑重活；阈值取本文件 §4 原文、未达标**如实 FAIL**、不放宽）。第十六轮实跑：
+    `m3-regress-stab` **PASS**（本版本同配置 r5/r6/r7 三轮全过、轮间 0 新 FAIL；证据时效口径＝**只锚 RTL 面**
+    ——TB 面不进版本校验，R0 2026-09-26 认可、已写进判据消息）；`m3-code-cov` **PASS**
+    （Statements **98.56%**（1025/1040）／Branches **100.00%**（447/447）／Conditions **100.00%**（71/71）／
+    FSM Transitions **100.00%**（6/6）——后三项的"原分母"现值写在判据消息里（447/463、71/79、6/8），
+    差额＝**R0 2026-09-26 授权的「列缺豁免」**；Statements 的 15 处未命中**不在**豁免清单内、照旧计入分母）；
+    `m3-func-cov` **PASS**（`cg_fetch` **8/8**、`cg_lsu_fsm` **12/12**——`t_req_idle`/`t_rsp_idle` 经
+    **R0 裁定①受控复位注入通道**实测命中：`rst_*` 前缀条目仅入覆盖率批 `run_cmd/cover_m3_testlist.txt`、
+    不进回归同配置与 `m2-rv64ui`，机制件＝`tb/unit/m1_e2e_tb.sv` 的 `+RESET_INJECT=`＋
+    `run_cmd/cover_rv1.py:run_case_rst`；`cg_retire` **34/34**＝原 34/35 扣豁免 1＝`priv_u`
+    （R0 裁定②列缺带归属 G1-F/二期，逐条落 `doc/verify/02` §6））。
+    **列缺豁免机制（本轮 R0 授权，改判据本体）**：判据解析 `doc/verify/02` 的列缺清单（§7.2 机器可读豁免集／
+    §6 表体）→ **从分母扣除** → 消息**逐条回显**（含清单位置行号与依据／归属）。四条硬边界：① 只豁免清单内、
+    依据可查的条目（code 面每条须回指**非**「已纳入／处置项」的 `CC-` 主表行＋非空归属＋行号能落到
+    `filelist/rtl.f` 在册单元源码的**非空行**）；② **不改**任何 bin／采样条件／阈值／检查器逻辑（红线 R6/R7）；
+    ③ 判据用**报告现值设反向上界**（同一 单元×面 ≤ 该格 misses、同一面 ≤ 该面 misses）⇒ **报告没报缺的项
+    豁免不了**，且逐条依据＋清单行号回显 ⇒ 防"新增／改写列缺条目凑达标"；④ **豁免集为空时判据行为与消息与
+    落地前逐字一致**（已实测），而"清单本体解析不到"一律 **FAIL**（fail-closed）。自证伪：4 种造假注入
+    （超上界／回指「已纳入」行／凭空行号／对全命中单元灌豁免）**全被拦**；Conditions"差的 1 项"经逐项源码
+    对账＝**啃不掉**（8 项全为结构性／无产生者／死路径／无中断源，非 ISA 行为面）⇒ 留在豁免集内并写明，
+    落点 `doc/verify/02` §7.2／§7.3。
+    **前情（第 13~15 轮，详见 `doc/verify/02` §7 与台账 R-269/R-270）**：R0 三项裁定（受控复位注入通道／
+    `priv_u` 列缺带归属／回归证据只锚 RTL 面）＋ **ISS-128 五组对账消解**（组 1 `JALR f3≠000`／组 2
+    `MRET rs1≠0·rd≠0`＝真保留编码 ⇒ **补 ISS 守卫**，CC-2/CC-3 转「已纳入」；组 3/4/5＝在册合法成员
+    ⇒ ISS 正确、不收窄）＋ `07-m3cov_r2` §B 逐行分类（(i) 可达未激励由 `sw/tests/direct/dec_probe.S` 补上、
+    (ii) 不可达逐条列缺带归属）。
+    第三条 M3 exit（`m3-mutation-audit`／错误注入保真度抽检）**机制尚无落点** ⇒ 保留待注册（TODO(M3-3)）。
+  - **M3 前置（已完成）：M3-(d)「补缺指令」**——RTL 合法面由 41 条扩到
+    **57 条**（心跳第 10 轮增补 16 条：条件分支余 4 `BLT/BGE/BLTU/BGEU` ＋ `JALR` ＋ 载入余 6
+    `LB/LH/LD/LBU/LHU/LWU` ＋ 存储余 3 `SB/SH/SD` ＋ `FENCE/FENCE.I` 最小语义）；riscv-tests
+    52 条里 **50 条在册可判**，余 2 条**显式列缺带归属**（`sim/image/rv64ui/GAP.json` 的
+    `pending_subset`，**不静默跳过**）：`fence_i`＝缺机制（取指侧可执行域 0x0000~0x3FFF 与数据窗
+    不统一；实测 ISS PASS／RTL 取指回 0）、`ma_data`＝缺机制（`MISALIGNED_EN=0`，两侧一致不支持，
+    `doc/process/00` ISS-010）。**余 30 成员**（A 11／M 余 10／CSR 余 4／SYSTEM 余 5）随 G1-F。
+    ~~旧编号体系的 M3（平台 smoke）~~已改名 **M-B**（人的决策点／基线宣布），见 `doc/verify/04` §①。
+  - 仿真器/环境**已就位、不再是阻塞项**（ModelSim `vsim` license 已由 `flow.py` 注入环境变量解决＝R-224，
+    `vlog`/`vsim` 实测均通；~~WSL2 路线~~已作废——R0 定「永不装 Linux」，改 MSYS2 纯 Windows 宿主，
+    见 §3.2；riscv-tests 的构建走 ucrt64 `riscv64-unknown-elf-gcc`，见 `doc/环境搭建.md`）；
+    环境事实单源＝`state/env.json`（`env-facts-consistency` 对账）。
+  - 实现期已落（2026-09-25 首批）：`rtl/vr1/include/vr1_pkg.sv`（参数件/类型件**包裹式** `include，
+    生成件禁手改）＋ `rtl/vr1/core/vr1_core.sv`（G1-I 冻结端口面 ＋ 取指骨架，未完成项标 `TODO(M1-S<n>)`）
+    ＋ `filelist/rtl.f`。
+  - 规格侧：`doc/spec/` 00~14 全 15 篇在册（00 待评审；01/02/03 已收口；04~14 已起稿）；
+    **G1-I 已签**；G1-F（全量冻结）前置余项＝`spec/00` 过 RR／04~13 余项 T-xx 清零或列缺带归属／
+    `spec/10` T-10-1（CSR 全表）闭合。
+  - 环境：**纯 Windows 全链已就位（2026-09-25，R-235；R0 定「永不装 Linux」⇒ WSL2 路线作废）**：
+    MSYS2 装于 `D:\msys64`（msys 环境 gcc/make/git/dtc；ucrt64 环境 `riscv64-unknown-elf-gcc` 16.1.0
+    ＋binutils 2.47＋Verilator 5.050＋gcc 16.2.0＋dtc＋boost）；**Spike 自建成功**（`/d/tools`，
+    Spike 1.1.1-dev，含 `--log-commits`；调用须带 `--dtb=`，补丁与三条限制见 ISS-123）；证据
+    `sim/run_env_msys2/run.log`；步骤与坑见 `doc/环境搭建.md`。**ISS-vs-ISS 对手方口径**（用哪一份 Spike）
+    ＝ `doc/verify/02` §8：`--preset project`（**改过的 oracle、非原版**；改动面固化成补丁件
+    `iss/tools/patches/spike-vr1-platform-map.patch` ＋ 版本指纹 `iss/tools/spike_oracles.json`，由
+    `iss/tools/spike_run.py` 每次核 md5、不符即拒跑；ISS-129 已按 R0 裁定②闭合）。`_tools/` 可达（ISS-032 闭）、
+    git 可用（MSYS2 侧 2.55.0）。ModelSim license 见 R-224（ISS-104 的 OS 侧 rehost 仍待人）。
+  - 台账 102 条历史（`doc/process/00`，归档不再续写）→ 现行台账 `doc/process/ledger.json`
+    （由 `flow.py record` 自增编号；`flow.py board` 看计数）。
+- **基线状态**：**未基线**（机判真值＝`state/freeze.json` 的 `baseline` 字段）
+  - 基线触发点预告（满足其一即可由人宣布）：① Review G1 接口冻结签署（**分段签口径**：以 **G1-F 全量
+    冻结**为准——G1-I 已签只解锁实现期，不构成基线触发，见 G1-I 清单 §6.1 段 0/段 3）；② UVM 平台
+    smoke 用例通过。二者取先。基线后 `rtl/` 转只读、平台改动走 R5。
+- **工作流规则**：**现行执行层 SSOT ＝ `doc/process/03-自动化流程重构-三方案.md`（方案 A）**，
+  日常命令只有 `script/flow.py`；项目级流程定义（阶段/门禁/度量/管理）见 **`doc/项目开发流程.md`**（保留为阶段语义术语表）；
+  AI 角色分工与独立性机制（**R0~R8**、读写边界、对抗评审、核销）见 **`doc/AI角色与职责.md`**；
   执行层九步流水线见 `D:\IC验证知识库\AI验证工作流程\AI验证工作流程.md`（库已于 2026-09-22 改名，
   冲突时以项目流程文件为准）；阶段门与角色总纲见同库 `AI进行IC开发验证工作流程\`（含 §6.1 评审收敛判据）。
 - **知识库路由**：每次会话先读 `D:\IC验证知识库\AI索引.md`；SV 语义争议查《SV标准LRM知识库》；
@@ -48,13 +141,17 @@
 ```
 virtual_riscv/
 ├── AGENTS.md          # 本文件
-├── doc/               # 项目开发流程.md（阶段/门禁/度量/管理，本表上位约束）/ AI角色与职责.md
-│   │                  # 环境搭建.md / 交接说明.md / 自动推进说明.md（治理类留顶层；末件＝角色与自动循环一页摘要）
+├── .zcode/config.json # 流程 A 的三个 hook（Stop / SessionStart / PreToolUse）；改后需重开会话生效
+├── state/flow.json    # ★ 状态唯一真值（里程碑/exit 判据/步骤/证据）；flow.py next 是唯一权威顺序
+├── tools/vr1-plugin/  # 本地插件：agents/*.md 五个角色（auditor 无 Bash/Write/Edit，机械只读）
+├── doc/               # 项目开发流程.md（阶段/门禁/度量/管理，术语表）/ AI角色与职责.md
+│   │                  # 环境搭建.md / 交接说明.md / 当前目标卡.md（治理类留顶层；末件＝流程 A 的人类可读镜像）
+│   │                  # _legacy/2026-09-25-流程v1/（自动推进说明 / 派发词模板 / 自动循环定时任务 / flow_run.py）
 │   ├── spec/          # ★ 规格书 00~14（设计承诺，本项目第一阶段主体交付）
 │   ├── design/        # 设计侧非规格产物（ADR 汇总 / 接口冻结记录 / 模块实现说明；预留）
-│   ├── verify/        # 验证产物 01-理解清单 ~ 10-基线记录（九步流水线；03/04/05 已成）
+│   ├── verify/        # 验证产物 01-理解清单 ~ 10-基线记录（九步流水线；04/05 现行，03 已退役留档）
 │   ├── review/        # 评审记录与评审探针（按篇目编号：01-评审记录.md / 01-评审探针/）
-│   └── process/       # 00-问题记录.md（台账：五类问题闭环；R4 唯一落点）
+│   └── process/       # ledger.json（★ 现行台账，编号自增）/ 00-问题记录.md（历史归档）/ 01~03 方案与流程件
 ├── debug/             # debug 分析文档（七段骨架，见《问题分析方法论》§4A）
 ├── rtl/vr1/           # DUT：frontend/ rename/ issue/ exu/ lsu/ mmu/ cache/ ctrl/ core/ include/
 ├── tb/vr1_uvm/        # UVM 平台与用例（AI 工作区）
@@ -63,7 +160,7 @@ virtual_riscv/
 ├── filelist/          # rtl.f / tb.f / rv64gc.core.f
 ├── sim/               # 编译仿真工作目录（可清理）
 │   └── covdb/         # ★ 签核证据受保护区：合并覆盖率 ucdb + 编译指纹，clean 不得触碰
-├── script/            # 构建/解析脚本；script/tmp/ 临时件用完即删
+├── script/            # 构建/解析脚本；tools/ 归档工具（`window` 加固探针／清理前引用扫描／文件速查）；script/tmp/ 临时件用完即删
 └── run_cmd/           # Makefile、vsim 入口 do/tcl、回归 runner、riscv-dv target 配置
 ```
 
@@ -93,13 +190,18 @@ set MTI=D:\modeltech64_2020.4\win64
 %MTI%\vcover report -cvg -detail sim/covdb/<batch>.ucdb -output doc/verify/07-<batch>.txt
 ```
 
-### 3.2 WSL2 Ubuntu（编译 / ISS 互检 / 高速仿真）—— 尚未安装，命令见 `doc/环境搭建.md`
+### 3.2 MSYS2（纯 Windows；编译 / ISS 互检 / 高速仿真）—— 已就位，命令见 `doc/环境搭建.md`
+
+> **两套环境别混用**：`ucrt64`（原生 Windows，装 riscv 交叉工具链／Verilator／dtc／原生 gcc）与
+> `msys`（Cygwin-POSIX 层，装 git/make/dtc 并**承载 Spike 的编译与运行**——它要 mmap/termios/fork）。
+> 脚本调用式：`D:\msys64\usr\bin\env.exe MSYSTEM=UCRT64 D:\msys64\usr\bin\bash.exe -lc "<cmd>"`。
 
 ```bash
 riscv64-unknown-elf-gcc -static -mcmodel=medany -nostdlib -nostartfiles \
     -march=rv64imac_zicsr_zifencei -mabi=lp64 -T sw/env/link.ld <in>.S -o <out>.o
 riscv64-unknown-elf-objcopy -O binary <out>.o <out>.bin
-spike --log-commits --isa=rv64imac_zicsr_zifencei --priv=m -l <out>.o   # 需带 --enable-commitlog 编译
+spike --isa=rv64imac_zicsr_zifencei --priv=m -l --log-commits \
+      --dtb=<file.dtb> <out>.o     # 本机自建版：--dtb 必须带（ISS-123②）；commitlog 已默认编入
 verilator --cc --exe --build -j 4 --trace-fst -CFLAGS -O2 -f filelist/rtl.f          # 长跑回归与性能
 ```
 
@@ -114,10 +216,12 @@ verilator --cc --exe --build -j 4 --trace-fst -CFLAGS -O2 -f filelist/rtl.f     
 
 ### 3.4 已知工具坑位
 
-1. ModelSim SE 的 DPI-C 需要宿主 C++ 编译器（本机无 gcc/VS）→ **ISS 一律走文件级解耦**，不做 DPI 耦合。
+1. ModelSim SE 的 DPI-C 需要宿主 C++ 编译器——本机现有 MSYS2 的 gcc，但**口径不变：ISS 一律走文件级解耦**
+   （不做 DPI 耦合）：跨工具链 ABI 与可复现性风险仍在，且解耦后 trace 可比对、可留证（ISS-006 的理由更新）。
+   Spike/ISS 与 RTL 一律只交换落盘文件（`.hex`／trace CSV）。
 2. `.bin`/`.hex` 镜像必须"一份产物喂两边"（ISS 与 RTL 存储器），否则两侧镜像漂移会伪装成 DUT bug。
 3. `vcover merge` 的合并集仅限同一编译版本 → covdb 目录必须记**编译指纹**（RTL 版本 + filelist hash）。
-4. PowerShell 不支持 `&&`，脚本一律用 `;` 或走 `cmd /c` / WSL bash。
+4. PowerShell 不支持 `&&`，脚本一律用 `;` 或走 `cmd /c` / MSYS2 bash。
 
 ## 4. 验证签核标准（Step 5~8 循环终止条件）
 
@@ -179,9 +283,10 @@ verilator --cc --exe --build -j 4 --trace-fst -CFLAGS -O2 -f filelist/rtl.f     
     AB6 单用例 watchdog 超时或批累计超 R9 上限 → 批中止。中止时已跑结果保留有效，summary 尾行标
     `REGRESSION_ABORTED + 原因`，退出码非 0，判据号记 `doc/verify/05`。
     **旧名对照（F5 改名，2026-09-23，见 `doc/verify/05` R-049）**：批中止判据旧名 `T1`/`T5`/`T6` → 新名 `AB1`/`AB5`/`AB6`（翻选触发族见 `spec/01` `PT1`/`PT2`；`spec/02` `T-n` 族不变）。
-11. **产出落盘**：每步产出写 `doc/` 对应文件，下一步以上一步文件为输入；会话结束前更新本文件
-    §1「验证阶段」与「基线状态」，并同步 `doc/verify/04` 看板（事件驱动更新：状态变更即记 / 用户收尾指令 /
-    里程碑完成 / 上下文压缩兜底）。
+11. **产出落盘（流程 A 口径）**：状态写 `state/flow.json`（唯一真值，脚本维护）；每个确定性步骤的命令与
+    证据入 `sim/run_<step_id>/run.log`；台账编号由 `python script/flow.py record` 自增（**禁手写**）。
+    **不再手写 R/ISS/Q/D/S 编号，不再有"每片记录批四件套"**；会话结束前更新本文件 §1「验证阶段」指针
+    与 `doc/当前目标卡.md`（里程碑切换时刷新）。
 12. **知识库路由**：语法/机制/工程写法有争议先查 `AI索引.md` 定位，结论注明出处（库名/文件/卡片号）；
     SV 语义以《SV标准LRM知识库》仲裁。
 13. **diff 可见**：每次代码改动输出修改点摘要，禁止静默重写已有组件。
@@ -201,46 +306,49 @@ verilator --cc --exe --build -j 4 --trace-fst -CFLAGS -O2 -f filelist/rtl.f     
     只能降级为"登记＋预测＋回退点"，并进 `doc/项目开发流程.md` §9.5 评审 list 的 ④ 段供人读。
 21. **【独立性声明】同模型多角色共享盲点**：不得把“换了个角色评审”当独立性证据；
     残余风险由 R0 人签署 + 锚点兜底。
-22. **【角色边界机械化】写禁令不靠声明**：子代理（R6/R7）声称“只读”时，每轮结束后必须跑
-    “仓库清单比对＋**内容指纹（md5:size）窗口**”（`python script/gate.py rocheck --window <ISO>`，
-    扫描面含 `script/tmp/` 等忽略区）核查并记入 `doc/verify/05`；纯 mtime 差异单列 `MTIME-ONLY(INFO)`、
-    不作改动判据；**新增/删除恒计入**；**评审探针与输出不得留在 `script/tmp/`
-    等忽略区**，必须归入受版本控制的证据目录（`iss/tests/probes/`、`doc/review/*-评审探针/`）。
-    长基线 `script/gate/integrity_baseline.json` 的刷新有硬规则：只走
-    `python script/gate.py snapshot --refresh --reason <折入集出处>`——仅处置轮开工写产物前每轮 ≤1 次；
-    评审轮与 FAIL 轮后禁刷；只折“已进复核面”的改动集；执行者＝R8；独立提交＋`doc/verify/05` 留痕
-    （旧→新指纹、折入集出处）；作不出出处即作废回滚。
-    本轮已实测发生一次违反（34 个新建文件，无既有文件被改），见 ISS-022。
+22. **【角色边界机械化】写禁令不靠声明**：子代理声称"只读"时以**工具白名单**为准
+    （`tools/vr1-plugin/agents/*.md` 的 `tools:` 字段；`vr1-auditor` 无 `Bash/Write/Edit` ⇒ 机械只读）。
+    只读轮/处置轮收工必须跑**内容指纹窗口**核查：`python script/flow.py window`（md5:size；新增/删除恒计入；
+    纯 mtime 差不作改动判据）；**评审探针与输出必须归入受版本控制的证据目录**
+    （`iss/tests/probes/`、`doc/review/*-评审探针/`），不得留在忽略区；
+    窗口基线折入只走 `python script/flow.py window --take --reason <折入集出处>`，每轮 ≤1 次，
+    **作不出出处即作废回滚**。此外，**写操作要经 `PreToolUse` hook 复核**（`guard-write` 拒绝冻结后写 `rtl/**`、
+    拒绝写 `sim/covdb/**`；`guard-bash` 拦 `rm -rf`/`git reset --hard` 等破坏性命令）。
 
-23. **【R8 编排与逐轮机械核销】** 项目设 **R8 项目编排 AI（PM）**，职责是按《AI进行IC开发验证工作流程》§1.3/§6.1 与本文件驱动阶段推进（角色边界见 `doc/AI角色与职责.md` §2/§3.1）：
-    **每轮开工先跑 `python script/gate.py check`**（判据**以实跑输出末行为权威源、不写死项数**——建立期 12 项、2026-09-23 已长到 22 项；
-    覆盖台账计数与状态、ID 连续性、已解决项落点存否、看板镜像一致、队列 schema 与依赖、
-    中文错词与零宽码点、未定义规则号拦截等），**有 FAIL 即不得宣布任何「已落实」**；再 `dispatch` 取队首并按其
-    `role` 字段切换角色执行；`done_when` 未满足不得置 done（不凭口头声明）。**硬停机**：撞 `doc/项目开发流程.md`
-    §12.1 的 P1~P4、§12.3 必报项（三类）、评审 5 轮上限（§6.1）、红线 R9/R10 资源上限时，一律停下并用
-    `escalate` 生成 ≤5 条选项决策包呈人，**不得自决、不得默认通过**（知识库红线 RA1、RA3；本文件规则 20 同源）。
-    **R8 不接管任何角色的 A**，只写 `run_cmd/AutoQueue.yaml`、`doc/verify/04` 状态列与台账镜像行、`doc/verify/05` 调度留痕段；
-    R8 自身受 R6 审计。设立依据与失效举证见 `doc/process/00` ISS-033。
-24. **【开工即自动推进】会话第一件事就是继续循环，不等指令**（R0 2026-09-24 定；SSOT＝`doc/自动推进说明.md`〔§0 开工协议＋**§7 角色作业守则 SOP**〕）：
-    ①**开工三步**：读本文件与 `doc/自动推进说明.md` → `python script/gate.py check`（**以实跑末行为权威**，有 FAIL 先修/即报）
-    → 读 `doc/verify/03` §0/§1（**行位与切片顺序＝唯一权威工作顺序**）与 `HANDOFF.md` 最后一条；
-    ②**循环五步**：取 §1 下一个 `待派` 切片 → 派发（**审计/决策＝独立子代理；计划/开发/验证＝R8 本体**，短派发词 ≤40 行差异＋预算）
-    → 验收（机判末行 0 FAIL＋只读轮按「freeze→INIT→派→**收工即查**」取干净窗口）→ 归档（附 X／R 行／ISS 行／看板镜像／HANDOFF 五字段条）
-    → 核销切片（状态置 `已核销`＋R 行/台账 token）→ **自动取下一切片**；
-    **【落文即派审（2026-09-25 R0 追问后加）】**：每批落文（≥1 片）后**必须自动派 `vr1-auditor` 只读 δ 复核片**（复核面＝**本批改动集∩本批声明落点**；报告入评审记录**附 X**＋`doc/process/00` ISS 登记；**有阻塞即不得置「已核销」**，先处置再复核）；**禁止把复核攒到"收口片"再补**；
-    **【处置必复（增量收敛，2026-09-25 R0 指令合入）】**：每轮处置后**自动重派 `vr1-auditor` 增量复核片**（复核面＝本轮处置改动集；判据＝①旧问题逐条**真改**（按落点原文核对，不采信"已改"字样）②改动集及引用闭包内**新增 0**）；**新增 >0 ⇒ 继续「处置→复核」，可连跑多轮直到新增 0**；未达「新增 0」**不得判收敛、不得呈签**；收敛判定**只见证、只能上报 R0**（C2；与 `doc/项目开发流程.md` §9.4 两档制同源）；
-    ③**遇待决项**：设计/规格类 → 派 **RD 决策 AI**（ADR 四要素）自决；判定口径/放宽/无复核手段/环境权限类 → `escalate` 呈 R0；
-    ④**停机条件**（仅此四条）：硬停机四类（规则 23 所列）／§1 无 `待派` 切片且 §0 无 `待办` 行／队列空／R0 叫停；
-    ⑤**默认不请示、更不得中途停**（`doc/项目开发流程.md` §12.2；2026-09-24 R0 强化）——**"要不要继续"不是问题，中途"停下来报告"也不是选项**：凡未撞 ④ 的四条停机条件之一，就**必须连续执行循环五步（一片接一片），不得停轮、不得以"汇报进展/询问是否继续"结束本轮**；**明句（R0 2026-09-24 二度强调，照此执行）：「按规则 24 循环五步执行，直到撞 §停机条件 之一，否则不得停下来报告。」**运行痕迹一律按 ②归档，不得口头声明。仅在撞 ④ 或需 ③ 类呈报时才可停下——停下时须在 HANDOFF 明写"因撞【哪条停机条件】而停"。
+23. **【编排与机械核销（流程 A）】** 日常只有一条命令：`python script/flow.py check`——
+    判据只判产品（参数零漂移／表体全覆盖／表内自洽／vlog 编译／镜像 md5／trace 比对）加两条常跑守卫
+    （台账结构、RA 号越界），**0 FAIL 才算过**；`python script/flow.py next` 给出唯一权威顺序
+    （取代旧队列制与分层计划制）。**"已落实"只认脚本产出**：步骤 `status=done` 必须带 `evidence`
+    （由 `flow.py run` 自动写），不认口头与转述。**硬停机**：撞 `doc/项目开发流程.md` §12.1 的 P1~P4、
+    §12.3 必报三类（放宽比对/waiver/改检查器；无复核手段的 ✅ 陈述；环境权限）、红线 R9/R10 资源上限时，
+    一律停下并出 ≤5 条选项决策包呈人，**不得自决、不得默认通过**（知识库 RA1/RA3）。
+    **编排不接管任何角色的 A**；关键节点（签署/冻结/基线）永远是人。
+24. **【开工即自动推进（流程 A）】** 会话第一件事就是继续循环，不等指令：
+    ①**开工三步**：读本文件 §0 与 `doc/当前目标卡.md` → `python script/flow.py check`（有 FAIL 先修/即报）
+    → `python script/flow.py next`（下一步＋需人项＋阻塞；**工作顺序以它为准**）；
+    ②**循环**：`python script/flow.py run`（确定性步骤；PASS 只认证据行，FAIL 读 `sim/run_<id>/run.log` 处置）
+    → 需实现/判断时派子代理（**审计与决策＝独立子代理；计划/开发/验证＝本体**，短派发词 ≤40 行）
+    → 收工即查 `python script/flow.py window` → 记账由脚本完成 → 取下一切片；
+    **【落文即派审】**：每批落文后自动派 `vr1-auditor` 只读复核片（复核面＝本批改动集；有阻塞不得置 done，
+    先处置再复核）；**禁止把复核攒到"收口"再补**；
+    ③**遇待决项**：设计/规格类 → 派 `vr1-decider` 出 ADR（四要素）自决；判定口径/放宽/无复核手段/
+    环境权限类 → 出决策包呈 R0；
+    ④**停机条件（仅此四条）**：撞 §12.1 P1~P4 或 §12.3 必报／`flow.py next` 无待派步骤且只剩需人项／
+    同一门禁连续 3 次不过／R0 叫停；
+    ⑤**默认不请示、不得中途停**（`doc/项目开发流程.md` §12.2）：凡未撞 ④ 就连续执行，不得以
+    "汇报进展/询问是否继续"结束本轮；停下时必须写明"因撞【哪条停机条件】而停"。
+    **循环由系统件承载**：`.zcode/config.json` 的 `Stop` hook 在有可跑步骤时请求继续、
+    `SessionStart` 在压缩/续跑后强制重注入状态与禁令——**不再依赖定时任务（已证伪）或人不断说话**。
 
 > **红线记号（RA 系列）说明**（2026-09-23 加，登记 `doc/process/00` ISS-048）：RA 系列出自知识库
 > 《AI进行IC开发验证工作流程》§8，**只有 RA1~RA4 四条**——RA1 自治决策不进入关键节点／
 > RA2 升级须走完 L1+L2 并留痕／RA3 默认策略只许用于非破坏可回退事项（不可回退事项必须等人
 > 明确选择）／RA4 审计发现不得删除。**本项目不新设额外的 RA 红线**（2026-09-23 R0 决定：
 > 知识库只到 RA4，凡此前出现的"第五条 RA"类引用**已全部移除**；其实质由 **RA1、RA3** 与本文件
-> 规则 23"不得默认通过"、`doc/项目开发流程.md` §12.4 尾注承载）。草拟新自治/审计红线时，
-> **先在本节登记编号与条文，再引用**；规则承载件引用未定义 RA 编号由 `gate.py` 判据
-> `ra-token-defined` 拦截。知识库只读：如需在库内补条文，须人明确指令＋双确认＋留痕。
+> 规则 23「不得默认通过」、`doc/项目开发流程.md` §12.4 尾注承载）。草拟新自治/审计红线时，
+> **先在本节登记编号与条文，再引用**；规则承载件引用未定义 RA 编号由 `flow.py check` 的
+> `ra-token-defined` 判据拦截（继承退役的 `gate.py`，判据名保持不变）。知识库只读：如需在库内补条文，
+> 须人明确指令＋双确认＋留痕。
 
 **权威原则补充（本项目特有）**：`doc/spec/` 是设计意图权威源。发现 spec 与 RTL/ISS 行为不一致 →
 登记差异反馈包 → 交人裁决/修订 spec → spec 回归权威后闭环。差异未决的过渡期内可以 RTL 为行为真值，

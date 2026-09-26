@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# [已退役 2026-09-25] 日常门禁已改为 script/flow.py（流程 A，SSOT=doc/process/03）。本文件不再被任何流程调用，原文保留以支撑历史引用。
 # -*- coding: utf-8 -*-
 """gate.py — VR1 机械核销与派发器（R8 编排 AI 的执行工具）
 

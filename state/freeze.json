@@ -1,0 +1,10 @@
+{
+ "g1i_signed": true,
+ "signed_at": "2026-09-25",
+ "signed_by": "R0",
+ "scope_ref": "doc/decisions/G1-I-最小冻结清单.md",
+ "record_ref": "doc/spec/14-接口冻结记录.md",
+ "rtl_write_authorized": true,
+ "authorization_ref": "R0 2026-09-25 签署 G1-I（本条即人令）",
+ "baseline": "未宣布"
+}

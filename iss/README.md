@@ -15,6 +15,7 @@
 | `vriss/machine.py` | 取指/译码/执行/CSR/trap/MRET/中断主循环 | `doc/spec/02`、`doc/spec/10` |
 | `vriss/__main__.py` | CLI：`python -m vriss run/dump` | `AGENTS.md` §3 |
 | `tools/trace_compare.py` | 两份 trace 逐指令比对（RTL-vs-ISS 与 ISS-vs-ISS 共用） | `doc/spec/01` §7 |
+| `tools/spike_run.py` | **Spike（第二 ISS）调用封装**：固化 `--isa`（默认取 `spec/00` §2 一期串）／自动备 `--dtb=`／log→标准 CSV；失败时给可执行诊断（不吐隐晦错误）；`check`/`run` 每次核 **oracle 版本指纹**（`tools/spike_oracles.json`，不符即拒跑） | `ISS-123`／`R-235`／`ISS-129`／`doc/环境搭建.md` §5 |
 | `tests/test_smoke.py` | 冒烟：29 条退休、trap/MRET、CSR trace、CSV 口径，全断言 | — |
 
 ## 2. 跑法
@@ -82,7 +83,7 @@ python iss/tools/trace_compare.py vriss.csv spike.csv --final-only   # 放宽，
 | Sv39 翻译（恒 Bare） | ❌ | 等 `doc/spec/08` | — |
 | PMP | ❌（只有 PMA 区域表） | 等 `doc/spec/08` | — |
 | 中断注入与三条件仲裁 | 🟡 M 侧已实现，S 侧委托未接 | `doc/spec/10` | — |
-| 与 Spike 逐指令互检（M1） | ⏸ 未开始 | **阻塞在 ISS-002（WSL 未装）** | — |
+| 与 Spike 逐指令互检（ISS-vs-ISS） | ✅ **首条闭环已打通**（2026-09-26，5 用例 0 mismatch；口径下的重跑确认见 `sim/run_iss_vs_iss/run.log`） | `iss/tools/spike_run.py --preset project`（**改过的 oracle，非原版 Spike**：`riscv/platform.h` 两处常量，补丁件 `iss/tools/patches/spike-vr1-platform-map.patch`／指纹 `iss/tools/spike_oracles.json`；口径落点＝`doc/verify/02` §8，ISS-129 按 R0 2026-09-26 裁定②闭合）→ 本机解析成同格式 CSV → `trace_compare`：`rv64ui-p-{simple,add,slti,jalr,ld}` 分别 41/470/237/115/435 条 × 列 `pc,binary,gpr,csr` **mismatch=0**；原「阻塞在 ISS-002（WSL 未装）」随 R-235 作废 |
 
 ## 6. 纪律
 

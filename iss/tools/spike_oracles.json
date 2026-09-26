@@ -1,0 +1,86 @@
+{
+  "_what": "VR1 两份 Spike oracle 的**版本指纹**（与生成件同等待遇；ISS-129 R0 2026-09-26 裁定②）。判据面：iss/tools/spike_run.py 的 check/run 两条子命令**逐次核**二进制 md5 与 patch md5，不一致即 fail-closed 拒跑并指向本文件。",
+  "generated": "2026-09-26",
+  "ruling": "ISS-129（R0 2026-09-26 裁定②）：原版 Spike 无法跑项目 ELF（两条实测失败见 evidence），故把补丁固化成受版本控制的补丁文件 + 纳入版本指纹；本指纹明写『project preset 是**改过的 oracle，非原版**』，并约定『两侧不一致时先核补丁本身再判错』。",
+  "manifest_version": 1,
+  "rd_anchor": "doc/verify/02-验证点清单.md §8（ISS-vs-ISS 对手方口径）",
+  "oracles": {
+    "upstream": {
+      "role": "对照/留证用（**原样保留**）；跑不了项目 ELF",
+      "spike_msys": "/d/tools/riscv-isa-sim-master/build_msys/spike",
+      "spike_win": "D:/tools/riscv-isa-sim-master/build_msys/spike.exe",
+      "spike_md5": "dd23aaf9b5129ad1c43362365db3b5da",
+      "spike_size": 583778045,
+      "src_tree": "D:/tools/riscv-isa-sim-master",
+      "version": "#define SPIKE_VERSION \"1.1.1-dev\"",
+      "tarball": {"path": "D:/tools/riscv-isa-sim.tar.gz", "md5": "fabb731f4d51b6dc35127a3c92b7dba8", "size": 602874,
+                  "url": "https://codeload.github.com/riscv-software-src/riscv-isa-sim/tar.gz/refs/heads/master"},
+      "platform_h": {"path": "D:/tools/riscv-isa-sim-master/riscv/platform.h", "md5": "7db38c268794b66fd2ef354fbbfc8deb"},
+      "patched": false,
+      "mem_args": "",
+      "constants": {"DEFAULT_RSTVEC": "0x00001000", "DRAM_BASE": "0x80000000"}
+    },
+    "project": {
+      "role": "★ ISS-vs-ISS 对手方（**改过的 oracle，非原版 Spike**）",
+      "spike_msys": "/d/tools/riscv-isa-sim-vr1/build_vr1/spike",
+      "spike_win": "D:/tools/riscv-isa-sim-vr1/build_vr1/spike.exe",
+      "spike_md5": "3be1be0c3d98a6211057f88420d1077c",
+      "spike_size": 583764733,
+      "src_tree": "D:/tools/riscv-isa-sim-vr1",
+      "version": "#define SPIKE_VERSION \"1.1.1-dev\"",
+      "patch": {"path": "iss/tools/patches/spike-vr1-platform-map.patch",
+                "md5": "b9305f38583b8b175c2e15fb3f5582b1",
+                "apply": "cd <源码树根>; patch -p1 < <repo>/iss/tools/patches/spike-vr1-platform-map.patch"},
+      "platform_h": {"path": "D:/tools/riscv-isa-sim-vr1/riscv/platform.h",
+                     "md5": "2882221f15380972de1ca72b34612760",
+                     "upstream_md5": "7db38c268794b66fd2ef354fbbfc8deb"},
+      "patched": true,
+      "constants": {"DEFAULT_RSTVEC": "0x90000000", "DRAM_BASE": "0x00001000"},
+      "constants_changed": [
+        {"name": "DEFAULT_RSTVEC", "file": "riscv/platform.h", "from": "0x00001000", "to": "0x90000000",
+         "why": "boot ROM 让位——项目用 0x0~0x3FFF 作代码/取指窗（sw/env/link.ld 的 _start）"},
+        {"name": "DRAM_BASE", "file": "riscv/platform.h", "from": "0x80000000", "to": "0x00001000",
+         "why": "项目代码窗基址＝spec/00 §4.1 RESET_PC（配 -m 显式区域使用）"}
+      ],
+      "mem_args": "-m0x1000:0x4000,0x20000000:0x1000,0x40000000:0x10000",
+      "mem_args_why": "Spike 自带 CLINT 0x2000000 与默认 2048MB DRAM 重叠 ⇒ 必须显式给三窗（代码窗／signature 窗／数据窗含 tohost 0x4000_0010）",
+      "build_commands": [
+        "mkdir -p /d/tools/riscv-isa-sim-vr1/build_vr1 && cd /d/tools/riscv-isa-sim-vr1/build_vr1",
+        "../configure --prefix=/d/tools/spike-vr1 --without-boost-regex",
+        "make -j16 spike"
+      ],
+      "other_source_diffs": []
+    }
+  },
+  "tree_diff_vs_upstream": {
+    "checked": "2026-09-26（逐文件 md5，跳过 build*/与目标文件）",
+    "files_upstream": 2104,
+    "files_vr1": 2104,
+    "only_upstream": [],
+    "only_vr1": [],
+    "content_diff": ["riscv/platform.h"],
+    "conclusion": "除 riscv/platform.h 两处常量外，两份源码树**逐文件相同**（0 增 0 删）⇒ 本补丁即 oracle 的全部改动面"
+  },
+  "evidence": {
+    "upstream_cannot_run_project_elf": [
+      {"log": "sim/run_iss129_upstream/probe_upstream.log", "cmd": "--preset upstream --mem-args=-m0x1000:0x4000,0x20000000:0x1000,0x40000000:0x10000",
+       "rc": 255, "msg": "devices at [1000, 5000) and [1000, 2000) overlap"},
+      {"log": "sim/run_iss129_upstream/probe_upstream_defaultmap.log", "cmd": "--preset upstream（默认映射）",
+       "rc": 255, "msg": "Access exception occurred while loading payload … Memory address 0x1000 is invalid"}
+    ],
+    "source_anchors": [
+      "riscv/platform.h:6 DEFAULT_RSTVEC（编译期常量，DTB/命令行都覆盖不了）",
+      "riscv/platform.h:30 DRAM_BASE",
+      "riscv/sim.cc:485 add_device(DEFAULT_RSTVEC, boot_rom)（boot ROM 恒挂 0x1000）",
+      "riscv/cfg.cc:44 默认 mem_layout＝DRAM_BASE + 2048MB",
+      "spike_main/spike.cc:237 -m<size> 旧式写法用 DRAM_BASE",
+      "riscv/devices.h:37 rom_device_t::store（boot ROM 只读；ELF 段写不进）"
+    ]
+  },
+  "discipline": [
+    "任何 ISS-vs-ISS 结论必须写明对手方＝project preset（**改过的 oracle，非原版**）",
+    "两侧不一致时**先核补丁本身**（本文件三件套 md5：上游 platform.h／改后 platform.h／改后二进制 + patch md5），再判谁错",
+    "spike_run.py 的 check/run 每次核 spike_md5 与 patch md5；不一致即拒跑（fail-closed）",
+    "upstream preset 只作留证/对照，跑不了项目 ELF（见 evidence）"
+  ]
+}

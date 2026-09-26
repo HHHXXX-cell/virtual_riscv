@@ -1,0 +1,701 @@
+{
+ "_note": "新方案 v1 唯一台账（doc/process/01）。编号自动自增，禁手写；历史台账见 doc/process/00-问题记录.md（归档，不再续写）。",
+ "next": {
+  "ISS": 130,
+  "R": 274,
+  "ADR": 4
+ },
+ "entries": [
+  {
+   "id": "R-188",
+   "kind": "R",
+   "text": "S1 ISS 冒烟双绿：semantics 32/0 + smoke PASS，退出码均 0"
+  },
+  {
+   "id": "ISS-103",
+   "kind": "ISS",
+   "text": "test_isa_semantics.py 在 GBK 控制台因 ⇒ 字符崩溃（断言全过却退出码 1）——已加 stdout.reconfigure(errors=replace) 修复"
+  },
+  {
+   "id": "R-189",
+   "kind": "R",
+   "text": "S2 通过（runner 自动记账）：[trace_compare] 比对 30 条 × 列 ['pc', 'binary', 'gpr', 'csr']，mismatch=0"
+  },
+  {
+   "id": "R-190",
+   "kind": "R",
+   "text": "S2b 通过（runner 自动记账）：[trace_compare] 比对 30 条 × 列 ['pc', 'binary', 'gpr', 'csr']，mismatch=0"
+  },
+  {
+   "id": "R-191",
+   "kind": "R",
+   "text": "S4a 通过（runner 自动记账）：[trace_compare] 比对 30 条 × 列 ['pc', 'binary', 'gpr', 'csr']，mismatch=0"
+  },
+  {
+   "id": "R-192",
+   "kind": "R",
+   "text": "P1 通过：[flow] params: 生成 rtl/vr1/include/vr1_params.svh（118 行 → 101 条 parameter / 17 条登记 / 0 条未解析）",
+   "ts": "2026-09-25 15:15"
+  },
+  {
+   "id": "R-193",
+   "kind": "R",
+   "text": "P2 通过：[PASS] params-compile: vlog 编译 2 个单元 ｜ Errors: 0 ｜ sim/run_params/run.log",
+   "ts": "2026-09-25 15:15"
+  },
+  {
+   "id": "R-194",
+   "kind": "R",
+   "text": "P3 通过：[vriss] retired=30 cycles=30 halted=True halt_val=0x1 trace=sim/run_P3/hex_side.csv",
+   "ts": "2026-09-25 15:15"
+  },
+  {
+   "id": "R-195",
+   "kind": "R",
+   "text": "P4 通过：[trace_compare] 比对 30 条 × 列 ['pc', 'binary', 'gpr', 'csr']，mismatch=0",
+   "ts": "2026-09-25 15:15"
+  },
+  {
+   "id": "R-196",
+   "kind": "R",
+   "text": "里程碑 M0.5 exit 全过（params-drift,params-coverage,params-invariants,params-compile,image-hex,trace-self）",
+   "ts": "2026-09-25 15:15"
+  },
+  {
+   "id": "ISS-104",
+   "kind": "ISS",
+   "text": "ModelSim vsim 无法仿真：两份节点锁 license 的 HOSTID（C:\\flexlm=346f24d35abe / C:\\flexlm_2020=b6d2d4225172）与本机在用网卡 MAC（34-6F-24-D3-5A-A2 → 346f24d35aa2）均不匹配，vsim 报 Invalid host + Cannot find license file；vlog 编译不受影响。属环境/权限类，须人修（rehost 或改绑在用网卡）或改用 WSL2+iverilog/verilator（与 ISS-002 同一动作）。阻塞：params-elab 与 M1 的 RTL-vs-ISS trace 比对",
+   "ts": "2026-09-25 15:18"
+  },
+  {
+   "id": "R-197",
+   "kind": "R",
+   "text": "流程 A 落地（Runner-in-the-Loop）：script/flow.py 唯一命令（check/next/run/params/ctx/gate-stop/guard-write/guard-bash/window/record/check-one）+ state/flow.json 唯一状态真值 + .zcode/config.json 三 hook；参数单源 spec/00 §4→rtl/vr1/include/vr1_params.svh（118 行=101 parameter+17 登记，0 未解析）；M0.5 六项 exit 全过（drift/coverage/invariants/compile/image-hex/trace-self）",
+   "ts": "2026-09-25 15:18"
+  },
+  {
+   "id": "ISS-105",
+   "kind": "ISS",
+   "text": "随 gate.py 退役而未移植的守卫清单（诚实披露）：台账计数/看板镜像/HANDOFF 字段/队列 schema 与 cap/doc05-numbering/spec14-905-count/capability-landed —— 其载体（手写台账、AutoQueue.yaml、doc/verify/04 看板、HANDOFF）已退役故不再需要。已移植：ra-token-defined/md-integrity/codepoints（flow.py 常跑守卫，判据名不变）+ width-mismatch 改为 width-check（并入 M0.5 出口）",
+   "ts": "2026-09-25 15:21"
+  },
+  {
+   "id": "R-198",
+   "kind": "R",
+   "text": "里程碑 M1a exit 全过（types-drift,types-coverage,types-crosscheck,types-compile）",
+   "ts": "2026-09-25 15:24"
+  },
+  {
+   "id": "ISS-106",
+   "kind": "ISS",
+   "text": "spec/01 §3 接口 struct 表在 G1 冻结前暴露的 5 类问题（由 flow.py types 生成 + vlog 编译在环抓出）：①全篇未规定字段打包顺序（实测无 MSB/LSB/位序 表述）→ 已按 ADR-1 自决「表中自上而下=MSB→LSB」并进 G1 评审 list，回退点＝改 PACK_ORDER_MSB_FIRST 重生成；②327 成员中 29 个非标量写法（同行双字段如 rs1_en/rs2_en、＝ uop_t 全字段复用、新增 rs1_arch 增量行、type[6:0] 名带位区间）→ 仅登记、未生成声明，G1 前须逐条裁定；③字段名撞 SV 保留字（super）→ 机械加 _f 后缀并在生成件注明原名；④存在 1 个全成员非标量的 struct（空 struct 非法）→ 暂给不透明位宽类型；⑤§3.21 rt_t 自带附注「RVFI 逐字段映射三清单未填前，本节不得作为 G1 冻结依据」。结论：G1 前须裁定字段打包顺序与 29 处非标量行的切分，否则冻结的是宽度确定、切分未定的接口",
+   "ts": "2026-09-25 15:24"
+  },
+  {
+   "id": "R-199",
+   "kind": "R",
+   "text": "ISS-104 已闭合：ModelSim license 于 2026-09-25 15:20 rehost 到本机在用网卡（HOSTID=346f24d35aa2），params-elab 实测通过（[params_smoke] PASS），仿真路径恢复；MTI 路径 D:\\modeltech64_2020.4\\win64 即 flow.py 默认值，无需配置",
+   "ts": "2026-09-25 15:26"
+  },
+  {
+   "id": "ISS-107",
+   "kind": "ISS",
+   "text": "spec 全量复审（4 路信息隔离独立审计，2026-09-25）：阻塞 40+ 条，跨 14 篇。分四类——①数值/权威源冲突（机器可判、最易修）：spec/02 §17.1 M 族 9 处编码与 §9.1.6/§9.3 唯一真值表冲突（MULW 0x20B vs 0x210、DIV..REM 0x204-207 vs 0x280-283、DIVW.. 0x20C-20F vs 0x290-293）；spec/04 §6 PRF_RD_PORTS=18（同篇 §4.2 为 16）、§4.1 iq_wr_t=237（§4.4/§4.8/生成件=247）；spec/10 引 ASID_BITS（实为 ASID_BITS_IMPL）；spec/09 跨度 66B vs spec/03 64B；spec/12·spec/14 状态 stale（T-10-1 已闭合仍列为 G1 阻塞）。②接口不可实现：icache_rsp_t 无 req_id 但 §5.2 按 req_id 丢弃；seq[11:0] 三处无生产端；ftq_id/bp_upd_id 无 F0-F2 载体；§3.21 rt_t 的 mem_*/exc_* 语义列全空且自带『附录未填不得作 G1 依据』；csr_wr_t.wdata_sel 需 imm 但队列不带 imm；ret_vld/ret_pkt 无来源；IALIGN=32 与 RV64C 相抵；spec/05 §1 级号与 spec/01 §1.1 互换、lq_alloc_t/sq_alloc_t 未定义。③规范合规：JAL/JALR 非法目标应 page-fault 非 access-fault；mip.SEIP/STIP 可写性错；satp MODE 缺 Bare；S/U 执行 MRET 未定非法；硬件 A/D 无 Svadu/Svade 开关且 menvcfg 不存在；PTE 保留位规则缺；CSR 缺 menvcfg/UXL-SXL/MBE-SBE-UBE。④本轮自身产物缺陷：vr1_params.svh 把 64bit 字面量 0x8000_0000_0014_1105 生成成 MISA_VALUE=0（假绿）、AXI_OUTBOUNDED 类 2R+2W 丢 W 侧；types-coverage 只证成员不丢、不证生成宽度与声明一致（ftq_entry_t 生成 2bit 而声明 145）。结论：G1 不建议现在签；评审者也会过头，上述条目需作者复算后方可转台账事实",
+   "ts": "2026-09-25 15:37"
+  },
+  {
+   "id": "R-200",
+   "kind": "R",
+   "text": "ISS-107 处置批 1 完成（机器可判类，四片并行）：spec/02 §17.1 M 族 9 处编码按 §9.3 唯一真值修正（MULW 0x20B→0x210；DIV/DIVU/REM/REMU 0x204-207→0x280-283；DIVW..REMUW 0x20C-20F→0x290-293）＋更正注＋版本行 v0.1 续1；spec/04 §6 PRF_RD_PORTS 18→16＋§4.1/§9 iq_wr_t 237→247（3 处）；spec/10 §4.1 ASID_BITS→ASID_BITS_IMPL＋版本行 v0.1 续2；spec/14 T-10-1 状态改为已闭合(R-181)＋写死项数改为『以实跑末行为准』＋判据源 gate.py→flow.py；spec/12 §3 A-1/A-4 回填参数名；flow.py 三洞修复（0x 字面量 MISA_VALUE 0→64'h8000_0000_0014_1105；2R+2W 求和=4；新增 types-width-consistency 判据列出 10/28 struct 共缺 414 bit 差额清单）。全部复算成立、0 FAIL",
+   "ts": "2026-09-25 15:48"
+  },
+  {
+   "id": "ADR-1",
+   "kind": "ADR",
+   "text": "ADR-1 补登记（RD 自决 2026-09-25，此前编号已被引用但未入台账）：spec/01 §3 struct 表字段打包顺序取『表中自上而下＝MSB→LSB』；引用面＝ISS-106① 与 script/flow.py PACK_ORDER_MSB_FIRST 注释；锚＝IEEE 1800-2009 §7.2.1『首个成员为最高位』；回退点＝改 PACK_ORDER_MSB_FIRST 后重生成生成件与判据",
+   "ts": "2026-09-25 15:54"
+  },
+  {
+   "id": "ADR-2",
+   "kind": "ADR",
+   "text": "ADR-2（RD 决策 AI 自决，2026-09-25）：spec/01 §3 接口 struct 的 29 处非标量成员行切分——四条通用规则（R1 同行多字段／R2 全字段复用展开／R3 新增行／R4 名带位区间）＋逐条切分表 doc/decisions/if_split.json（28/28 struct 自检 PASS，行级 29/29 与 width_check 逐行一致，闭 414 bit 缺口）；并裁决 AXI_OUTSTANDING 表示形式（拆 AXI_OSTD_R=2／AXI_OSTD_W=2，数值面降级为登记＋预测＋回退点）；spec/12 §4 成熟度口径给出『跨配置取严＋承接项结构化 open_items』建议，标『判定口径类，待 R0 确认』",
+   "ts": "2026-09-25 15:54"
+  },
+  {
+   "id": "R-201",
+   "kind": "R",
+   "text": "ISS-106 缺口闭合：ADR-2 切分表落地到生成器——29 处非标量行按 R1~R4 全量展开，28/28 struct 生成宽度==独立复算、差额 0、（合计 4442 bit），vlog 编译+vsim elaboration 0 error，$bits 四路互证（uop_t 239、rmap_uop_t 327）；types-coverage 不变式改为按源行守恒（327 源行 = 327 src 行组 + 0 登记）并加双向验证；check_if_split.py 的 C4（消费前口径）标 RETIRED，职能移交 types-width-consistency",
+   "ts": "2026-09-25 16:04"
+  },
+  {
+   "id": "ISS-108",
+   "kind": "ISS",
+   "text": "spec 第二遍复核（增量轮+换读者交叉复核，2026-09-25）：①缺失型 15 条（首轮全量轮抓不到的那一类）：spec/00 §6 X5 注点名『G1 前必须闭合』的 13 个 *_t 中 12 个至今零成员定义；异常码表（exc_code_t/mcause/err_code）零数值；中断受理三条件（MIE/SIE≠0）缺失；satp.MODE=Bare 未声明；复位值面全库缺失（PRF/free-list/RAT/IBUF/FTQ/ROB/IQ/LQ/SQ/GHR/RAS/L1-L2-TLB）；EU 每拍数与访存延迟数字全缺（spec/13 T-13-1 引 spec/06 而 spec/06 无此内容）⇒ IPC≥1.8 与『驻留≤25 拍』不可判；CLINT/PLIC MMIO 地址图与 PLIC 端口缺失；PMA 静态区域表缺失；PTE 位域与叶/保留判定缺失；tval 全类取值表缺失；页表权限真值表缺失；vec_off 公式缺失；trace 速率 4 条/拍 vs 端口 1/543bit 冲突；提交边界中断注入时 STORE/LR/sq_dealloc 写面抑制未定（返回重执行会双写）。②断链 8 条：spec/01 §3.22 不存在却被引；sfence.vma 四方互指无主；spec/11 的 A 编号与 spec/01 §7 系统性错位（A9~A11 指向 spec/03 §7=出口自检表）⇒ 断言清单无法落库。③声明—实态 5 条（含 spec/00 §6『规格篇』列 3 处指向不存在落点、M15/M16→spec/09 提交/反压章本套篇目无此章）。④增量轮：5 类修正 4 条干净，spec/12 那处缺版本行/更正注；新增问题 6 条（ADR-2 §1/§3/§6 三处仍写切分前态、check_if_split.py 仍 exit 1（C4-RETIRED 只改字符串未改逻辑）、ADR-2 编号与既有 ADR-2（csrq/xw_carry/mstatus WARL）两义、ADR-2 §4 选定拆分 AXI_OSTD_R/W 而权威面未落）。⑤【未声明写入·待归因】git diff 显示 spec/01 有 6 处改动（6 insertions/6 deletions），不在任何指令清单、也无 agent 声明——按规则 22 须下一轮归因：逐行复核后批准并入账或回滚",
+   "ts": "2026-09-25 16:12"
+  },
+  {
+   "id": "R-202",
+   "kind": "R",
+   "text": "spec/01 6 处未声明改动归因结果：逐处为 (i) 合法一致性补全，批准入账。①§3.16 L517 win_base_pc 增『有效时机＝本响应 valid 拍』＋窗口/偏移分工(BLK-08②)——依据＝本篇 §1.1 P4 行(VA[5] 选窗)＋§3.16 walk 段(块首槽＝pc[4:1])；②§5.2 L785 R 行『清到该 checkpoint 快照水位——SP_ck 即快照时点栈深』(BLK-06①)——依据＝同篇 §5.3 三元快照『栈深 SP_ck』既有定义＋同段 SP:=SP_ck 既有动作；③§5.3 L821 checkpoint 恢复动作同句补全(BLK-06①)——同上依据；④§5.3 L829 槽分配/快照写入拍与含 B 自身映射(CLR-06)——依据＝§5.3 ckpt_pend_v 段『置位＝该槽 R 级分配拍(needs_ckpt=1 同拍决定)』＋重定向段『B 继续在途、映射保留』；⑤§6 L857 freelist_stall＝A2 统计项 perf_freelist_stall_cycles 桥接(CLR-03)——依据＝spec/00 §9 ⑦ 事件清单＋doc/review/01-评审记录.md 附 F X3/CLR-03 行＋spec/13 §4；⑥§7 L867 A2 『##1』口径与 spec/11 T-11-2 归口(CLR-05)——依据＝§4 BP2 行＋spec/11 §5 T-11-2 在册。机器核验：6 处均为纯插入(0 删除/0 改写，difflib 逐 hunk 复核)；check 侧 types-drift/types-coverage/types-width-consistency/types-crosscheck/width-check/md-integrity/codepoints 全 PASS(icache_rsp_t 322 bit 不变)；未触及 PRF_RD_PORTS/IQ_WR_T_W。残余(非本批)：待同步清单 L932 仍列 CLR-03 登记项未划销；spec/00 §9 ⑦短名与 spec/13 perf_freelist_stall_cycles 的命名一致性仍由 doc/review/04 交叉复核挂账；本批原落文于 Q-004 批(vr1-designer，2026-09-25 轮次 7)仅记于 .qoder/handoff/HANDOFF.md，本次补录台账并补 spec/01 版本行 v0.4·归因补片",
+   "ts": "2026-09-25 21:37"
+  },
+  {
+   "id": "R-203",
+   "kind": "R",
+   "text": "R-202 校正与处置收尾（spec/01 六处归因）：①归因结论不变——6 处逐处为 (i) 合法一致性补全，批准入账（依据见 R-202）；②R-202 所述『补 spec/01 版本行 v0.4·归因补片』已撤回，原因＝机判联动：生成件 rtl/vr1/include/vr1_types.svh 头部内嵌 spec/01 全文 md5（当前 L4『源文件 md5 87a5eb763304215a1b7ad761f367648f』），故任何 spec/01 字节变更都会使 types-drift FAIL，恢复绿只有重生成该 rtl 件（『改字段请改 spec/01 §3，再跑 flow.py types』）⇒ 改动面将由『spec/01 + 台账』扩到 rtl/**，撞 §5.1『G1 前 rtl/vr1/** 写需人明确指令』与本轮硬约束给的验收面；③以『更正注已存在』作为不新增版本行的口径：六处补全括注本身即 in-file 更正注（每处带 tag＋2026-09-25，L517/L785/L821/L829/L857/L867），版本表无新增；④复核：spec/01 已完全回置＝window 基线字节（md5 87a5eb763304215a1b7ad761f367648f／126094 B），git numstat 仍 6/6（6 处批准改动未动）；check 侧 types-drift 由 FAIL 复原 PASS、types-width-consistency 4442 bit 与 icache_rsp_t 322 bit 不变；window 变更面＝台账（+ 基线前既有 ADDED 存量），无 rtl/** 与其它 spec 篇；⑤待裁（呈编排/R0）：若仍要版本表行『v0.4·归因补片』，配对动作＝python script/flow.py types（机械重生成：头部 md5/时间戳＋全部 // src: L<n> 行号 +1，字段名/位宽零变更），须先授权写 rtl/**",
+   "ts": "2026-09-25 21:39"
+  },
+  {
+   "id": "R-204",
+   "kind": "R",
+   "text": "spec/10 §2.1 异常与中断原因码唯一表（同步 0–15 全表＋中断全表＋本实现可产生集合；§4.1 mcause 行按实况校正）＋§3 补中断受理条件（M 侧三条／S 侧两条）与级间优先、求值时机及 ISS 一致性核对；spec/01 §3 末加一行码值回链；余项登记 T-10-7/T-10-8 待裁定；附带发现 vr1_types.svh 生成件与 spec/01 先前已不同步（已按生成器复同步）",
+   "ts": "2026-09-25 21:43"
+  },
+  {
+   "id": "ISS-109",
+   "kind": "ISS",
+   "text": "spec 第三轮复核（增量轮+第三读者对抗性证伪，2026-09-25）：①对抗性证伪成功 5 条——(a) R-199『ISS-104 已闭合/params-elab 实测通过』不可复现：现日志为 Invalid host，license HOSTID=346f24d35aa2 而在用网卡为 34-6F-24-D3-5A-BE(abe) ⇒ 强烈提示本机双网卡在两个 MAC 间漂移（首轮是 license 绑 abe/取到 aa2 失败，rehost 到 aa2 后通过，现取到 abe 又失败）——正解应是把两块网卡 MAC 都纳入 license 或固定取用某一块，而非反复 rehost；(b) flow.py 末行判定口径缺陷（有 FAIL 时仍以 PASS 开头，与 met/退出码互斥，已修）；(c) spec/05 §1 与 spec/01 §1.1 互斥（P4~P6 当取指、凭空 F3、P16/P17 与 CT/RT 互换、18 个级号称 17 级）；(d) 验证点失键：spec/01 要求 verify/02 有『转发后又被冲刷重做』与 MPRV 验证点，verify/02 零命中；(e) 覆盖目标不可达：verify/01/02 写『12 类同步+7 类中断』（含码 0 与 LCOFI），而 spec/10 §2.1 判该二者不可产生（实为 13+6）。②新类别：验证侧文档自身从未被独立重算；doc/verify/03 已退役却仍被 spec/01/spec/13/spec/14 当现行权威；doc/verify/04 无退役横幅且状态与实况全面相抵（写 2/14、spec/01 未收敛 vs M1a met）；生成件『数值零漂移≠语义可落地』（L1I_SIZE=32 丢 KB、L1_LINE=64 丢 B、AXI_OUTSTANDING=4 与已裁 ADR-2 拆分相抵）。③算术专线两条：spec/01 §1.3『INT≤4』与依据句相抵（按 §4.4 加总 INT 组=6）；rt_t 543/RVFI 647/缺 285/净增 203 三数无解（647-543=104≠285）。④增量轮：部分改 3 处（spec/14 族号 stale、mcause 的『12 类』只改 §4.1 而 §4.2 同句仍在、spec/12 缺版本行）；未改 2 处（check_if_split.py 仍 FAIL 11 项、ADR-2 三处仍写切分前态）；声明—实态 2 处（R-199 不可复现；ADR-1 仅台账有条目、无实物文件）",
+   "ts": "2026-09-25 21:54"
+  },
+  {
+   "id": "R-205",
+   "kind": "R",
+   "text": "spec/01 §1.3 发射分组上限依据句自洽性修正：原句（分组上限 INT≤4/MEM≤2/BR≤1 是各组的读口与执行单元数上限）-> 更正为（三项＝选择器分组上限；MEM≤2=AGU_NUM、BR≤1=BRU_NUM 与该组执行单元数一致；INT≤4 不等于 INT 组执行单元数 6，即 ALU_NUM3+SHIFT_NUM1+MUL_NUM1+DIV_NUM1，与 N_EU_TOTAL=3+1+1+1+1+2 同源；亦不等同发射读口，PRF_RD_PORTS16=发射12+提交4 按 6 发射口而非 4/2/1 分配）；依据＝spec/00 §4.4 逐项加总复算；数值零改动（INT≤4/7>6/ISSUE_WIDTH=6 均不动）；残留：INT≤4 在全库无推导行 => 登记待裁（本条）；同批因 spec/01 字节变更跑 flow.py types 重生成 rtl/vr1/include/vr1_types.svh（types-drift 保绿）",
+   "ts": "2026-09-25 22:00"
+  },
+  {
+   "id": "R-206",
+   "kind": "R",
+   "text": "spec/14 §2 spec/10 行族号范围同步：原写（余项 T-10-1~6）-> 改为（余项 T-10-1~8 并保留原写法作更正注）；依据＝spec/10 §6 现行族号为 T-10-1..T-10-8（新增 T-10-7/T-10-8 待 R0 裁定）；只改范围表述、状态一字不动（T-10-1 已闭合 R-181 原样保留）",
+   "ts": "2026-09-25 22:00"
+  },
+  {
+   "id": "R-207",
+   "kind": "R",
+   "text": "spec/10 §4.2 委托位域计数校正：原句（指令/访存/断点/环境/ECALL×3/页错误×3/浮点…按 12 类同步异常逐位）-> 改为（13 个可写位逐位；可委托≠可产生，含码 0、不含码 11；位 11/16 恒 0）+ 原句入更正注；依据＝同句已列 13 个可写位＝spec/10 §4.1/§2.1 集合 {0..9,12,13,15}，且浮点在 §2.1 同步码表无对应码位、ECALL 只码 8/9 可写；另按 spec/10 §2.1 追加一句口径说明（两处 13 非同集合、不得由 medeleg 13 位反推码 11 可委托），集合未改",
+   "ts": "2026-09-25 22:00"
+  },
+  {
+   "id": "R-208",
+   "kind": "R",
+   "text": "spec/12 版本表补行（F7 转录修正体例同批不一致）：新增（v0.1 续2（ISS-107 回填））行，记载 §3 A-1/A-4 行补参数项（SAME_GROUP_BYPASS_DEPTH / L2_SIZE）＋与 run_cmd/vr1_configs.yaml 的 params 字段双向一致；依据＝同批 spec/02 v0.1 续1、spec/10 v0.1 续2 均加版本行，本件此前缺（ISS-107 处置批 1，见 doc/verify/05 R-200）；纯补记、数值零变更",
+   "ts": "2026-09-25 22:00"
+  },
+  {
+   "id": "R-209",
+   "kind": "R",
+   "text": "spec/05 §1 级号转录修正（源 F-3/K4）：表头（17 级 P1~P17）-> （级号 P0~P17 共 18 个）；表体逐行按 spec/01 §1.1：预测 P1~P3->P0~P2、取指 P4~P6->P3~P5、删凭空级名 F3、补漏行 P6/D（译码）、执行 P10->P10~P14（拍数 ≥1->1..5）、P16/P17 职责互换改正（P16=CT 提交含 rt_t 组装读、P17=RT 输出 rt_t）；表下追加级号转录更正注；依据＝spec/05 §1 自称汇总 spec/01 §1.1（红线 R20）；spec/13 §2 用段名不用级号、其拍数与改后 §1 无冲突（经复算，无需随之改文）",
+   "ts": "2026-09-25 22:00"
+  },
+  {
+   "id": "R-210",
+   "kind": "R",
+   "text": "spec/00 §4.4 IQ_TAG_W 回指改归属＋绑定：原写（构成见 spec/05）-> 改为（与 spec/01 §2 seq_t 同量 1:1 绑定；口径逐字引 seq_t 行、消费面 §3.9 iq_entry_t.age）；依据＝spec/05 全文零命中 IQ_TAG_W（指向空），同量真值在 spec/01 §2 seq_t（12 bit）与 §3.9 age=12，且 vr1_params.svh L75 IQ_TAG_W=12 与生成件 seq 字段 logic [11:0] 同宽；数值 12 零改动",
+   "ts": "2026-09-25 22:00"
+  },
+  {
+   "id": "R-211",
+   "kind": "R",
+   "text": "C4 退役：check_if_split.py 删去失效的全篇恒等式判定分支（生成器已消费本表，叠加切分 net 属双重计量），职能交 flow.py types-width-consistency；保留 C0/C1/C2/C3/C5/C6 与缺表 fail-closed；改后末行 PASS（行级 29/29）；注入 valid 1→2 复验红 C3×2+C5、无 C4 项，还原后 md5 8ee97009 一致",
+   "ts": "2026-09-25 22:00"
+  },
+  {
+   "id": "R-212",
+   "kind": "R",
+   "text": "ADR-2 事后回写（v1.1）：三处切分前态加『已落地』行不抹历史——§1 414 bit 缺口归零（28/28 差额 0、合计 4442 bit）、§3 不透明兜底 rmap_uop_t 由 39 个真实字段取代且 C4 退役、§6 义务 1/2 标已落地；§4 下游义务清单标注『待落 spec/00 §4 与 spec/06／spec/09』（O-1~O-3/O-5 未执行，本批未动 spec）",
+   "ts": "2026-09-25 22:00"
+  },
+  {
+   "id": "R-213",
+   "kind": "R",
+   "text": "新增 ADR-1 实物文件：doc/decisions/ADR-1-接口打包顺序.md（此前只有台账条目与 flow.py 注释引用）——四要素齐：选项 a/b/c 评估取『表中自上而下=MSB→LSB』、锚点=A-1 IEEE 1800-2012 §7.2.1 first member is the most significant（本机提取件行 62-63）+A-2 本项目表格惯例、下游义务 D-1~D-4、回退点=改 PACK_ORDER_MSB_FIRST 后重生成；内容与 flow.py 注释一致不新造",
+   "ts": "2026-09-25 22:00"
+  },
+  {
+   "id": "R-214",
+   "kind": "R",
+   "text": "生成器单位落盘：parse_spec_params 对『数字+单位』单元格记录 unit（UNIT_TOKENS 白名单，不猜），render_params 在该行旁落『// 单位：<U>（数值照取、未换算）』，数值零改动；新增只报告统计 params-units（恒 PASS、不作门禁，不属放宽）实测 6 个带单位参数：L1I_SIZE/L1D_SIZE=32KB、L1_LINE=64B、L2_SIZE=256KB、L2_LINE=64B、PMP_GRAIN=4B",
+   "ts": "2026-09-25 22:00"
+  },
+  {
+   "id": "R-215",
+   "kind": "R",
+   "text": "AXI_OUTSTANDING 双说标注：生成件该行（单参数=4）注释加口径行『原文 2R + 2W 为分方向计数项…须拆参——待 ADR-2 §4 下游义务 O-1/O-2/O-3 落 spec/00 §4 与 spec/06／spec/09』；本批未改 spec/**（三处引用面 spec/00 §4.7 L256、spec/06 §4 L55+§6 L74、spec/09 §2 L27 待他人面落文，建议同批执行）",
+   "ts": "2026-09-25 22:00"
+  },
+  {
+   "id": "R-216",
+   "kind": "R",
+   "text": "spec/05 §4 T-05-3 行级号随 §1 转录修正同步（R-209 续）：前端（P1~P6）-> （P0~P6，后端 P7~P9 不变）；依据＝修正后 §1＝P0~P2 预测＋P3~P5 取指＋P6 译码，原 P1~P6 与旧错表同源；不改任何出口/归属",
+   "ts": "2026-09-25 22:01"
+  },
+  {
+   "id": "R-217",
+   "kind": "R",
+   "text": "doc/verify/04 加退役横幅（体例同 doc/verify/03 与 run_cmd/AutoQueue.yaml）＋5 处状态句改标为历史快照（L19/L34/L135/L138/L141）；依据=复算 state/flow.json（M0.5/M1a 已 met）与 doc/spec 00~14 全 15 篇在册，原文 spec 2/14、等 14 篇齐、spec/01 未收敛均与实况相抵；不删原文、不伪造新进度数字",
+   "ts": "2026-09-25 22:02"
+  },
+  {
+   "id": "R-218",
+   "kind": "R",
+   "text": "doc/spec/13 §4 引列＋§7 T-13-4 出口与 doc/spec/14 §3 对账句的 doc/verify/03 落点改指：T-13-4 回填目标改为 doc/process/ledger.json ＋ state/flow.json，另两处加已退役留档 marker；依据=doc/verify/03 已退役（流程 A，SSOT=doc/process/03）；doc/spec/01 §4 BP1 同一落点未改——撞硬约束「只有第 3 项允许动 spec/01」，登记待裁",
+   "ts": "2026-09-25 22:02"
+  },
+  {
+   "id": "R-219",
+   "kind": "R",
+   "text": "doc/verify/02 补 VP-X07 转发×冲刷重做与 VP-X08 MPRV 一致性两条验证点（含 §1 落点、§3 立项依据、§4 计数 44→46、§5 自检 46/46 与 8 项同步）＋doc/spec/01 §7 三条规定 3 与 §3.18 各加一行回链；依据=spec/01 明文要求 doc/verify/02 含此二项而全文零命中；spec/01 变更后已跑 flow.py types 重生 rtl/vr1/include/vr1_types.svh",
+   "ts": "2026-09-25 22:02"
+  },
+  {
+   "id": "R-220",
+   "kind": "R",
+   "text": "doc/verify/01 §5.1＋F-08 与 doc/verify/02 VP-08/VP-09/VP-X02 类数校正：12 类同步＋7 类中断改为 13 类同步＋6 类中断（集合 {1,2,3,4,5,6,7,8,9,11,12,13,15} 与 {1,3,5,7,9,11}，ECALL 计 3 码）；依据=spec/10 §2.1 可产生集合校正口径（码 0 因 IALIGN=16 不可产生、LCOFI 13 因 Sscofpmf 不实现不可产生）；指向不可产生码的覆盖项改标为负向、未删任何 bin（红线 R7）",
+   "ts": "2026-09-25 22:02"
+  },
+  {
+   "id": "R-221",
+   "kind": "R",
+   "text": "doc/verify/05 R-141 行内改标同源措辞：12 类同步＋7 类中断改为 13 类同步＋6 类中断（加更正注、保留原文，不删既有记录）；依据=spec/10 §2.1；该行行尾 CRLF 与其他 311 行一致未动",
+   "ts": "2026-09-25 22:02"
+  },
+  {
+   "id": "ADR-3",
+   "kind": "ADR",
+   "text": "ADR-3（新文件 doc/decisions/ADR-3-INT组选择上限口径.md）：spec/01 §1.3 发射组上限 INT≤4 口径自决——选定(b) 三项＝发射选择（W 拍）每拍可从该组选出的 μop 数上限（组选择口配额），给出可判判据 J1/J2/J3；数值 4/2/1 与「三组之和 7」零改动、未改 spec/01 §1.3（无 spec 写权，落文交 G1 批 D-2）。选项评估：(a) 改成与加总一致的 6＝结构性放松（三组之和 9、跨组仲裁成常态、削弱分组取舍、抬高 INT 密集流 IPC 上限），属结构/性能面变更不在 AI 自决面 ⇒ 不自行生效，留作回退/升级点；(c) 只登记＝留下无定义量 ⇒ 否。锚点：CPU卷04 p.211-213 分组三型（代价＝多端口仲裁复杂）/p.224-230 ②分发送空闲单元/p.229-230 CAM 是成本中心 + spec/00 §4.4 表内加总（ALU3+SHIFT1+MUL1+DIV1=6、AGU2、BRU1、N_EU_TOTAL9）+ spec/00 §4.3/§5 D2（PRF_RD_PORTS16=12+4；发射宽度6>分发宽度4）+ spec/01 §1.3 行归属与末句仲裁自述。值依据（4/2/1 为何这三档）全库无推导行（R-205 原判，本轮扩至三档）⇒ 按红线 R20 降级为登记＋预测＋回退点，不得记「已定」，归口 spec/05 T-05-2 与 G1。下游义务 D-1~D-6：D-3 doc/verify/01 F-20、D-4 doc/verify/02 VP-20（措辞级、数值不动）、D-5 spec/00 §4.4/§3 不需改、D-6 新增 spec/01 §3.20「完成回报≤2条/拍=MEM≤2」派生引用口径错位（待复核，本轮只登记不改）",
+   "ts": "2026-09-25 22:12"
+  },
+  {
+   "id": "R-222",
+   "kind": "R",
+   "text": "批 R2（三项收尾）：①项3＝spec/01 §4 BP1 行在 doc/verify/03 引用后加退役注（只加一句、不删原文；字节级替换，CRLF 947 不变）＋随即跑 flow.py types 重生成 rtl/vr1/include/vr1_types.svh（types-drift 复验 PASS，md5 769d8a65）；②项2＝doc/verify/04 八处状态句按实况刷新：3/14 与 2/14→15 篇（00~14）全在册、Step1 进行→产出在册、Step2 44 条 VP→46 条 VP＋产出在册、等 14 篇齐→材料已齐停等 R0 签署、对抗评审轮未收敛→已收口（R0 裁断 C2 成立）、L83 D-14 期残留句（dispatch 取队首/AutoQueue）→flow.py next、计划快照 Q-007/Q-008→均已首建（R-141/R-149）、自检①收敛句；数字只取实物（state/flow.json、spec/14 §2、verify/02 §4/§5、flow.py board 43 条），不造数；5 处「历史快照（与实况相抵）」标记改为「已按实况刷新状态句」，不删既有注记；保行尾（147 CRLF＋14 孤立 CR 计数不变）；③项1 结论见 ADR-3（同批登记）。残余（未授权改，留登记）：spec/01 §1.3 注仍写「来源登记待裁＝R-205」未指 ADR-3（随 G1 落文批）；doc/verify/01 §5.2 S-09 行仍写「44 条 VP」（与 verify/02 §4 的 46 条相抵，本轮未授权改 verify/01）",
+   "ts": "2026-09-25 22:12"
+  },
+  {
+   "id": "R-223",
+   "kind": "R",
+   "text": "三条机器判据进 GUARDS 常跑（R0 批）+ ADR 编号分区落地：①ref-target-exists（现行规则/规格文档的交叉引用须有目标文件+节号，fail-closed；支持 spec/NN 编号 glob 与裸文件名唯一命中解析）②id-unique（doc/decisions 只许 ADR-P-<n>-*.md、编号唯一无缺号、承载件 ADR-P 引用可解析；doc/spec 需求号 T-xx-y 同篇定义唯一且篇号一致）③no-live-legacy-ref（现行件不得把退役件当现行权威；同句/同列表项带现行性措辞即报，退役语境关键词放行）。ADR-1/2/3 改名 ADR-P-1/2/3，自指编号与活引用同批同步：script/flow.py、state/flow.json findings、doc/decisions/check_if_split.py、if_split.json、生成件重跑 params/types（md5 params ce28a147d8cd、types e325fbf222b9；params-drift/types-drift/types-coverage/types-width-consistency 全 PASS）；record ADR 起发 ADR-P-<n>（副本台账实跑得 ADR-P-4，沿用 next.ADR 计数；真台账未消费该号）；分区口径落 AGENTS.md §0（4 行）。check 末行 FAIL 仅由三条新判据报出的既有问题引起（详见同批 ISS），既有判据无一条放宽。",
+   "ts": "2026-09-25 22:28"
+  },
+  {
+   "id": "ISS-110",
+   "kind": "ISS",
+   "text": "ref-target-exists 首跑报 36 条交叉引用断链（既有问题，本批未修；均在本批写面外）：spec/00 §7.2 与 §7.3 共 6 处（含 spec/10 两处、doc/verify/01 一处）、spec/01 §3.22 共 3 处与 §9 共 1 处、spec/02 §9.0 共 2 处、spec/07 §4.5 共 2 处、doc/项目开发流程.md §9.5 共 3 处（AGENTS.md 与 spec/04、doc/verify/05）、AGENTS.md §1.0 共 4 处（spec/12）、doc/spec/14 §9.5 共 2 处、doc/verify/03 引 doc/自动推进说明.md 与 run_cmd/派发词模板.md 共 3 处（该两件已挪 doc/_legacy）、iss/README 共 3 处（应写 iss/README.md）、05-门禁完整性基线实务.md 共 1 处（该件在知识库内、仓库无此件）。处置=交后续落文批；禁为变绿削弱判据。",
+   "ts": "2026-09-25 22:28"
+  },
+  {
+   "id": "ISS-111",
+   "kind": "ISS",
+   "text": "no-live-legacy-ref 首跑报 18 条退役件活引用：doc/spec/** 的自检表仍以退役的 script/gate.py 为机判入口——spec/00 L292、spec/01 L922 与 L929、spec/02 L275 与 L671 与 L709 与 L894、spec/03 L354、spec/04 L325 与 L326、spec/05 L119、spec/06 L77、spec/07 L73、spec/08 L84、spec/09 L74、spec/10 L206、spec/11 L79、spec/13 L82。现状判据入口=python script/flow.py check（md-integrity、codepoints、width-check、params-* 等）。处置=doc/spec/** 非本批写面，交后续落文批逐篇改引；判据不得放宽。",
+   "ts": "2026-09-25 22:28"
+  },
+  {
+   "id": "ISS-112",
+   "kind": "ISS",
+   "text": "ADR 改名的写面外残留（登记不改，供后续批处置）：①doc/当前目标卡.md L22 仍写裸号「ADR-2 切分表」「ADR-1 自决」（活文档，非本批写面）；②doc/decisions/ADR-P-2-接口字段切分与打包顺序.md 的 D-5 落点仍写 script/gate.py（已退役，判定应改走 python script/flow.py check）；③doc/process/ledger.json 历史条目与 doc/review/** 按 R0 口径保留旧名；④state/window.json 基线仍以旧文件名为键（改名后 window 报 -3/+3，折入走 window --take --reason）。",
+   "ts": "2026-09-25 22:28"
+  },
+  {
+   "id": "ISS-113",
+   "kind": "ISS",
+   "text": "三条新判据自检结论（供后续审计复核）：①ref-target-exists 对已知红例 spec/01 §3.22 有效（3 处全命中：spec/06 L68、spec/13 L52、doc/verify/05 L70）；②spec/03 §7 属「节号存在但落点语义错」——该件 §7 是出口自检表，机器只能判存在性，语义落点需人读（不属本判据能力面，如实登记）；③doc/verify/03 的 4 处现行篇引用（spec/01 L759、spec/13 L51 与 L72、spec/14 L73）均带「已退役留档」标记，按判据白名单口径放行（若要「退役件零引用」须另立更严口径，本批不擅自加严）；④id-unique 的 ③ 具备正向控制证据：AGENTS.md 加分区说明时写入字面 ADR-P-4 被本判据即时抓出（无对应文件），改写成 ADR-P-<n> 后 PASS；改名前三件裸号 ADR 文件亦被抓出。判据均未放宽。",
+   "ts": "2026-09-25 22:28"
+  },
+  {
+   "id": "R-224",
+   "kind": "R",
+   "text": "会话内固定 ModelSim license（ISS-104）：flow.py run() 加 env 参数、_msim() 注入两份 license 并列（LM_LICENSE_FILE 与 MGLS_LICENSE_FILE 同值 C:\\flexlm_2020\\LICENSE.TXT;C:\\flexlm\\LICENSE.TXT），不改系统环境变量；check 退出码分档 0/1/3（产品面只剩 ENV-BLOCKED 记 3，绝不记 0），ENV-BLOCKED 明细改由判据自报自动打印；实测 3x params-elab + 3x types-elab 全 PASS，父环境两变量同指陈旧份时仍 PASS（直跑 vsim 则 Invalid host）；另出 doc/decisions/G1-I-待裁三点-简报.md（G1-I 三点待 R0 一句话作答）",
+   "ts": "2026-09-25 22:36"
+  },
+  {
+   "id": "ISS-114",
+   "kind": "ISS",
+   "text": "spec/01 §3.22 从未成节：perf 采样点与前置附录位原引该节号，实际落点＝§6 顶层端口表 perf_*_o 行＋§3.21 RVFI 附录（预留待写，D-2）。本次仅改引不改内容，待裁补节或永久重编号（引用面＝spec/06 T-06-6、spec/13 §4 表、doc/verify/05 R-027）",
+   "ts": "2026-09-25 22:43"
+  },
+  {
+   "id": "ISS-115",
+   "kind": "ISS",
+   "text": "spec/01 §9 从未成节：B10「清零按 lane 粒度」口径实际落在 §7 异常条目三条规定第 1 条。本次仅改引（spec/02 §19.1 第 2 条），待裁是否补节",
+   "ts": "2026-09-25 22:43"
+  },
+  {
+   "id": "R-225",
+   "kind": "R",
+   "text": "ref-target-exists 清账①：doc/项目开发流程.md 补回丢失的 §9.5 标题（正文在、标题丢＝转录修正，不动正文）——一次修 4 处引用（AGENTS.md:236、doc/spec/04:4、doc/verify/05 R-170 行、本文件内 §12.5/§12.2 引）",
+   "ts": "2026-09-25 22:45"
+  },
+  {
+   "id": "R-226",
+   "kind": "R",
+   "text": "ref-target-exists 清账②写法类 24 处：iss/README→iss/README.md（spec/02:800/847、verify/05:197）；AGENTS.md §1.0→§1（spec/12:10/34/44/89、verify/03:28）；spec/00 §7.2/§7.3→§7 第 2/3/5 条（spec/01:275、spec/02:31/73/296、spec/10:123/134、verify/01:143、verify/05:168）；spec/07 §4.5→§4 的 4.5 行（spec/12:38、spec/13:56）；spec/02 §9.0→§9 的 9.0 前注（verify/05:107/113）；spec/14 §9.5→§3（verify/03:49、verify/05:309）",
+   "ts": "2026-09-25 22:45"
+  },
+  {
+   "id": "R-227",
+   "kind": "R",
+   "text": "ref-target-exists 清账③从未成节 3 处：spec/01 §3.22 与 §9 均无该节 ⇒ 登记 ISS-114/ISS-115 并把引用改指真实落点（§6 perf_*_o 行、§3.21 RVFI 附录占位、§7 异常条目三条规定第 1 条），同句保留『原引 §X 待补』指针、不删记录",
+   "ts": "2026-09-25 22:45"
+  },
+  {
+   "id": "R-228",
+   "kind": "R",
+   "text": "ref-target-exists 清账④退役件路径 6 处：doc/自动推进说明.md→doc/_legacy/2026-09-25-流程v1/自动推进说明.md（verify/03:73 §0.8→§0 第 8 条、verify/05:226/228/253/294）；run_cmd/派发词模板.md 同型重指（verify/03:74）；知识库裸文件名锚点补全为绝对路径（verify/05:68 05-门禁完整性基线实务.md）",
+   "ts": "2026-09-25 22:45"
+  },
+  {
+   "id": "R-229",
+   "kind": "R",
+   "text": "no-live-legacy-ref 清账 18 处：spec 自检表 17 行把退役 gate.py check 改指现行唯一入口 python script/flow.py check（judgement 名 md-integrity/codepoints/width-check 均在册）；保留的历史实跑证据加『已退役留档』措辞（spec/00:292、01:922、02:894、03:354、04:325）；spec/12:88 AutoQueue 行加『已退役留档』。未删任何既有记录、未放宽判据",
+   "ts": "2026-09-25 22:45"
+  },
+  {
+   "id": "ISS-116",
+   "kind": "ISS",
+   "text": "GI-6 待材料：spec/10 §4.1 的 mtval 非对齐取值口径（＝出错 VA）未成文，现行口径只在 ISS 与规范侧；依赖 R0 对「过渡态临时裁定」的决定（清单 §4 GI-6／§6.3 GD-3，本轮不写 spec）",
+   "ts": "2026-09-25 22:47"
+  },
+  {
+   "id": "ISS-117",
+   "kind": "ISS",
+   "text": "GI-9 待材料：§2.5 的参数名绑定面已由 gi-pkg-binding 判据覆盖（本轮上线）；仍缺＝清单「值＋出处」与 spec/00 §4 的行级对账（判据只证名在册、不证值同源）",
+   "ts": "2026-09-25 22:47"
+  },
+  {
+   "id": "ISS-118",
+   "kind": "ISS",
+   "text": "GI-10 待材料：spec/01 §3.21 附录（RVFI 逐字段映射三清单）未填（ISS-017 处理中），本篇自述「附录未填前不得作为 G1 冻结依据」⇒ 需补附录或 R0 明示豁免（清单 §6.2 GS-7／GD-2）",
+   "ts": "2026-09-25 22:47"
+  },
+  {
+   "id": "ISS-119",
+   "kind": "ISS",
+   "text": "GI-11 待材料：镜像面（image-hex 的 md5／base／words）已在判据；仍缺＝TB 侧 readmemh 采用同一路径与同一字／字节口径的留证（tb/vr1_uvm 现为占位，无 DUT）",
+   "ts": "2026-09-25 22:47"
+  },
+  {
+   "id": "ISS-120",
+   "kind": "ISS",
+   "text": "GI-13 待材料：TB 侧 trace 写出器字段序（须＝TRACE_CSV_FIELDS）＋停机判据（tohost 写）＋watchdog 2000000 拍／20 min 在 TB 内可见——依赖 RTL 落地（tb/vr1_uvm 现为占位骨架）",
+   "ts": "2026-09-25 22:47"
+  },
+  {
+   "id": "R-230",
+   "kind": "R",
+   "text": "里程碑 M1-I exit 全过（types-drift,types-coverage,types-width-consistency,types-crosscheck,types-compile,types-elab,gi-pkg-binding,csr-table,code-table,isop-subset,iss-smoke）",
+   "ts": "2026-09-25 22:47"
+  },
+  {
+   "id": "R-231",
+   "kind": "R",
+   "text": "G1-I 冻结面判据落地：新增 csr-table/code-table/gi-pkg-binding/isop-subset/iss-smoke 五条判据并入 CHECKS（GI-2~GI-5/GI-7/GI-8 未覆盖面），rtl-compile/rtl-vs-iss 注册为 BLOCKED 桩（GI-14），state/flow.json 新增 M1-I 里程碑（GI-1 的 types-* 面 + 五条新判据，11 条 exit 全过）；GI-6/9/10/11/13 登记待材料（ISS-116~120）；check 0 FAIL 退出码 0",
+   "ts": "2026-09-25 22:47"
+  },
+  {
+   "id": "R-232",
+   "kind": "R",
+   "text": "G1-I 接口冻结获 R0 签署（三处待过目点全取推荐项 A；范围＝23 struct/6 CSR/4 异常/6 trace 行/16 参数；不含项归 G1-F）→ rtl/ 进入实现期，写边界切换为『G1-I 已签授权』档",
+   "ts": "2026-09-25 23:01"
+  },
+  {
+   "id": "ISS-121",
+   "kind": "ISS",
+   "text": "写边界守卫实测发现（G1-I 签署批）：cmd_guard_write 的 ALWAYS_PROTECTED 对 .git/** 实际不生效——norm_path() 的 lstrip('./') 会吃掉前导点（.git/config→git/config），该模式恒不命中；属既有缺陷（非本批引入、非本批放宽），依规则 17 只登记不顺手改。同因下 .zcode/** 等点号开头路径亦不受保护。修法：把 lstrip('./') 改为显式去 './' 前缀（改守卫须人批，红线 R22/GD-5 同口径）",
+   "ts": "2026-09-25 23:02"
+  },
+  {
+   "id": "R-233",
+   "kind": "R",
+   "text": "P6 通过：[PASS] rtl-compile: vlog 编译 2 个单元（filelist/rtl.f）｜ Errors: 0 ｜ sim/run_rtl_compile/run.log",
+   "ts": "2026-09-25 23:04"
+  },
+  {
+   "id": "R-234",
+   "kind": "R",
+   "text": "M1 实施批①（G1-I 后首件）：rtl-compile 判据真实化（vlog 编 filelist/rtl.f：2 单元／Errors: 0，P6 过）；落 rtl/vr1/include/vr1_pkg.sv + rtl/vr1/core/vr1_core.sv（端口面+取指骨架，TODO 标注）+ filelist/rtl.f；计划 doc/design/M1-实现计划.md；rtl-vs-iss 保持 BLOCKED",
+   "ts": "2026-09-25 23:04"
+  },
+  {
+   "id": "ISS-122",
+   "kind": "ISS",
+   "text": "环境路线变更（R0 2026-09-25 决定：永不装 Linux，项目在 Windows 下完成）：原 ISS-002 的 WSL2 路线作废。已核实纯 Windows 可行性——MSYS2/MinGW-w64（Windows 程序，Cygwin 派生，不含 Linux 内核）提供①mingw-w64-riscv64-unknown-elf-gcc 16.1.0 + binutils 2.47（命令名与 AGENTS.md §3.2 现用命令完全一致，无需参数化）②mingw-w64-verilator 5.050（⇒ spec/00 G5 的 verilator --lint-only 与 spec/13 §1 的 Verilator 长跑载体可原样保留，不构成判据放宽）③mingw-w64-qemu 11.1.1 ④git/make/autotools/python。唯一缺口＝Spike（无官方 Windows 构建、MSYS2 无 spike 包，需自建实验或改第二 ISS）。待处置口径面：spec/00 G3/G5/IPC 行、spec/13 §1 测量载体、doc/项目开发流程.md L138『WSL Verilator＝跑量与性能』与 L520『打通 ISS-vs-Spike』、doc/环境搭建.md 全篇（§1~§8 以 WSL 为前提）；ISS-002 口径随之改写。",
+   "ts": "2026-09-25 23:12"
+  },
+  {
+   "id": "R-235",
+   "kind": "R",
+   "text": "ISS-002 纯 Windows 路线落地（R0 定「永不装 Linux」后首个执行批）：① MSYS2 装于 D:/msys64（安装器 94016640 B 取自清华镜像，repo.msys2.org 直连仅 16 KB/s 且断流；pacman 源改 TUNA）② msys 环境 gcc 15.3.0＋make 4.4.1＋git 2.55.0＋dtc 1.8.1；ucrt64 环境 mingw-w64-ucrt-x86_64-riscv64-unknown-elf-gcc 16.1.0-1＋binutils 2.47-1＋verilator 5.050-1＋gcc 16.2.0-4＋dtc 1.8.1-1＋boost 1.92.0-3 ③ 逐件 --version 实测证据落 sim/run_env_msys2/run.log ④ Spike 自建成功：源码取自 codeload（github.com 直连 http=000 被封；codeload 200 可达）＋configure --without-boost-regex（Boost 1.92 已移除 Regex 库）＋两处机械补丁（限制与补丁登记见同批 ISS）＋产物 /d/tools/riscv-isa-sim-master/build_msys/spike（Spike 1.1.1-dev）⑤ 冒烟（比原判据更强）：riscv64-unknown-elf-gcc 16.1.0 编 tiny ELF（-march=rv64gc -mabi=lp64d -nostdlib，自带 smoke.ld）→ spike --isa=rv64gc --dtb=my.dtb --log-commits → exit 0、commit log 逐条含 pc＋指令码＋x 寄存器＋内存写（riscv-tests 的 tohost 约定 bit0=halt 已实测）⑥ 口径影响：riscv64-unknown-elf-gcc 与 verilator 命令名与 AGENTS.md §3.2 原写法完全一致 ⇒ spec/00 G5 lint、spec/13 §1 的 Verilator 长跑载体、工具链命令均无需改口径；只有「WSL」字样与 ISS-002 路线描述需改",
+   "ts": "2026-09-25 23:53"
+  },
+  {
+   "id": "ISS-123",
+   "kind": "ISS",
+   "text": "Spike 自建产物三条限制＋两处补丁（登记备查，均有 workaround、非阻塞，且不触 trace 路径）：【补丁】① addr_t→rv_addr_t 机械改名（12 文件）：Cygwin 的 sys/types.h 与 machine/types.h 各有 typedef char *addr_t，与 Spike fesvr/memif.h:14 的 typedef reg_t addr_t 撞名，致 134 条编译错；纯标识符改名、无语义变化 ② Makefile 的 -std=c++2a 改 -std=gnu++2a 并加 -D_GNU_SOURCE、去 -Werror：严格 ANSI 下 Cygwin 隐藏 strnlen/unlinkat/renameat/readlinkat/sigemptyset/sigaction 声明（__POSIX_VISIBLE 不足），加后编译错从 134 降到 0。【限制】① libcustomext.so 链接缺 f32_add（未链 libsoftfloat）⇒ 只编 make spike 目标，禁 --extension ② Spike 自生成的 DTB 在 MSYS 下不可用：dts.cc:109 dtc_compile 走 fork()＋pipe() 调外部 dtc，MSYS 的 fork 仿真下产物缺 riscv,isa ⇒ 必须用 dtc 预编译 DTB 并传 --dtb=file（sim.cc:141 走 ifstream binary 直读，已实测通过）；对项目影响＝Spike 调用一律带 --dtb ③ socket 调试口（-s）未编入（HAVE_BOOST_ASIO 未定义；Boost 1.92 的 regex 已移除、asio 需外链 ws2_32）——本项目用不到。【未改面】riscv/execute.cc、mmu.cc、processor.cc 等 trace 路径源码零改动；冒烟实测 commit log 正常（见 R-235 ⑤）",
+   "ts": "2026-09-25 23:53"
+  },
+  {
+   "id": "R-236",
+   "kind": "R",
+   "text": "环境口径改文（WSL→MSYS2，承 R-235）：① doc/环境搭建.md 全篇重写（§0 现状事实表／§1 安装含清华镜像与 IFW 静默安装与 TUNA 换源／§2 两套环境 ucrt64-vs-msys 与 Spike 必须在 msys 的原因／§3 pacman 包清单／§4 工具链命令名不变／§5 Spike 自建含 --without-boost-regex＋两处补丁＋只编 spike 目标＋调用两条硬规矩 --dtb= 与 --isa= 与冒烟证据／§6 Verilator 口径不变／§7 git／§8 八条验收表／§9 八条坑）② AGENTS.md：§1 环境段改『纯 Windows 全链已就位』、§3.2 节标题与命令块改 MSYS2（spike 行补 --dtb= 与 commitlog 默认编入说明）、§3.4 坑 1 与坑 4 的 gcc/WSL 字样更新 ③ doc/当前目标卡.md：阻塞项 3『仿真器可用』改为实测可用＋Spike 自建就位、需人项 4 去掉 WSL2（保留 G1-F 与 ISS-104 的 OS 侧 rehost）。未改面：spec/** 零改动（口径无需升版——riscv64-unknown-elf-gcc 与 verilator 命令名不变、spec/13 的 Verilator 载体保留）、rtl/** 零改动、script/flow.py 零改动。",
+   "ts": "2026-09-25 23:54"
+  },
+  {
+   "id": "R-237",
+   "kind": "R",
+   "text": "rtl-vs-iss 判据的阻塞理由去旧化（script/flow.py 两处文本，判据逻辑零改动）：原写『＋仿真器不可用（ISS-104/ISS-002）』已与实况相抵——ModelSim vsim 由本脚本注入 license 环境变量解决（R-224，实测通）、Spike 自建就位（R-235）、Verilator 5.050 在册；改为『仿真器已就位（ModelSim R-224／Spike R-235／Verilator 5.050），不再是阻塞项』并把 docstring 同句同步。**保留该判据 fail-closed 与 BLOCKED 桩语义**（剩余面＝RTL/TB 实现工作，属未完成非环境挡住；消息刻意不含 ENV-BLOCKED 字样的口径未动）。复验：flow.py check 该行文本已更新、退出码仍为非零（M1 active 的预期态）。",
+   "ts": "2026-09-25 23:55"
+  },
+  {
+   "id": "R-238",
+   "kind": "R",
+   "text": "备用第二 ISS 就位（承 R-235，补 R0 批准清单里未装的一项）：MSYS2 ucrt64 装 mingw-w64-ucrt-x86_64-qemu 11.1.1-3，qemu-system-riscv64 可执行（version 11.1.1、-machine help 正常）；证据追加 sim/run_env_msys2/run.log。定位＝**备选/第三锚点**：ISS-vs-ISS 的主对手方仍为 Spike（R-235 ⑤ 已自建并冒烟），QEMU 仅在 Spike 出现不可复现问题时启用；启用须按判定口径变更流程呈 R0（spec/00 与 ISS-010 点名 Spike）。",
+   "ts": "2026-09-25 23:57"
+  },
+  {
+   "id": "R-239",
+   "kind": "R",
+   "text": "承 R-236 的漏改面（第四轮复核专盯的『退役说法活引用』类）：doc/项目开发流程.md 三处 WSL 字样去旧化——§2.5『WSL Verilator = 跑量与性能』改『MSYS2（纯 Windows）的 Verilator』并加 R-235/R-236 依据行（性能指标禁止在 ModelSim 上测的口径未动）、§12 分类表『仿真器/Verilator/WSL/git』改 MSYS2、§9 后续清单第 6 行『人执行』改为『已就位（R-235，AI 在 MSYS2 下执行，免管理员免重启）』。全库 WSL 活引用现仅剩 _legacy/ 与历史评审件（合规）。",
+   "ts": "2026-09-25 23:58"
+  },
+  {
+   "id": "R-240",
+   "kind": "R",
+   "text": "WSL 活引用清账二批（承 R-239，把第四轮复核盯的『退役说法活引用』类一次清干净）：① doc/spec/14 §3 残余表第 2 行『首版仿真器不可用』— 现状栏补 2026-09-25 更正（vsim 已可用＝R-224；Spike 自建就位＝R-235），出口栏改『已不阻塞 M1；OS 侧 rehost 降为可选；原 ISS-002 WSL2 路线作废』② doc/交接说明.md §4 工具链段——原写『WSL2 Ubuntu 24.04…Spike 必须 --enable-commitlog…旧机没装』改为 MSYS2 现状＋验收表指向 §8＋『ISS-002 按 MSYS2 路线闭合』③ doc/design/M1-实现计划.md §5 S5 行『仿真器可用（ISS-104 rehost 或 ISS-002 WSL2）』改为『已就位，不再是阻塞项』④ doc/process/03（流程 SSOT）§9 第 4 条与 §2 对比表所依据的『环境阻塞只能人做』前提加**环境口径更正注**（原文保留不改写，时效以注为准）。改后全库 WSL 活引用仅剩：本批刻意保留的『作废/更正』说明句、doc/环境搭建.md 的口径说明、doc/process/00 与 _legacy 与 review 历史件。",
+   "ts": "2026-09-25 23:59"
+  },
+  {
+   "id": "R-241",
+   "kind": "R",
+   "text": "环境事实单源化（改根因：同一事实多处表述、无人对账——R-236/R-237 的漏改面）：① 新增 state/env.json＝环境可用性单一真源（7 条 fact＋1 组：modelsim ready=R-224／spike ready=R-235+ISS-123／verilator ready=R-235／riscv_toolchain ready=R-235／msys2_host ready=R-235／qemu_backup_iss ready=R-238／wsl2_route retired+ready:false=ISS-122+R-235；groups.simulators=三者集合、ready 由成员派生校验），用 flow.save_json 落盘（非手改格式）② 新增判据 env-facts-consistency（进 CHECKS 与 GUARDS，fail-closed）：扫 4 个活文档面 3018 个判定单元（flow.py 判据消息文本／flow.json 的 blocked_by·env_blocked·需人项字段／AGENTS.md §1／doc/当前目标卡.md），三向对齐（ready:true 不得被写成不可用；ready:false 不得被写成已就位；retired 事实只许出现在作废/更正语境——同句含时效标记者按历史叙述放行），命中即 FAIL 并列行号/字段名；env.json 缺/结构坏/事实无别名登记/ref 锚点台账查无/扫描面缺件一律 FAIL ③ 反向自测 11/11 符合预期（原病灶原文「③仿真器不可用（ISS-104 vsim license 或 ISS-002 WSL2）」与 P5 原句「装 WSL2 + riscv64 工具链」均被抓；三向反例放行；五条 fail-closed 路径全 FAIL）⇒ 判据非空转 ④ 状态件两处 stale 按实况改写（脚本改 JSON）：M1.blocked_by 与 P7.blocked_by 删「③仿真器不可用（ISS-104 vsim license 或 ISS-002 WSL2）」改「仿真器已就位（ModelSim R-224／Spike R-235／Verilator 5.050），不再是阻塞项」；P5 删「ISS-002：装 WSL2 + riscv64 工具链（管理员+重启）」改「G1-F 全量冻结待材料（清单 §6.1 段 3）＋ISS-104 残余＝OS 侧 rehost（可选）」、done 改「G1-F 签署落 doc/spec/14；环境面已闭＝R-235/R-236」（未凭空造需人项）⑤ 同类旧话顺带清（最小改动）：flow.py 两处 docstring（chk_params_elab「当前被 license 阻塞」→ R-224 注入已解决；chk_rtl_compile「ISS-104 只挡仿真」→ 不涉 license）、doc/当前目标卡.md 阻塞表 rtl-vs-iss 行去掉「＋仿真器」、AGENTS.md §1 把「③ 仿真器可用」从剩余阻塞列表摘出并补 env.json 指针。复验：flow.py check 的 env-facts-consistency 行 PASS（0 处相抵），末行仍为 M1 rtl-vs-iss BLOCKED 桩（既有红、与本次无关）；未改 doc/spec/**、doc/verify/**、iss/**、tb/**、rtl/**、doc/环境搭建.md",
+   "ts": "2026-09-26 00:10"
+  },
+  {
+   "id": "R-242",
+   "kind": "R",
+   "text": "并发批核对（承 R-241 收尾复核）：① 本批落文期间存在**另一活批**在写 rtl/ 与 tb/——rtl/vr1/frontend/vr1_bp.sv（00:10:50）、tb/unit/rt_t_trace_writer.sv（00:10:51，GI-13 首件：rt_t→trace CSV 写出器＋停机判据＋watchdog，文末自列 5 条 TODO(M1-S4)）、rtl/vr1/frontend/vr1_ftq.sv（00:11:07）、rtl/vr1/frontend/vr1_ifetch.sv＋filelist/rtl.f（00:11:1x，现列 5 单元）；该批**未见台账条目**（本批全程只读核对，未改其任何文件）。② 因实物已动，M1/P7 的 blocked_by 二次细化（仍走 flow.save_json）：保留「② TB 侧 rt_t 写出器/停机判据/watchdog 未就位（GI-13/GD-6）」的判定语义，补「首件源已落 tb/unit/rt_t_trace_writer.sv＝2026-09-26 00:10，未接线、未做仿真级自证」；M1 的①补「2026-09-26 00:11 复核：S1 组件源已落 vr1_bp/vr1_ftq、vr1_core 未接线，rt_valid_o 仍恒 0」——避免 R-241 的「未就位」在实物落地后立刻变成新的 stale 表述。③ 并发风险留痕（未自决改流程，登记备查）：state/flow.json 由多批同时读写时，先读后写会丢对方字段（本批两次写均全量回写，写后复核 4 处改写仍在）；建议需改状态件的批串行化或加锁。④ 复验：env-facts-consistency PASS（3021 个判定单元 0 处相抵）；rtl-compile PASS（vlog 编译 5 个单元／Errors: 0）；flow.py check 末行仍为既有 M1 rtl-vs-iss BLOCKED 桩（与本次无关）",
+   "ts": "2026-09-26 00:12"
+  },
+  {
+   "id": "R-243",
+   "kind": "R",
+   "text": "M1 的 TB 侧缺口（GI-13）首件落地：tb/unit/rt_t_trace_writer.sv（DUT 无关 rt_t→CSV 写出器＋tohost 停机判据＋watchdog，vlog Errors:0，冒烟实跑 HALT_PASS/HALT_FAIL/WATCHDOG 三通路）＋ TB 格式自证件 iss/tools/gen_tb_trace_format.py 与 sim/golden/tb_format_expect.csv（30 行、表头==TRACE_CSV_FIELDS、vs golden mismatch=0）＋ flow.py 新判据 tb-compile 与 trace-format-contract（均列常跑守卫，未动 M1 两条 exit）",
+   "ts": "2026-09-26 00:15"
+  },
+  {
+   "id": "R-244",
+   "kind": "R",
+   "text": "M1-S1：取指通路 M01~M03 落 RTL（vr1_bp 静态预测→vr1_ftq 16 项→vr1_ifetch 32B 窗 16 槽+IBUF；vr1_core 例化接线，G1-I 端口面未动；filelist/rtl.f 2→5 单元）（rtl-compile PASS，-- Compiling=5/Errors=0）；判据② rtl-fetch-win 未注册⇒S1 不置 done，阶段证据 sim/run_rtl_fetch_smoke/run.log（first_va=0x1000／win_base 32B 对齐 4/4／stride=32）",
+   "ts": "2026-09-26 00:16"
+  },
+  {
+   "id": "R-245",
+   "kind": "R",
+   "text": "S1 通过：[PASS] rtl-fetch-win: n_fail=0；窗基址 4/4 对齐；S1-1 首请求 VA=1000==RESET_PC；stride=32==FETCH_BYTES；raw32 8/8 字==镜像；vlog 6 单元+vopt+vsim Errors: 0 ｜ sim/run_rt",
+   "ts": "2026-09-26 00:50"
+  },
+  {
+   "id": "R-246",
+   "kind": "R",
+   "text": "每小时心跳（片序编排）已建立登记（此前台账无此条）：本片＝**心跳片 1**，任务＝S1 收口。口径（**不得越读**）：心跳片只提供**节拍**（外部唤起，非仓库件）；片内推进仍照 AGENTS.md §0 与规则 24——开工三步（读 §0/目标卡 → `flow.py check` → `flow.py next`）／确定性步骤走 `flow.py run`／落文即派审／收尾 `check` → `window --take` → `record`。**边界**：心跳片**不是**复活 AGENTS.md §0 已退役的 in-repo 定时任务（`run_cmd/自动循环定时任务.md`、`doc/_legacy/2026-09-25-流程v1/自动循环定时任务.md` 仍退役、不得当现行权威）；**不可查面**：心跳的唤起机制与周期不落在仓库内（state/flow.json 与 .zcode/config.json 里都没有周期件），本条只登记「片序编排在场＋片 1 的收口口径」，不声称已验证周期正确性；停机条件仍只认规则 24 ④ 四条。片 1 实做与证据见下一条 R（rtl-fetch-win 注册＋S1 置 done）。",
+   "ts": "2026-09-26 00:51"
+  },
+  {
+   "id": "R-247",
+   "kind": "R",
+   "text": "S1 收口：`rtl-fetch-win` 判据注册并实跑 **PASS**；S1 置 done（证据 sim/run_S1/run.log ｜ [PASS] rtl-fetch-win: n_fail=0；窗基址 4/4 对齐；S1-1 首请求 VA=1000==RESET_PC；stride=32==FETCH_BYTES；raw32 8/8 字==镜像；vlog 6 单元+vopt+vsim Errors: 0；阶段证据 sim/run_rtl_fetch_smoke/run.log 仍留档）。① 判据落在 script/flow.py 的 CHECKS（**不入 GUARDS**——要 vlog+vopt+vsim，且 vsim 涉 license 抖动会误报产品面），也没进 M1 的两条 exit（GI-14 语义未动）：它是 M1-S1 **步**的完成判据。② 判什么（全 fail-closed，解析不到即 FAIL）：同批编译 filelist/rtl.f ＋ 新清单 filelist/tb_fetch_smoke.f （`-- Compiling` 计数 == 两清单条目数之和、逐段 `Errors: 0`、vlog/vopt/vsim 三条退出码 0）＋ TB 证据行——S1-1 首请求 VA == spec/00 §4 的 RESET_PC（真源读 spec，不读生成件）／S1-2 窗基址 32 B 对齐且 N==M 且 M ≥ 4／S1-3 stride == spec/00 §4 的 FETCH_BYTES／逐窗 wbase == pc[39:5]<<5 且按 stride 递推／n_fail==0 且 n_checked==窗数／窗 0 raw32 8 字 == sim/image/m_smoke.hex 的镜像字（字地址口径取自 MANIFEST base_word/base_byte，与 TB 的 $readmemh 同源）／`PASS: S1 fetch path` 在册且全段无 FAIL/ABORT 行。③ 判据自身的 fail-closed 自检 18 例（临时件已删）：篡改 n_fail／对齐计数／对齐位／首请求 VA／stride／raw32／删任一证据行／vlog 少编·多编／vsim 段无 Errors 行／TB 自报 FAIL ⇒ **18/18 全部转 FAIL**，0 例漏判（顺带修掉一处 `%h` 格式串崩溃＝非 PASS 路径的隐藏 bug）。④ state/flow.json 新增步骤 S1（role=verifier；cmd ＝ check-one rtl-compile ＋ check-one rtl-fetch-win），由 `flow.py run` 自动置 done 并按规则 23 写 evidence（**JSON 由脚本 load/save 写，未手改格式**）。⑤ 本片改动面：script/flow.py（新增 VOPT 常量／_spec_param／_hex_words／_manifest_kv／chk_rtl_fetch_win ＋ CHECKS 一行）、state/flow.json（S1 步）、台账、新增 filelist/tb_fetch_smoke.f；**未动** RTL 源码／doc/spec／doc/verify／rtl/vr1/include/*.svh，未放宽或注释任何判据；R-245 是 `flow.py run` 的机判登记，本条为收口说明。",
+   "ts": "2026-09-26 00:51"
+  },
+  {
+   "id": "R-248",
+   "kind": "R",
+   "text": "并发面观察（承 R-242 的「本批落文期间存在另一活批」口径；本条**只登记不修**，R1/R5）：本片（每小时心跳片 1）收尾 `flow.py check` 时 M1 exit `rtl-compile` **由 PASS 转 FAIL**（sim/run_rtl_compile/run.log：`Errors: 2`）——两条 error 全在 rtl/vr1/frontend/vr1_ifetch.sv：(99) `Undefined variable: 'ibuf_win_vld_q'` 与 (164) `'ibuf_win_vld_q' already declared in this scope`，即**声明（第 164 行）晚于使用（第 99 行）**的前向声明缺口（该文件 mtime=00:51，属**并发的第二片（M1-S2 面：IBUF→D 逐窗反压／vr1_decode 落文）在写**，非本片产出）。本片证据面：未改任何 RTL、未改 filelist/rtl.f（S1 判据 00:50 实跑时该文件可编过并 PASS，见 R-247 与 sim/run_S1/run.log）。**影响**：M1 的两条 exit 里 `rtl-compile` 现为红、`rtl-vs-iss` 仍 BLOCKED（设计预期）；**处置建议**：由写方补前向声明（或把 `logic ibuf_win_vld_q;` 上移到使用之前）即一处改动可绿；**修复不属本片**（RTL 修复永远是人在明确指令下的单独动作）。",
+   "ts": "2026-09-26 00:52"
+  },
+  {
+   "id": "R-249",
+   "kind": "R",
+   "text": "R-248 跟进（同一心跳片 1 内即闭环）：并发片已补前向声明并复绿——`rtl-compile` 现报「vlog 编译 6 个单元（filelist/rtl.f）｜ Errors: 0」（rtl.f 5→6 单元，新增 M05 vr1_decode）；且本片判据 `rtl-fetch-win` 对**当前** RTL 重跑仍 **PASS**（7 单元 ＝ 6 DUT + 1 TB；n_fail=0／窗基址 4/4 对齐／首请求 VA=1000==RESET_PC／stride=32／raw32 8/8 字==镜像），证据 sim/run_rtl_fetch_win/run.log（已更新为复跑版；00:50 版留档 sim/run_S1/run.log）⇒ **S1 的 done 无回归**（R-247 结论继续有效）。R-248 里『M1 exit `rtl-compile` 现为红』一句**作废**（那是 00:53 的瞬时态，非现行事实）。",
+   "ts": "2026-09-26 00:52"
+  },
+  {
+   "id": "R-250",
+   "kind": "R",
+   "text": "M1-S2：M05 译码级落地（IBUF 读口消费/逐窗 drain 握手 ＋ G1-I 14 条定长译码 ＋ 非法编码 pre_exc/cause2 ＋ D->R 交接握手；ifetch 增 ibuf_drain_i 与 F0「IBUF 忙」门控；两处 TODO(M1-S2) 口径收口为口径缺登记=G1-F）｜rtl-compile PASS，-- Compiling=6/Errors=0｜阶段证据 sim/run_rtl_decode_smoke/run.log（两件冒烟全 PASS）＋ S1 冒烟复核 sim/run_rtl_fetch_smoke_s2re/run.log（PASS）",
+   "ts": "2026-09-26 00:57"
+  },
+  {
+   "id": "R-251",
+   "kind": "R",
+   "text": "S2 通过：[PASS] rtl-decode-win: 逐条 uop 80 条：pc 自 1000 连续 +4；raw32 全部 == 镜像字/填充字判定；golden 30/30 条互证（binary 逐字一致）；isop 14/14 == 清单 §1.1 × spec/02 §9.1；窗 10 个（req",
+   "ts": "2026-09-26 01:07"
+  },
+  {
+   "id": "R-252",
+   "kind": "R",
+   "text": "每小时心跳片 2（2026-09-26）：① S2 收口——注册判据 rtl-decode-win（CHECKS，不进 GUARDS；判据② 的 S4 之前可判部分＝D 级 uop_t.pc/raw32/isop ＋反压/逐窗 drain/非法路径行；真源＝镜像 .hex＋ISS golden＋spec/02 §9.1×清单 §1.1），实跑 PASS（逐条 80 条 pc 连续 +4、raw32 逐字==镜像、golden 30/30 互证、isop 14/14、一窗一 drain、件 1 反压 15/4/0）⇒ S2 置 done（证据 sim/run_S2/run.log，由 flow.py run 脚本写入）；gpr/csr 与 CSV 全列形态仍归 S4/S5（不得当 M1 判据）。② TB 拆分：decode_smoke_tb.sv → decode_unit_smoke_tb.sv＋decode_stream_smoke_tb.sv（一文件两顶层模块会破坏 Compiling 计数==清单条目数 的不变式）＋新增 filelist/tb_decode_smoke.f；两件各加逐呈现/逐条证据行。③ M1-S3 第一批：M10 rtl/vr1/exu/vr1_bru.sv（BEQ/JAL 解析＋br_resolve_t：mispred 定义式/最老 lane 选择/无效包整包零）＋ tb/unit/bru_smoke_tb.sv（11 案 n_fail=0，证据 sim/run_rtl_bru_smoke/run.log）＋ filelist/tb_bru_smoke.f；filelist/rtl.f 6→7 单元，rtl-compile PASS（7 单元／Errors: 0）；BRU 未在 vr1_core 例化（上游 disp_x_t 生产者未落）⇒ S3 不置 done，余项逐条 TODO(M1-S3)。④ M1 与 P7 的 blocked_by 去 stale（S1/S2 已 done、rt_valid_o 恒 0 归 S3/S4；不再把已完成说成未完成）；rtl-vs-iss 消息同步（仍 BLOCKED 桩，逻辑未动）。⑤ 复核实跑：rtl-compile PASS（7）／rtl-fetch-win PASS／rtl-decode-win PASS；flow check 末行 FAIL（M1 exit 未过＝rtl-vs-iss BLOCKED 设计预期）退出码 1；window 折入 +6/-1/~7（409 件）。未动面：rtl/vr1/include/*.svh 生成件、doc/spec/**、doc/verify/**、iss/**、tb/vr1_uvm/**、tb/unit/rt_t_trace_writer*.sv、tb/unit/fetch_smoke_tb.sv。",
+   "ts": "2026-09-26 01:11"
+  },
+  {
+   "id": "R-253",
+   "kind": "R",
+   "text": "里程碑 M1 exit 全过（rtl-compile,rtl-vs-iss）",
+   "ts": "2026-09-26 02:24"
+  },
+  {
+   "id": "R-254",
+   "kind": "R",
+   "text": "M1-S3b 闭环批：新增 M09 vr1_exu_int／M17 vr1_csr／M18 vr1_trap／M11 vr1_lsu／M15 vr1_rob（commit_t+rt_t）＋vr1_core 后端接线（D→R→提交，单发射单条在飞；前端 ftq/ifetch/decode 加 flush_i）；rtl.f 7→12 单元；rtl-vs-iss 由 BLOCKED 桩真实化并首过（30 条退休 vs golden 30 条 × 列 pc,binary,gpr,csr 0 mismatch，HALT_PASS），flow.py check 报「M1 exit 全过」；新增 tb/unit/m1_e2e_tb.sv＋三件定向单元冒烟（15/37/19 案 n_fail=0）＋filelist/tb_m1_e2e.f／tb_m1_backend_smoke.f；S1/S2 两件冒烟 DUT 面收敛为 M01~M03／M01~M05（判据函数与检查项未改，rtl-fetch-win／rtl-decode-win 仍 PASS）；端到端抓出并修 4 处真 bug（提交拍载荷滞后／exc_vld 未同拍门控／is_mret_q 组合误判／mtvec 基址漏左移）＋登记 unique case vopt 交互（已规避）",
+   "ts": "2026-09-26 02:31"
+  },
+  {
+   "id": "R-255",
+   "kind": "R",
+   "text": "P7 通过：[PASS] rtl-vs-iss: M1 闭环：RTL 侧 30 条退休（tohost 停机 PASS）vs golden 30 条，列 `pc,binary,gpr,csr` **0 mismatch**（`trace_compare` 退出码 0）｜vlog 14 单元／vopt／vsim 逐",
+   "ts": "2026-09-26 04:05"
+  },
+  {
+   "id": "R-256",
+   "kind": "R",
+   "text": "M2-1 通过：[rv64ui] built=rv64ui-p-add rv64ui-p-addi gap_union=3 种：add bne unimp",
+   "ts": "2026-09-26 04:12"
+  },
+  {
+   "id": "R-257",
+   "kind": "R",
+   "text": "2026-09-26 心跳批（第四轮）：① P7 收口——rtl-vs-iss 实跑 PASS 后由 flow.py run 置 done（sim/run_P7/run.log）；② M2 入册为 active 里程碑（exit 三条 m2-rv64ui/m2-regress/m2-cov，由 R0 心跳批口径），M3（覆盖率/回归收敛）登记为下一里程碑（blocked_by=M2）；旧编号体系 M3（平台 smoke）改名 M-B 加退役标注（doc/verify/04 §①，M-B＝人的决策点/基线宣布）；③ riscv-tests rv64ui 源码逐字入库 sw/tests/riscv-tests（含 LICENSE ＋ ORIGIN.md 来源注明，本机来源 D:\\\\IC验证知识库\\\\_tools\\\\ibex-master\\\\vendor\\\\riscv-tests）+ sw/env 适配层（riscv_test.h/link.ld，差异 7 条逐条登记）＋ 构建脚本 sw/tests/build_rv64ui.py（ELF 解析/多段 readmemh/双视图 tb.hex/MANIFEST/缺口清单）；④ 判据 m2-rv64ui 注册（真跑 ISS+RTL+逐条比对，fail-closed；不进 GUARDS），步骤 M2-1（构建，已 done）＋M2-2（收口，阻塞于 RV64I 基指令面扩展）入册；⑤ 首批实测：ISS 侧 rv64ui-p-add/p-addi 均 PASS（halt_val=0x1，470/245 条），RTL 侧前 39/40 条与 ISS 逐条一致、首个分歧＝add@0x11c8 / bne@0x11cc（均 c=2 非法）⇒ M2 的真前置＝RV64I 指令面扩展（首发最小集 BNE＋ADD；全量缺口 42 种见 sim/image/rv64ui/GAP.json）；check 末行 FAIL（M2 exit 未过）/退出码 1",
+   "ts": "2026-09-26 04:14"
+  },
+  {
+   "id": "ISS-124",
+   "kind": "ISS",
+   "text": "ISS 缺陷 A（slti，本机 vriss）：`iss/vriss/machine.py:345` 的 SLTI 实现 `int(_s(x) < _s(imm))` 把**已符号扩展的 Python 负整数** imm 再送进 `_s()`（`_s` 意在 u64→有符号，见 :45），负立即数被二次回卷成大负数 ⇒ 比较恒错。实测：镜像 rv64ui-p-slti 的 test_8 `slti a4, 0xffffffff80000000, -2048`，ISS 写 a4=0（trace 行 pc=0000123c），ISA 要求 1（权：riscv_spec_full.txt 行 2382-2383「rs1 is less than the sign-extended immediate when both are treated as signed numbers」）。SLTIU 同族无此问题（:345 用 `u64(imm)`，与行 2384-2385 口径一致）。**本任务禁改 iss/**，未修，仅登记；本轮把 rv64ui-p-slti 从 m2-rv64ui 判定子集移出（不静默跳过）。证据：sim/run_m2_rv64ui/run.log 第 11647 行前段 + sim/run_m2_rv64ui/rv64ui-p-slti.iss.csv。 ｜证据补强（可复现探针，退出码 0＝缺陷仍可复现）：iss/tests/probes/rr_probe15_alu_slti_subw.py（实测 x14=0x0，ISA 要求 1）。 ｜【已解决】2026-09-26（心跳第 6 轮，许可已下）：**修法＝按规范原文改成有符号比较**——`_op_imm` 的 f3=2 分支由 `int(_s(x) < _s(imm))` 改为 `int(_s(x) < imm)`（`imm` 已由 `_exec` 经 `sext(...,12)` 成为 Python 有符号值，二次送 `_s()` 才是病根；SLTIU 的 `u64(imm)` 未动，与行 2384-2385 口径一致）。**未用\"改测试期望\"绕过**：改的是 ISS 语义本体。探针复验 `python iss/tests/probes/rr_probe15_alu_slti_subw.py` ⇒ 两条均打印「符合 ISA」、退出码 1（0/2 缺陷仍可复现）；端到端复现行由 a4=0 变 **a4=0x1**（sim/run_m2_rv64ui/rv64ui-p-slti.iss.csv 的 pc=0000123c，与 RTL 侧逐条 0 mismatch）。回归：`test_isa_semantics.py` 32 断言 0 失败＋`test_smoke.py` PASS。判定子集已收回：rv64ui-p-slti 重新纳入 m2-rv64ui 并过（sim/run_m2_rv64ui/run.log）。",
+   "ts": "2026-09-26 05:15"
+  },
+  {
+   "id": "ISS-125",
+   "kind": "ISS",
+   "text": "ISS 缺陷 B（subw，本机 vriss）：`iss/vriss/machine.py:400` 的 `_op32` f3=000 分支 `sext32(u64((w + (y & MASK32LOCAL)) & MASK32LOCAL))` **不读 funct7** ⇒ SUBW（funct7=0100000）被当成 ADDW 执行（同函数 f3=5 分支 :402 已按 funct7 分 SRLW/SRAW，:395-397 的合法性检查也认 0x20 ⇒ 仅 f3=000 漏分流）。实测：镜像 rv64ui-p-subw 的 test_3 `subw a4, 1, 1`，ISS 写 a4=2（trace 行 pc=000011e0），ISA 要求 0（权：riscv_spec_full.txt 行 3609-3611「ADDW and SUBW … defined analogously to ADD and SUB but operate on 32-bit values」）。**本任务禁改 iss/**，未修，仅登记；本轮把 rv64ui-p-subw 从 m2-rv64ui 判定子集移出（不静默跳过）。证据：sim/run_m2_rv64ui/run.log 第 25201 行前段 + sim/run_m2_rv64ui/rv64ui-p-subw.iss.csv。 ｜证据补强（可复现探针，退出码 0＝缺陷仍可复现）：iss/tests/probes/rr_probe15_alu_slti_subw.py（实测 x15=0x2＝ADDW 结果，ISA 要求 0）。 ｜【已解决】2026-09-26（心跳第 6 轮，许可已下）：**修法＝按 funct7 分流 ADDW/SUBW**——`_op32` 的 f3=000 分支改为 `sext32(u64(((w + wy) if funct7 != 0x20 else (w - wy)) & MASK32LOCAL))`（与同函数 f3=5 分支的 funct7 分流同构；合法编码检查 :395-397 原本已认 0x20，未动）。探针复验 ⇒ 两条均「符合 ISA」、退出码 1；端到端复现行 rv64ui-p-subw 的 pc=000011e0 由 a4=2 （ADDW 结果）变 **a4=0x0**（sim/run_m2_rv64ui/rv64ui-p-subw.iss.csv，与 RTL 侧 0 mismatch）。回归：ISS 既有全测仍全 PASS（semantics 32/0、smoke PASS）。判定子集已收回：rv64ui-p-subw 重新纳入 m2-rv64ui 并过。",
+   "ts": "2026-09-26 05:15"
+  },
+  {
+   "id": "ISS-126",
+   "kind": "ISS",
+   "text": "TB 数据桩预载缺口（M2 余项，非 DUT 问题）：`tb/unit/m1_e2e_tb.sv` 的数据窗 `dmemw` 恒零填充（文件头「数据窗：仅覆盖…桩」），而 rv64ui-p-lw（data 8 字）与 rv64ui-p-sw（data 16 字）的 .data 段非全 0 ⇒ 镜像与 TB 数据桩**不等价**，这两条不可在本 TB 上判（`chk_m2_rv64ui` 判据② fail-closed 点名，未静默跳过）。本轮把二者移出判定子集；要收这两条须给 TB 加 `+DATA=` 次镜像预载（`MANIFEST.derivation` 的 `data_words_all_zero` 不变式随之升级），属机制件批次。证据：sim/image/rv64ui/MANIFEST.json 的 data_words_all_zero=false 两条 + sim/run_m2_rv64ui/run.log。 ｜【已解决】2026-09-26（心跳第 6 轮，机制件批次落地）：TB 加 `+DATA=<file>` 数据窗预载——`tb/unit/m1_e2e_tb.sv` 新增 `dpre` 预载源＋`dmem_wr_q` 写位图，读侧模型＝「已提交写优先，否则取预载」（**不把 dpre 拷进 dmemw**：`dmemw` 由 `always_ff` 驱动，ModelSim vlog-7061 禁止其他进程再驱动 ⇒ 单驱动纪律不变）；不给 `+DATA=` 时逐字保持首版零填充口径。构建侧 `sw/tests/build_rv64ui.py` 从**同一份 ELF** 派生第三视图 `<name>.data.hex`（只含落在 TB 数据窗 [0x40000000, +1KiB) 的字、地址减窗基址），MANIFEST 记 `data_hex`/`data_hex_md5`/`n_words_data_win`/`n_words_data_outside_tb_win`＋`abi.data_window`。判据侧 `chk_m2_rv64ui` 判据②由代理式「`data_words_all_zero` 必须为真」升级为直接式「data.hex md5 复算＋窗外数据字计数为 0＋MANIFEST 数据窗与 TB 源文常量逐字一致」（**非放宽**：比对列/阈值/trace_compare 本体未动；新式对 `.data` 非全 0 的测试更严），并新增「TB 自报 `data window preloaded:` 证据行」在环判据（R8）。实测：rv64ui-p-lw（8/8 字入窗）、rv64ui-p-sw（16/16 字入窗）**均可判**并已收回判定子集、36/36 条全过（sim/run_m2_rv64ui/run.log，逐条 `+DATA=` 预载＋0 mismatch）。",
+   "ts": "2026-09-26 05:15"
+  },
+  {
+   "id": "ISS-127",
+   "kind": "ISS",
+   "text": "判据实现缺陷（checker 自身错误，已修；依规则2「checker 自身错误＝直接解决＋登记」）：`script/flow.py` 的 `chk_m2_rv64ui` 长度预检原写 `n_iss = len(_golden_pc_binary(iss_csv))`，而该函数返回 `{pc: binary}` 映射、`len()` 是**互异 pc 数**，与判据 docstring ④「`HALT_PASS … rows=` == **ISS 侧行数**」不是同一量 ⇒ 含循环的测试被误报「长度不等」且 `trace_compare` 从未被调用（实测 rv64ui-p-add：RTL rows=470 ＝ ISS 行 470，互异 pc=358）。修法＝新增 `_csv_data_rows()`（数据行数，与 `iss/tools/trace_compare.py:77` 的 `len(a)!=len(b)` 同源）并替换该行使之**改回度量它自称度量的量**；比对列、`--final-only` 政策、阈值 M2_MIN_TESTS(5) 与 trace_compare 本体**一律未动**（红线 R6），长度不等仍由 trace_compare 退出码 1 兜底。**遗留（未改，待 R0）**：`chk_rtl_vs_iss`（script/flow.py:2691）有同一表达式 `rows_hw != len(gold)`，因 smoke golden 无循环（41 行＝41 互异 pc）当前判据等价，故未动 M1 exit 语义；建议随下次 M1 口径评审一并改，勿单独动。",
+   "ts": "2026-09-26 05:15"
+  },
+  {
+   "id": "R-258",
+   "kind": "R",
+   "text": "M2-2 通过：[PASS] m2-rv64ui: rv64ui 定向子集 32 条全过（≥5）：逐条 ISS `halt_val=0x1` ＋ RTL `HALT_PASS` （tohost 停机）＋ 逐条比对 `mismatch=0`（列 pc,binary,gpr,csr）｜ vlog 14 单元／vopt ",
+   "ts": "2026-09-26 05:19"
+  },
+  {
+   "id": "R-259",
+   "kind": "R",
+   "text": "每小时心跳 2026-09-26 第五轮：RTL 指令面扩展（G1-I 14 条 → 41 条，M2 增补 27）＋ M2 exit (a) 收口。① 指令面：ADD/BNE 首发（riscv-tests 的 TEST_CASE 逐条依赖 bne），随后按 sim/image/rv64ui/GAP.json 的机械反算续补 OP-IMM 7 条（SLTI/SLTIU/XORI/ORI/ANDI/SRLI/SRAI）、OP 8 条（SUB/SLL/SLT/SLTU/XOR/SRL/SRA/OR/AND）、OP-IMM-32 4 条（SLLIW/SRLIW/SRAIW）＋OP-32 5 条（ADDW/SUBW/SLLW/SRLW/SRAW）＋AUIPC；语义与派生域逐条照 spec/02 §9.1.1/§9.1.2/§9.1.3 与 §10.1/§10.5/§10.6/§10.7、§9.5 派生视图。**踩坑并实测修正**：一度把 OP-IMM-32（0011011，ADDIW 族，w[31:25] 是 imm 高位、不得当 funct7 判）与 OP-32（0111011，寄存器型）混作一码 ⇒ ADDIW 被误译成 ADDW、rv64ui-p-add 回归 FAIL（首 fail pc=0x1248 addiw 报非法），已分列修正（sim/run_m2_rv64ui/run.log 旧轮与新轮可对照）。② 判据产出：rtl-compile PASS（12 单元／Errors: 0）；m2-rv64ui **2/2 条全过（旧）→ 7/7（仅 ADD+BNE）→ 32/32 条全过（≥5 口径）**，逐条 ISS halt_val=0x1 ＋ RTL HALT_PASS ＋ trace_compare mismatch=0；M2-2 步骤已由 flow.py run 置 done（证据 sim/run_M2-2/run.log）。③ 判据实现缺陷（ISS-127，已修＋登记）：chk_m2_rv64ui 的长度预检误用 len(_golden_pc_binary) ＝ 互异 pc 数（rv64ui-p-add 470 行 vs 358 互异 pc）⇒ 含循环测试被误报长度不等且 trace_compare 从未被调用；改为 _csv_data_rows()（与 trace_compare 的 len(a)!=len(b) 同源），比对列/阈值/trace_compare 本体一律未动。④ **新发现两个 ISS（vriss）缺陷，未修（本任务禁改 iss/**），已登记 ISS-124/125 并移出判定子集**：machine.py:345 SLTI 对负立即数二次符号回卷（slti 0xffffffff80000000,-2048 得 0，ISA 要 1）、machine.py:400 _op32 f3=000 不读 funct7（subw 1,1 得 2＝ADDW，ISA 要 0）；证据＝可复现探针 iss/tests/probes/rr_probe15_alu_slti_subw.py（2/2 命中）＋ riscv_spec_full.txt 行 2382-2383/3609-3611。⑤ TB 数据桩预载缺口（ISS-126）：rv64ui-p-lw/p-sw 的 .data 非全 0，与零填充数据桩不等价 ⇒ 不可在本 TB 上判，已移出判定子集。⑥ M2 exit (b)/(c) 仍 FAIL：**判据本体是占位实现**（chk_m2_regress 恒 return False；chk_m2_cov 在产物齐备后仍 return False 并要求按口径实现真判）⇒ 仅落机制件无法转 PASS，须 R0 就判据本体出令；本轮未动（红线 R6）。",
+   "ts": "2026-09-26 05:21"
+  },
+  {
+   "id": "R-260",
+   "kind": "R",
+   "text": "每小时心跳 2026-09-26 第六轮：按红线 R2 修 ISS-124／125 ＋ TB 数据桩 +DATA= 预载 ＋ 收回移出测试（m2-rv64ui 判定子集 32 条 → 36 条）。① ISS-124（SLTI 负立即数二次符号回卷）：机器件 iss/vriss/machine.py 的 _op_imm f3=2 由 int(_s(x) < _s(imm)) 改为 int(_s(x) < imm)（imm 已由 _exec 经 sext(...,12) 成 Python 有符号值，二次送 _s() 才是病根；SLTIU 的 u64(imm) 未动），权＝riscv_spec_full.txt 行 2382-2383；未用改测试期望绕过。② ISS-125（_op32 f3=000 不读 funct7）：改为 ((w+wy) if funct7 != 0x20 else (w-wy)) 再掩码＋sext32，与同函数 f3=5 的 funct7 分流同构，权＝行 3609-3611。探针复验 iss/tests/probes/rr_probe15_alu_slti_subw.py ⇒ 由 2/2 命中变 0/2、两条各自打印「符合 ISA」、退出码 1；ISS 既有全测无回归（test_isa_semantics.py 32 断言 0 失败、test_smoke.py PASS）。端到端：rv64ui-p-slti 的 pc=0000123c 由 a4=0 变 0x1，rv64ui-p-subw 的 pc=000011e0 由 a4=2 变 0x0。③ 机制件（ISS-126）：TB tb/unit/m1_e2e_tb.sv 加 +DATA= 数据窗预载——新增 dpre 预载源＋dmem_wr_q 写位图，读侧＝「已提交写优先，否则取预载」；不把 dpre 拷进 dmemw（ModelSim vlog-7061 禁止 always_ff 变量被他进程驱动，单驱动纪律不变）；不给 +DATA= 时逐字保持零填充口径。构建侧 sw/tests/build_rv64ui.py 从同一份 ELF 派生第三视图 `<name>.data.hex`（只含 TB 数据窗 [0x40000000,+1KiB) 内的字、地址减窗基址），MANIFEST 增记 data_hex／data_hex_md5／n_words_data_win／n_words_data_outside_tb_win／abi.data_window／tb_data_window_consts。判据侧 chk_m2_rv64ui 判据②由代理式「data_words_all_zero 必须为真」升级为直接式「data_hex md5 复算＋窗外数据字计数为 0＋MANIFEST 数据窗与 TB 源文 DRAM_BASE／DMEM_WORDS 逐字一致」，并新增「TB 自报 data window preloaded 证据行」在环（R8）；非放宽：比对列、--final-only 政策、条数阈值与 trace_compare 本体一律未动，且对 .data 非全 0 的测试由整条拒判变照判。④ 子集收回：rv64ui-p-slti／p-subw（ISS-124／125）与 rv64ui-p-lw／p-sw（ISS-126）重新纳入，check-one m2-rv64ui ⇒ PASS 36/36：逐条 ISS halt_val=0x1 ＋ RTL HALT_PASS（rows 相等，0 HALT_FAIL／0 WATCHDOG_TIMEOUT）＋ 36 条 trace_compare mismatch=0（列 pc,binary,gpr,csr）＋ 36 条数据窗预载证据行；lw 数据 8/8 字、sw 数据 16/16 字均入窗（窗外 0）。无一条需登记 GAP.json 待补（union 子集外只剩 unimp＝停机后不执行）。⑤ flow.py check：11 条常跑守卫＋m2-rv64ui 全 PASS；唯 m2-regress／m2-cov 仍 FAIL（判据本体未动，等 R0 出令），末行 flow check: FAIL（里程碑 M2 exit 未过），退出码 1。⑥ 记账：ISS-124／125／126 在原条目回填【已解决】＋时间＋方案摘要（flow.py 无改条目机制，按红线 R4 直接回填 text；条目数 100 与 next 未动），并刷新 doc/当前目标卡.md 的 m2-rv64ui 现状与阻塞项（原「TB 数据桩不预载 .data」条已闭）。⑦ 窗口：折入 726 件（新增 36 个 data.hex、删除 0、改动 44）；首次 take 的 reason 被 cmd 引号截断（只剩「每小时心跳」）⇒ 视为作废，随即以同一文件集（期间无内容变化）重作并写入完整出处，本轮如实披露两次 take（规则 22）。⑧ 硬约束：未改 m2-regress／m2-cov 判据本体、未改 rtl/vr1/include/*.svh 与 doc/spec/**、未改冻结端口面、无放宽或注释判据、编号脚本自增。",
+   "ts": "2026-09-26 06:11"
+  },
+  {
+   "id": "R-261",
+   "kind": "R",
+   "text": "每小时心跳第 7 轮（2026-09-26）：M2 exit (b)回归／(c)覆盖率的**机制件**落地并实跑出真实证据；`chk_m2_regress`／`chk_m2_cov` 判据本体**一字未动**（仍 FAIL，等 R0 出令）。① (b) 回归：落 `run_cmd/regress_rv1.py` ＋ `run_cmd/rv64ui_testlist.txt`（rv64ui 全量 36 条，名字逐字取 MANIFEST，解析不到即 fail-closed）。同配置实跑 2 轮：`sim/run_regress_r1/summary.txt`＝`REGRESSION_PASS runner=r1 total=36 pass=36 fail=0`（56.1s）、`sim/run_regress_r2/summary.txt`＝同（55.4s），无 AB 中止；轮间差异 `sim/run_regress_r2/round_diff.txt`＝`new_fail=0 lost_fail=0 same_config=yes`（同配置面由 `config.json` 的 testlist md5／jobs／超时／编译集合机判）。红线落实：R10 每 runner 独占 `sim/run_regress_<id>/`（`.runner.lock` pid 存活即拒，实测退出码 3）＋并发硬上限 4（`--jobs 5` 拒启动，实测退出码 3；`--jobs 2` 走 `job<k>/` 独立编译库，冒烟 4/4 PASS 见 `sim/run_regress_r0probe2`）；R9 双闸（单用例 1200s＝20 分钟/用例、批累计 7200s＝2 小时 ＋ TB 2,000,000 拍 watchdog），超时 `taskkill /T` 杀进程树。② (c) 覆盖率：落 `run_cmd/cover_rv1.py`，实跑链＝`vlog -64 -sv -cover bcesf`（14 单元 Errors: 0）→`vopt +cover=bcesf`→逐例 `vsim -coverage`＋`coverage save -onexit` 产 36 份 ucdb→`vcover merge`（合并集限**同一次**编译版本，AGENTS §3.4 坑 3）→报告 `doc/verify/07-m2cov_r1.txt` ＋ 指纹 `sim/covdb/FINGERPRINT.json`（`filelist/rtl.f` md5 `10f20a514e84ce23267d1dc6bc6f2302`、14 单元逐件 md5、两生成件 md5、编译/仿真/合并命令、工具版本、36 份源 ucdb 清单）。**当前水平照实**（不美化、无 waiver/exclude）：`-cvg -detail` 面**无数据**（DUT 侧尚无 covergroup／SVA，报 vcover-17388）；代码覆盖率工具自报合计 72.52 pct（filtered view），DUT 面自算 Σhits/Σbins＝Statements 859/962（89.29 pct）、Branches 308/408（75.49 pct）、Conditions 31/81（38.27 pct）、Expressions 81/121（66.94 pct）、FSM Transitions 5/8（62.5 pct）、FSM States 4/4；**本批不判阈值**（阈值归 M3/签核）。③ 判据面：`python script/flow.py check` 末行＝`---- flow check: FAIL（里程碑 M2 exit 未过；见上列 FAIL 项）----`、退出码 1，FAIL 恰为 m2-regress／m2-cov 两条（判据本体未动；m2-rv64ui 36 条全过）。④ 窗口：`window --take --reason …` 折入后基线 732 件（本片新增折入 6 件：2 个 run_cmd 机制件＋1 testlist＋1 覆盖率报告＋1 ucdb＋1 指纹；`sim/run_*` 不入窗口）。⑤ 工具口径两处实测修正（供后续复用）：`vopt` 只认 `+cover=<spec>`（`-cover=` 报 vopt-10538 非法选项）；`vcover report -code` 必须带 spec（`-code sbcef`），否则吞掉 ucdb 路径报 vcover-17312，且本版 usage 正拼写为 `-details`（`-detail` 缩写可用）。未解决项：判据本体转真判（须 R0 出令）；`sim/covdb/README.md` 的「本目录目前为空」状态段已过期但受 guard-write 保护未改（TODO M2-c-1）；无 covergroup／SVA 与 toggle 未开（TODO M2-c-2/c-3）。",
+   "ts": "2026-09-26 07:14"
+  },
+  {
+   "id": "R-262",
+   "kind": "R",
+   "text": "每小时心跳第 8 轮（判据本体 chk_m2_regress/chk_m2_cov 一字未动）。① 扩 rv64ui 判定子集：把 51 条**能编的** rv64ui-p-* 全编出来跑了一遍（`sim/run_M2_rv64ui_all51/run.log`，节头分类 `section_classify.txt`）⇒ **36 条过 / 15 条不过**（36→36，**0 条新增通过**）：不过的 15 条全部移出判定子集并**逐条**落 `sim/image/rv64ui/GAP.json` 的 `pending_subset`（16 条＝15 条实测失败＋fence_i 编译失败）——14 条\"缺指令\"（bge/bgeu/blt/bltu/jalr/lb/lbu/lh/lhu/lwu/ld/sb/sh/sd：RTL 侧 `HALT_FAIL val=0x539`＝`sw/env/riscv_test.h` 差异表第 4 条的未处理异常标记 1337 ⇒ 非法指令路径；`vr1_decode.sv` 的 OPC_BRANCH 明确注释\"BLT/BGE/BLTU/BGEU 仍在面外\"、无 OPC_JALR/OPC_LOAD 仅 LW）、1 条\"缺机制\"（ma_data：ISS 侧 `halt_val=0x539`＝非对齐访存；`MISALIGNED_EN=0`／ISS-010 两侧一致）、1 条\"编译失败\"（fence_i：`-march=rv64im_zicsr` 无 `zifencei`）。脚本化：`build_rv64ui.py` 增 `JUDGE_SUBSET`（36 条，入集四判据写明）、`--tests` 默认值由 2 条改为该子集（**修掉一处隐患**：`flow.py` 的 M2-1 步重跑会把 MANIFEST 缩回 2 条）、`--run-evidence` 机械解析运行日志生成待补清单的实测签名（不手抄）；MANIFEST 增 `judge_subset` 段。判据证据：`check-one m2-rv64ui` **PASS**（36/36，vlog 15 单元／vopt Errors: 0，sim/run_m2_rv64ui/run.log）。② 首批覆盖模型（服务 M3）：新 TB 侧件 `tb/unit/m1_e2e_cov.sv`（纯监视器；已挂 `filelist/tb_m1_e2e.f`）——3 个 covergroup／12 个 coverpoint（CG1 `cg_retire`＝VP-01/05/08/22/VP-X02；CG2 `cg_fetch`＝VP-16/32；CG3 `cg_lsu_fsm`＝VP-09/24/27，其 8 条迁移与 vr1_lsu 的 FSM 迁移同构）＋ 6 条 SVA（A1 复位可见态＝spec/11 L-06＋VP-32；A2 首取指 VA==RESET_PC＝VP-32＋spec/00 §4.1；A3 rd=x0 不写回＝spec/02 §4.1 SI-1＋VP-18；A4 异常码≠0＝VP-X02＋spec/10 §2.1；A5 内存类发射需 LSU 空闲＝VP-24/27；A6 非对齐不发访存请求＝VP-09）。**未用 `bind`**（如实登记）：实测任何形式的 `bind` 都会让 vlog 多一行 `-- Compiling package <名>_sv_unit`⇒ `m2-rv64ui`/`rtl-vs-iss`/`compile_design` 的\"计数==清单条目数\"不变式会 fail-closed（判据不许动）⇒ 改 TB 例化＋层次化采样口（spec/11 §2 的\"TB 从采样口构造\"声明已写进件头）。**覆盖数字新旧对照**（`doc/verify/07-m2cov_r1.txt` 原地刷新；旧值见下）——§A 功能覆盖：旧\"**无数据**（No matching coverage data found）\"⇒ 新 `TOTAL COVERGROUP COVERAGE: 73.79%`（3 类型／12 coverpoint／55 bins 命中 41），**-cvg 面自此有数据**；§D 断言覆盖（新加节，`-assert -detail`）：`Assertions bins=6 hits=4 misses=2 coverage=66.66%`，逐条 `Failure/Pass`＝A1 0/36、A2 0/36、A3 0/36、A5 0/36、**A4 0/0、A6 0/0**（本批未被激励＝空真，已如实标注并登记 TODO(M2-c-2-b)）；§C DUT 面代码覆盖：旧 Statements 859/962=89.29%／Branches 308/408=75.49%／Conditions 31/81=38.27%／Expressions 81/121=66.94%／FSM States 4/4=100%／FSM Transitions 5/8=62.5% ⇒ 新**逐项完全相同**（结论：covergroup/断言只进 `-cvg`/`-assert` 面，**不能**抬代码覆盖率；Conditions 38.27% 与 FSM Transitions 5/8 要动只能靠**激励**——缺的正是 VP-09 非对齐定向、VP-X02 异常定向与\"复位落在飞指令\"注入，已登记）。工具自报合计行 72.52%→72.55%（家族变多，非阈值判定）。不做 exclude/waiver（红线 R7），未命中 bin 原样保留。③ `flow.py check` 末行＝`---- flow check: FAIL（里程碑 M2 exit 未过；见上列 FAIL 项）----`，退出码 1，**恰好 2 条 FAIL**（m2-regress／m2-cov，仍等 R0）。未解决项：`sim/covdb/README.md` 的状态段仍写\"本目录目前为空\"（受 guard-write 保护未改，TODO(M2-c-1)）；`spec/11` §1 的 A1~A19 待机制在环；toggle(t/x) 未开（TODO(M2-c-3)）。",
+   "ts": "2026-09-26 08:29"
+  },
+  {
+   "id": "R-263",
+   "kind": "R",
+   "text": "里程碑 M2 exit 全过（m2-rv64ui,m2-regress,m2-cov）",
+   "ts": "2026-09-26 08:43"
+  },
+  {
+   "id": "R-264",
+   "kind": "R",
+   "text": "心跳第 9 轮（2026-09-26，R0 授权口径 A）：`chk_m2_regress`／`chk_m2_cov` 两条**恒 FAIL 桩**改为**真判据**（M2 收口）。口径＝**判据只核证据、不重跑重活**（重活仍由机制件承担、由人显式发起），全部 fail-closed：①(b) 被判两轮＝最近一次 `--diff` 产物（mtime 最新者，结论点名 base=r3 head=r4）；逐轮核 summary 尾行 `REGRESSION_PASS`（全文无 FAIL／ABORTED）＋ counts total==pass 且 fail/timeout/fatal/skip=0 ＋ cases.json／config.json 三者一致；R10：jobs 在 1..4 且 cap==4 且 runner_id↔沙箱独占；R9：case_timeout=1200／batch_budget=7200／watchdog=2000000（与机制件同值）；跨轮核 new_fail=0 new_timeout=0 same_config=yes ＋ diff 计数行与两轮配对 ＋ 同配置面**独立复算**（除逐轮身份字段外逐字段相等）；**时效**：两轮指纹的 rtl.f md5 与 rtl.f 的每个 RTL 单元 md5 逐条 == 现盘、changed_since_fingerprint 为空、编译单元集合 == 当前 rtl.f。②(c) 报告在册（doc/verify/07-*.txt 非空 ＋ 指纹段要素 ＋ 内嵌 rtl.f md5 == 现盘 ＋ 字节数与指纹一致）＋ 指纹在册且 rtl_filelist.md5 == 现盘（逐单元 md5 复核 12 个 RTL 单元）＋ 合并件在册；**不判阈值**（归 M3）。机制件侧**只做加法**：run_cmd/regress_rv1.py 的 config.json 增 fingerprint（rtl.f／tb.f md5 ＋ 逐编译单元 md5 ＋ 收尾复算 changed_since_fingerprint；**不放时间戳**，因该块参与 --diff 同配置比对——首版曾带 captured 致 same_config=no，已撤），summary 增版本行；据此**重跑两轮 r3／r4**（各 36/36 PASS，74.0s／74.2s）＋ --diff r3 r4（new_fail=0 same_config=yes）；r1/r2 旧证据保留（无指纹字段，按新口径=过期，不删）。**反向探针**（判据自证非空跑，全 fail-closed）：live md5 置 0×32 则 (b)/(c) 报证据过期并给重跑命令；删 round_diff 则 (b) 报缺件＋重跑命令；RTL_F 置不存在则 (c) 报缺件；指纹缺 rtl_filelist／report.path 则 (c) 各自点名。**未动面**：chk_m2_rv64ui 与其它既有判据／阈值一字未动；rtl/**（含生成件）／doc/spec/**／tb/**／iss/**／sim/covdb/** 未改。实跑：flow.py check 三 exit 全 PASS（m2-rv64ui 36 条／m2-regress r3-r4／m2-cov m2cov_r1）⇒ **M2 达成（R-263 自记）**，末行 ---- flow check: PASS / 里程碑 M2 exit 全过 ----、退出码 0；窗口折入 748 件（折入前独立 dir 计数复核 = 748 ⇒ 本次折入完整）。**观察项（未处置）**：上一基线（08:29 折入）自报 448 件，与 R-261 的 732 件及本次 748 件均不符（差额约 300 与 sim/image/rv64ui 257 件＋script/tmp 89 件等既存件同量级）⇒ 疑为上一轮折入时快照不完整（os.walk 静默跳过），待查。**遗留（未改）**：M2 三条 exit 的 desc 仍写「判据待注册」（里程碑定义文本属 state 手工字段，未动）。",
+   "ts": "2026-09-26 08:45"
+  },
+  {
+   "id": "R-265",
+   "kind": "R",
+   "text": "心跳第 10 轮（2026-09-26）＝M3-(d)「补缺指令」批（判据本体一字未动；AGENTS §5 红线未动；`rtl/vr1/include/*.svh` 生成件、`doc/spec/**`、G1-I 冻结端口面均未动）。① **RTL 合法指令面 41→57 条**（`rtl/vr1/ctrl/vr1_decode.sv` 的\"首版子集口径\"与 `vr1_core` 的成员列举同步）：新增 16 条——条件分支余 4（`BLT/BGE/BLTU/BGEU`，§9.1.3 0x082..0x085；条件由成员唯一承载＝§9.4-(2) 分列裁定）、`JALR`（0x090；目标式＝`(rs1+imm)&~1` 在 M10 实现，§10.2 逐字）、载入余 6（`LB/LH/LD/LBU/LHU/LWU`，§9.1.4；`dm`/`sext` 逐条照 §9.5）、存储余 3（`SB/SH/SD`，§9.1.4）、MISC-MEM 2（`FENCE` 0x380／`FENCE.I` 0x381，§9.1.8）。FENCE.I 入面依据＝`spec/00` §2 一期 ISA 串 `rv64imac_zicsr_zifencei` **含 `zifencei`** ⇒ 按**最小语义**入面＝识别 ＋ 无副作用完成（排空/无效化动作集合在本版为空：无 L1I、无 store buffer、取指桩为组合读），而非列缺带归属。② **M10 BRU**：lane 判别扩到 8 条（6 分支 ＋ `JAL`/`JALR`）；方向＝`JAL`/`JALR` 无条件跳、`BLT`/`BGE` **有符号**、`BLTU`/`BGEU` **无符号**（64 bit 比较）；`JALR` 目标＝`(rs1_val+sext(imm))&~1`（只清 bit0、不产 misaligned——`IALIGN=16` 口径，§10.2）；`is_jalr_ret` 由\"构造不可达的恒 0\"改为按 §16.4-(2) **T-7 定案谓词**真构造（`JALR ∧ rs1_arch∈{x1,x5} ∧ rd_arch≠rs1_arch`）。③ **M11 LSU 重写**：按宽对齐判决（B 恒对齐／H `a[0]`／W `a[1:0]`／D `a[2:0]`；`MISALIGNED_EN=0` ⇒ **不对齐一律不发任何存储请求**、直接以 `ls_complete_t` 报 fault 码 4/6）、`dm`/`sext` 逐条消费（LD 的 `sext` 不适用）、载入的 lane 选择与符号/零扩展**在本单元完成**（回读口径＝`va[2:0]` 所在 8 B 对齐双字的 64 bit）、`mem_size` 观测面由常量 W 改为 `dm`。④ **TB 访存桩两处扩展**（平台面，非判据）：载入响应由单 32 bit 字改为**8 B 对齐双字**（对既有 `LW`/`SW` 逐值等价）；store 落盘由\"整 32 bit 字覆盖\"改为**字节使能**（`n=1<<mem_size` 字节自 `mem_addr` 起、littl-endian）＋**首次写该字时先把 `+DATA=` 预载值搬进写面**（不搬则 `SB`/`SH` 会把同字其余字节按 `dmemw` 初值 0 顶掉预载值 —— 实测踩到：`sb`/`sh` 在第 4 号用例的 `lh` 上首个分歧 pc=0000123c／00001244，修后消除）。判据② 的 `DRAM_BASE`/`DMEM_WORDS` 字面量与窗口算术**一字未改**（`tb_data_window_consts` 对账仍过）。⑤ **判定子集 36→50 条**（`sw/tests/build_rv64ui.py` 的 `RTL_SUPPORTED`/`JUDGE_SUBSET` 与 `run_cmd/rv64ui_testlist.txt` 同步）：`check-one m2-rv64ui` ＝ **50/50 PASS**（vlog 15 单元／vopt `Errors: 0`；逐条 ISS `halt_val=0x1` ＋ RTL `HALT_PASS` ＋ `trace_compare` **0 mismatch** 列 pc,binary,gpr,csr），**新纳入 14 条、移出 0 条**；`fence_i` 由 `MARCH_OVERRIDE` 编出（**只**给该条加 `zifencei`，其余 51 条保持原 `-march` 以免扰动既有镜像字节）。⑥ **子集外 2 条显式列缺带归属**（`sim/image/rv64ui/GAP.json` 的 `pending_subset`，`kind=缺机制`，**不静默跳过**；两侧实测签名 ＋ 取证件 `sim/run_m3d_pending/probe.log` 与同目录两侧 CSV）：`fence_i`＝缺机制（ISS `halt_val=0x1` **PASS**／RTL `HALT_FAIL val=0x539 testnum=668 rows=73`，首个分歧＝pc=0x40000204 取回 `bin=00000000` —— 取指桩只覆盖 0x0000~0x3FFF，而测试体自修改后的指令落在 `.data` 区 0x4000_02xx 并在那里执行；**不是**\"指令未实现\"）；`ma_data`＝缺机制（ISS `halt_val=0x539`／RTL `HALT_FAIL val=0x539 rows=52` 且 `dmem_ld=0`＝非对齐 load **不发请求**即报 fault 码 4；两侧**一致不支持**，依据 `spec/00` §4 与 `doc/process/00` **ISS-010** —— **未改口径去迁就它**）。⑦ **M2 三条 exit 证据刷新**：`m2-rv64ui` 50/50；`m2-regress` 重跑两轮 `r5`/`r6`（各 `total=50 pass=50 fail=0`，102.8s／102.6s）＋ `--diff r5 r6`（`new_fail=0 lost_fail=0 same_config=yes`）；`m2-cov` 新批 `m2cov_r2`（逐例 ucdb 50 份 → 合并件 `sim/covdb/m2cov_r2.ucdb` 24773 B、报告 `doc/verify/07-m2cov_r2.txt` 63960 B、指纹 `rtl.f md5` == 现盘）。⑧ **收尾三件**：(a) `state/flow.json` 的 M2 三条 exit `desc` 由「判据待注册」刷新为真判据口径（＋ M2 的 `blocked_by` 由过时阻塞面改为\"历史留档 ＋ 后续增量清单\"）——**只改文本字段**，不动 check 名、里程碑状态与 steps；(b) `AGENTS.md` §1 与 `doc/当前目标卡.md` 的里程碑指针刷新为 **M2 met ＋ M3-(d) 进行中**；(c) **R-264 观察项查清**：`window` 基线件数 448／732／748 不一致 ＝ **08:29 那次折入的快照确实缺件** —— 算术上不可能只有 448 件（现盘**非** `sim/image/rv64ui` 部分即 491 件，而 08:29→08:44 该部分只新增约 3 件 ⇒ 即便 rv64ui 整目录缺席也应是约 488）；机制＝`snapshot_files()` 的 `os.walk(...)` 用**默认 `onerror=None`**，目录列举错误被静默吞掉（不打印、不计数），而当时 `sim/run_M2_rv64ui_all51`（08:03–08:32）正在并发写盘。**未改 `flow.py`**（机制件/判据改动属必报类）—— 加固（`onerror` 记账 ＋ 折入前后件数复核）待授权。⑨ **实跑证据（本片收尾）**：`flow.py check`（本片最后一次，含逐条重跑 m2-rv64ui）末行 ＝ `---- flow check: PASS / 里程碑 M2 exit 全过 ----`、**退出码 0**、0 条 FAIL；M1 两条 exit 复验 `rtl-compile` PASS（vlog 12 单元／`Errors: 0`）＋ `rtl-vs-iss` PASS（RTL 30 条退休 vs golden 30 条、列 pc,binary,gpr,csr 0 mismatch）；窗口折入 **822 件**（＝旧基线 748 ＋ 逐目录对平：`sim/image` +5／`script/tmp` +67／`doc/verify` +1／`sim/covdb` +1）。⑩ **未做/留 TODO**：`m3-cov-threshold`／`m3-regress-zero-error`／`m3-mutation-audit` 三条 M3 exit 判据**未注册**（属机制件批次，`register_before_activate` 口径不得绕过）；RTL 余 30 成员随 G1-F；`fence_i`/`ma_data` 两条仍在子集外（缺机制已逐条列缺带归属）；`window` 加固（`onerror` 记账）未做（必报类）。",
+   "ts": "2026-09-26 09:32"
+  },
+  {
+   "id": "R-266",
+   "kind": "R",
+   "text": "心跳第 11 轮（2026-09-26）＝A 窗口工具加固 ＋ B M3 三条判据注册并置 active ＋ C `script/tmp` 清空（判据阈值与强度**一字未放宽**；`rtl/vr1/include/*.svh` 生成件、`doc/spec/**`、G1-I 冻结端口面均未动）。\n①A（平台/验证代码类，R2 口径，R0 授权）：`snapshot_files` 的 `os.walk` 加 `onerror` 回调**收集**枚举失败（原默认 `onerror=None` ⇒ 静默跳过整棵子树＝08:29 折入缺件的病灶，R-264 已查清），文件级 `stat`/读取失败同样收集（同病灶，不再 `continue` 瞒过）；`cmd_window` 有枚举错误即 **FAIL（rc=2）**，**既不比对也不折入**；`--take` 加件数下限 `WINDOW_TAKE_MIN_RATIO=0.90` 合理性校验（新件数 < 上一份 90% ⇒ 拒绝折入并列缺失项；确系正当批量删除才可 `--force` ＋ reason 写明）。路径探针 `script/tools/win_hardening_probe.py`（归档自本轮 `script/tmp/_probe_win.py`）三条路径全过：枚举错误被收集／有错时 `--take` rc=2 且基线未改写／件数骤降 rc=2 而 `--force` 放行；真快照 837 件、枚举错误 0（上一份 822 件，同量级）。\n②B：`m3-code-cov`／`m3-func-cov`／`m3-regress-stab` 三条**先注册**进 `script/flow.py` 的 `CHECKS`（**不进 GUARDS**；口径＝只核证据＋时效、不重跑重活，与 M2 两条同源、fail-closed），再把 `state/flow.json` 的 M3 exit 由占位名（`m3-cov-threshold`／`m3-regress-zero-error`／`m3-mutation-audit`）换成三条真判据并置 **active**（`register_before_activate` 口径：先注册判据再置位）。实跑：**(a)＝FAIL（如实，未放宽）** Statements 88.27%（918/1040）／Branches 76.57%（353/461）／Conditions 37.97%（30/79）／FSM Transitions 62.50%（5/8），四项全欠 90%；DUT 面从报告 §C **独立复算**并与指纹 `dut_face_rollup_selfcomputed` 逐项一致（11/12 单元节），证据 `doc/verify/07-m2cov_r2.txt`（batch=m2cov_r2，rtl.f md5=10f20a51 == 当前）。**(b)＝FAIL**：功能覆盖 TOTAL COVERGROUP 73.79%，已纳入判定范围的 3 个 CG 缺 bin——`cg_retire` 27/35（csr_mstatus／csr_misa／csr_mscratch／csr_mepc／csr_mcause／csr_mtval／exc／priv_u）、`cg_fetch` 5/8（cp_req_hs.idle／cp_req_hs.req_wait／cp_rsp_hs.rsp_wait）、`cg_lsu_fsm` 9/12（t_idle_done／t_req_idle／t_rsp_idle）；另 `doc/verify/02` **无标题含「未纳入」的节**（「未纳入项」缺列带归属 ⇒ 按口径 FAIL）。**(c)＝PASS**：本轮补跑第三轮 `sim/run_regress_r7`（103.1 s，total=50 pass=50）＋ `--diff r6 r7`（new_fail=0 same_config=yes），判据取本版本同配置 **r5/r6/r7 三轮**全过、轮间 0 新 FAIL（按 `cases.json` 的 FAIL 集合独立复算，不比原因文本）。第三条 M3 exit `m3-mutation-audit`（错误注入保真度／VP-X05）**机制尚无落点 ⇒ 保留待注册**（TODO(M3-3)，不假落）。缺口清单已写进 `state/flow.json` 的 M3 `findings`，供下一轮**补定向激励**（红线 R7：禁删 bin／改采样条件／waiver；禁调阈值）。\n③C（过程卫生）：`script/tmp/` **清空至只剩 README.md**（该件被 .gitignore 白名单保留）——**归档 4 源件 → 3 工具件**（`script/tools/`：`win_hardening_probe.py`／`ref_scan_before_delete.py`／`file_peek.py`〔`dump.py`＋`g.py` 并件〕），**删除 168 件**（含本轮 9 件探针/临时件与 `__pycache__/`）；删前用 `script/tools/ref_scan_before_delete.py` 全仓扫描：**无机制件/现行文档正文引用 tmp 件**（命中项均为历史快照件 `script/gate/window_state.json`／`state/window.json` 的记录行、目录约定文本、ISS-022 教训与 `doc/process/03` 的旧计数行）。清单与计数落 `sim/run_cleanup_tmp/run.log` ＋ `ref_scan.log`。\n④收尾：`flow.py check` 末行＝`---- flow check: FAIL（里程碑 M3 exit 未过；见上列 FAIL 项）----`（rc=1；M3 exit (a)(b) **如实 FAIL**，ledger／state ＋ 9 条常驻守卫共 11 行全 PASS）；`flow.py window --take --force`（670 件；守卫因本轮 -155 件**有意清空**触发，reason 已写明原因，`sim/run_cleanup_tmp/window_take.txt`）；AGENTS §1／§2 与 README 目录约定同步（M3 状态 ＋ `script/tools/`）。",
+   "ts": "2026-09-26 09:54"
+  },
+  {
+   "id": "R-267",
+   "kind": "R",
+   "text": "心跳第 12 轮（2026-09-26）＝M3-(a)/(b) **补定向激励**批（判据本体、覆盖模型 bin/采样条件、`rtl/vr1/include/*.svh`、`doc/spec/**`、G1-I 冻结端口面**均未动**；无 waiver/exclude、未删任何 bin —— 红线 R6/R7）。\n①**激励面三条**（逐条对上缺 bin；证据＝`doc/verify/07-m3cov_r1.txt`）：(a) 定向用例 **新件** `sw/tests/direct/dir_csr.S`（`csrrs rd=x0, csr, rs1=x0` ×7 纯读 ⇒ `cg_retire.cp_csr` 的 7 个 bin 全中，其中 6 个此前为 ZERO；纯读对 gpr/CSR 状态零影响 ⇒ 行为惰性）；(b) **导入既有自研镜像** `m_smoke`（M1 `rtl-vs-iss` 的激励，ISS↔RTL 30 条 0 mismatch）⇒ `cp_exc.exc`（非对齐 store → M 态 trap 条目退休）＋ `cg_lsu_fsm.t_idle_done`（`L_IDLE=>L_DONE`：非对齐不发请求直接报 fault）；(c) TB `tb/unit/m1_e2e_tb.sv` **加握手等待态激励**（`imem_req_ready`／`dmem_req_ready`：每笔请求至少等一拍 ＋ 接受后冷却一拍；**恒开、无 plusarg** ⇒ 与 M1/M2 判据同一激励面，无暗门）⇒ `cg_fetch` 的 `idle`／`req_wait`／`rsp_wait` 三 bin 全中。语义零影响的依据：两侧 RTL 的推进均按 `… && ready` 门控（`vr1_ifetch.sv:118` 的 `issue = req_vld && imem_req_ready_i`、`vr1_lsu.sv:265` 的 `if (dmem_req_ready_i)`）⇒ 未接受即不推进、无副作用。\n②**构建面**：`sw/tests/build_rv64ui.py` 加 `DIRECT_DIR`/`DIRECT_TESTS`/`IMPORT_CASES` 与 `build_one` 的 `src_dir`/`name` 覆盖参数；`sim/image/rv64ui/MANIFEST.json` 重生成 ⇒ 50 条既有条目三视图 md5 **逐条不变**、`tests` 50→**52**。两条新用例**进 `MANIFEST.tests`** ⇒ 同受 `m2-rv64ui` 逐条真跑判定（**无免判通道**）；覆盖率批清单＝新件 `run_cmd/cover_m3_testlist.txt`（52 条）。**`run_cmd/rv64ui_testlist.txt` 一字未改**（不换回归\"同配置\"签名，不改动已跑轮次的分组）。\n③**(b) 判据面**：`doc/verify/02` 补 **§6「未纳入（功能覆盖判定范围）的 VP 与覆盖率项」**（7 条表体行，逐条给依据 ＋ 归属批次）⇒ 判据 ⑤ 的 fail-closed 面闭合；判定范围内的缺 bin 由 11 条降到 **3 条**。\n④**实跑数字（旧→新，如实照录）**：功能覆盖 TOTAL 73.79%→**93.45%**（逐 CG：`cg_fetch` 5/8→**8/8**；`cg_lsu_fsm` 9/12→**10/12**；`cg_retire` 27/35→**34/35**）；代码覆盖（§C DUT 面自算，与判据独立复算逐项一致）Statements 88.27%→**92.69%**（此项已过 90%）、Branches 76.57%→**87.69%**、Conditions 37.97%→**54.43%**、FSM Transitions 62.50%→**75.00%**；断言覆盖 4/6 hits→**6/6 hits（100%）**（A6 非对齐负向核对由 `m_smoke` 激励到位）。**分母变更披露**：Branches 461→463 —— `imem_req_ready` 由恒 1 变为真信号后，DUT 侧 2 个此前被判常量的分支 bin 进入计数；**不是**改判据/改模型。\n⑤**M1/M2 五条复验（全绿）**：`rtl-compile` PASS；`rtl-vs-iss` PASS（30 条 0 mismatch，TB 变更后重跑）；`m2-rv64ui` PASS（**52/52**，判定面扩容后重跑）；`m2-regress` PASS；`m2-cov` PASS（读最新批 `m3cov_r1`）。`m3-regress-stab` 仍 PASS。**披露**：r5/r6/r7 三轮证据产于 TB 变更之前 —— 判据口径只锚 RTL 面（`script/flow.py` 的 M2/M3 段头明写\"TB 面与沙箱逐例产物不进本判据口径\"），RTL 与用例集均未变，故三轮结论不回退；如需 TB 面同版本证据须重跑轮次（未自决）。\n⑥**未闭合项与去向（不自决）**：`priv_u`（一期**单特权级**：`rtl/vr1/core/vr1_core.sv` 的 `alloc.priv = PRV_M` 为分配期恒值 ⇒ `2'b00` 无产生者，任何激励不可命中）与 `t_req_idle`／`t_rsp_idle`（需\"运行中复位注入\"，而复位注入用例不能进 `MANIFEST.tests`（`m2-rv64ui` 全量逐条比对 ISS↔RTL）⇒ 阻塞点是 **harness 通道**而非激励）⇒ 逐条落 `doc/verify/02` §6 的 NU-1／NU-2；NU-2 须 **呈 R0 决策**（\"覆盖率专用、不进 m2-rv64ui 判定面\"的用例通道属必报类变更）。\n⑦**残余**：本轮的临时脚本/日志已删；探测沙箱 `script/tmp/hb12probe/work/**`（ModelSim 编译库，被窗口快照的 SKIP_DIRS 跳过）因 `guard-bash` 拦递归删除而保留，归\"清理批次\"。",
+   "ts": "2026-09-26 10:13"
+  },
+  {
+   "id": "R-268",
+   "kind": "R",
+   "text": "心跳第十三轮：R0 2026-09-26 三项裁定落地。①NU-2 受控复位注入通道：定向用例 sw/tests/direct/rst_lsu.S＋tb/unit/m1_e2e_tb.sv 的 +RESET_INJECT=<cycle>[,...]（不给 plusarg 逐字保持原行为；拉低/释放移到 posedge 后 2ns 防采样竞态）＋sw/tests/build_rv64ui.py 的 COV_ONLY_TESTS（MANIFEST.cov_only_tests，不进 tests/不进回归）＋run_cmd/cover_m3_testlist.txt 的 rst_* 条目＋run_cmd/cover_rv1.py:run_case_rst（RTL 单侧 fail-closed 判定：HALT_PASS＋无 HALT_FAIL/WATCHDOG＋[rst_inj] 证据行）＋script/flow.py chk_m3_func_cov 通道标注（M3_FUNC_COV_CONTROLLED_BINS，判定口径不变）；探针定拍 3695∈L_REQ/3796∈L_RSP，覆盖率批 m3cov_r2 重出报告（53/53 PASS，doc/verify/07-m3cov_r2.txt），两 bin 实测 Covered、cg_lsu_fsm 12/12、TOTAL 93.45%→97.61%。②priv_u 列缺带归属：doc/verify/02 §6 NU-1 行按裁定补强（归属 G1-F/二期特权面扩展，依据 spec/00 §2 ISA 串与一期定位；不改 vr1_core、不加 U 态）；m3-func-cov 仍 FAIL 且仅剩 priv_u——判据④为逐 CG covered==total 硬条件、无列缺豁免机制（读判据原文核实，未改判据本体）。③回归证据口径只锚 RTL 面：chk_m3_regress_stab docstring⑤与 PASS 消息明文化（TB 面不进版本校验，TB 变更后需人工重跑轮次），判定逻辑未动。守卫与 m2-cov 复验 PASS；m3-code-cov 如实 FAIL（Branches 87.69/Conditions 54.43/FSM 75.00；FSM 余 2 弧=vr1_lsu 异步复位弧，代码面不计复位弧而功能面 8/8，属口径事项待人裁；缺口集中 vr1_decode/vr1_csr/vr1_exu_int）。window 折入 690 件。未解决：m3-code-cov 三项欠、m3-func-cov 的 priv_u（归属已列）、m3-mutation-audit 待注册（TODO(M3-3)）。",
+   "ts": "2026-09-26 11:03"
+  },
+  {
+   "id": "R-269",
+   "kind": "R",
+   "text": "心跳第 14 轮（2026-09-26）＝M3-(a) **未命中分支/条件逐条分类 ＋ (i) 类补激励**批（判据本体 `script/flow.py` 的 `m3-code-cov`／`m3-func-cov`／`m3-regress-stab`、覆盖模型的 bin 与采样条件、`rtl/**`、`rtl/vr1/include/*.svh`、`doc/spec/**`、G1-I 冻结端口面、TB `tb/unit/m1_e2e_tb.sv` **均未动**；无 waiver／exclude、未删任何 bin —— 红线 R6/R7）。\n①**分类面（本轮主体）**：从 `vcover report -details -code sbcef -zeros <sim/covdb/m3cov_r2.ucdb>`（全报告 170 处 `***0***`）机械抽出**逐行**未命中清单，按单元／源码行逐条判 (i) 可达未激励 ／ (ii) 范围不可达：**Branches 未命中 57 条 → (i) 40 ／ (ii) 17**；**Conditions 未命中 36 条 → (i) 25 ／ (ii) 11**；FSM 2 弧＝工具口径（见 ④）。\n②**(i) 类补激励（新件）**：`sw/tests/direct/dec_probe.S`（用例名 `vr1dir-p-dec_probe`；`sw/tests/build_rv64ui.py` 的 `DIRECT_TESTS` 加一条）＝**17 条保留编码 ⇒ illegal 探针**（OPIMM／OPIMM32／OP32／OP／BRANCH／LOAD／STORE／MISC-MEM／SYSTEM 各族的 reserved funct3／funct7，逐条在源文件头注明命中的 RTL 源码行）＋ `FENCE`/`FENCE.I`（MISC-MEM 整族此前未激励）＋ M 扩展**除零／有符号溢出／正常**三条支路 ＋ CSR **写面**（mstatus／misa／mcause／mtval）＋ `mstatus.MPP=2'b10` 保留值＋独立 MRET；trap handler 走 `mepc+=4 → mret` 跳过非法指令（与 `m_smoke` **同构**，其机制已由 M1 判据判过）。\n```text\n**双向过滤（关键纪律，防\"把两侧口径差伪装成激励缺口\"）**：全部编码逐一核过 **RTL 与 ISS 两侧同为非法**（逐条对 `iss/vriss/machine.py` 的检查行：341/361/366/382/399/487/526/538 ＋ 275/286/296/317）；**故意排除** MULDIV f3∈{1,2,3}（ISS `_m` 合法实现 MULH/MULHSU/MULHU）／JALR f3≠0（ISS 无该 funct3 检查）／SYSTEM f3=011（ISS 按 CSRRC 合法执行）／SYSTEM f7=0x08（SRET/WFI）／OP32 f7=0x01（ISS `_mw` 实现 MULW 族）／MRET 且 rs1≠0 或 rd≠0（ISS 只查 f7+low5）——它们属**两侧实现面差**，不是激励缺口，已逐条列缺（见 ④）。\n```\n③**实跑数字（旧→新，如实照录）**：代码覆盖四项＝Statements 92.69%→**98.27%**（1022/1040）／Branches 87.69%→**96.33%**（446/463）／Conditions 54.43%→**86.08%**（68/79）／FSM Transitions **75.00%**（6/8，未变）；证据 `doc/verify/07-m3cov_r4.txt`（batch=m3cov_r4，rtl.f md5=10f20a51 == 现盘，54/54 用例 PASS）。中间批 m3cov_r3 为首次补激励（Conditions 83.54%），发现测试内一处**除数复用**（`t4` 被前序结果覆写 ⇒ 正常除/余仍走除零支）后修正，并以 m3cov_r4 为最终证据。⇒ **Statements／Branches 两项达标**；Conditions／FSM 未达（原因见 ④⑤）。\n④**(ii) 类列缺落 `doc/verify/02` §7**（11 条 ＋ FSM 2 弧，四类，依据逐条到源码行）：**结构性 5**（`vr1_ifetch` 174 的 `nib` 派生面／`vr1_core` 698 的 SI-1 收口／`vr1_core` 792 的 `wb_vld` 恒真冗余／`vr1_rob` 245 `free_o` 的单发射面／`vr1_rob` 290 的\"预检异常条目不发射\"）＋**无产生者／穷尽 5**（`vr1_csr` 232 与 `vr1_trap` 83 的**中断面**／`vr1_csr` 247 的\"写未实现地址\"**口径未闭**（RTL 写忽略 vs `spec/10` illegal）／`vr1_decode` 338 与 `vr1_exu_int` 213 与 `vr1_lsu` 290＋`vr1_ifetch` 238 的 `default`＝**成员表穷尽／派发面同集**）＋**两侧口径差 3**（`vr1_decode` 516／613 的 JALR-f3 与 MRET-rs1/rd；`vr1_decode` 436／441 的 MULDIV）＋**工具口径 1**（vcover FSM 面**不记异步复位弧**：同一迁移已被功能 bin `cg_lsu_fsm.cp_trans.t_req_idle`/`t_rsp_idle` 经受控通道采到 **12/12**）。（另 `vr1_lsu` 214/215 的组合 ternary 分支计数与 `vr1_ifetch` 220／`vr1_lsu` 276 的\"TB 桩恒响应\"两条亦按工具口径／harness 列缺。）\n⑤**结论 ＋ 需人项**：(i) 类**已清零** ⇒ Conditions 在本实现/harness 面下的**上界＝(43+25)/79＝86.08%**；在\"不加 U／S 态、不加中断源、不改造 TB 桩、不改 RTL\"约束内**任何激励都到不了 90%** ⇒ 这两项（Conditions 的 11 条 (ii) 类 ＋ FSM 的 2 弧）是**口径裁定项**（是否从分母剔除＝**放宽判定口径**，红线 R7 禁 AI 自决、属 `doc/项目开发流程.md` §12.3 必报类）⇒ 出决策包呈 R0（载体＝`doc/verify/02` §7 的 CC-X1 处置项 ＋ `doc/当前目标卡.md` §阻塞与需人项 4）。**本轮未做**（防超范围）：不为抬数加 U 态／中断源／空壳解码（R7 精神）。\n⑥**守卫复核（全绿）**：M1 两条 `rtl-compile`／`rtl-vs-iss` PASS；M2 三条＝`m2-rv64ui` **53 条全过**（判定面随新用例 52→53；逐条 ISS `halt_val=0x1` ＋ RTL `HALT_PASS` ＋ `mismatch=0`；`sim/run_m2_rv64ui/run.log`）／`m2-regress` PASS／`m2-cov` PASS（指纹指向 m3cov_r4）；`m3-regress-stab` PASS（本版本 r5/r6/r7）。**回归同配置未污染**：`run_cmd/rv64ui_testlist.txt` **一字未改**，新用例只进覆盖率批清单 `run_cmd/cover_m3_testlist.txt` 与 `MANIFEST.tests`（后者使其同受 `m2-rv64ui` 判定——**不设免判通道**）。\n⑦**机判落点**：`flow.py check` 末行＝`---- flow check: FAIL（里程碑 M3 exit 未过；见上列 FAIL 项）----`、退出码**非 0**（`m3-code-cov`／`m3-func-cov` 两条如实 FAIL，未放宽）；常跑守卫全 PASS（含 `md-integrity`／`codepoints`／`ref-target-exists` —— 覆盖本次新增的 `doc/verify/02` §7 与 `AGENTS.md` §1／目标卡刷新）。`flow.py window --take` 折入 **700 件**（上一份 690＝本轮新增 10 件：新用例源 1 ＋ 三视图/模型 5 ＋ 报告 2 ＋ 合并件 2）。",
+   "ts": "2026-09-26 11:24"
+  },
+  {
+   "id": "ISS-128",
+   "kind": "ISS",
+   "text": "ISS 与 RTL 在**保留编码判非法**面上不对称（心跳第 14 轮发现，逐条可核）——同一编码出现 **RTL 判 illegal／ISS 按合法执行** 的差异，共 5 组：\n① `JALR` funct3≠000：RTL `vr1_decode.sv` 523-525 判 illegal；ISS `machine.py` 268-271 **无 funct3 检查**（直接算目标并链接）。\n② `SYSTEM` f3=000 且 funct7=MRET(0b0011000) 但 `rs1≠0` 或 `rd≠0`：RTL（源 613）判 illegal；ISS `_sys_op`（526-538）只查 funct7+low5 ⇒ **当 MRET 执行**。\n③ `OP` funct7=0000001 且 f3∈{001,010,011}（＝MULH／MULHSU／MULHU）：RTL（源 436-439）判 illegal（一期 M 面只 3 条）；ISS `_m`（428-451）**合法实现**。\n④ `OP-32` funct7=0000001（MULW／DIVW／DIVUW／REMW／REMUW）：RTL 判 illegal（源 398-400 等）；ISS `_op32` → `_mw`（453-473）**合法实现**。\n⑤ `SYSTEM` f3=110／111（CSRRSI／CSRRCI）与 f3=011（CSRRC）：RTL 只认 f3∈{001,010}（源 618-633）；ISS 按 `{1,2,3,5,6,7}` 全实现。\n**影响**：这 5 组使 `vr1_decode` 的 6 个保留编码分支／4 个条件项**无法用\"进 `MANIFEST.tests` 的激励\"命中**——补激励必出 RTL-vs-ISS mismatch（会红 `m2-rv64ui`）；故本轮把它们从 (i) 类排除、列为 (ii) 类\"两侧口径差\"（`doc/verify/02` §7 的 CC-2／CC-3／CC-15）。\n**判定与归属（未自决）**：按 `spec/02` §9.3 保留编码规则②，RTL 的口径与规范一致（保留编码 ⇒ illegal），ISS 侧为**缺检查**（同一文件里对 OPIMM 的 SLLI/SRLI funct6 保留位已有检查＝341/366，属同族遗漏）；但**是否补齐 ISS／是否收窄 RTL** 涉两侧实现面口径的统一，属需登记待裁决项，不属本轮补激励范围。归属＝G1-F ＋ ISS 侧补齐批（与 `doc/verify/02` §7 的行号一致）。**不动 RTL／不改 ISS**（本轮只登记）。\n**【已解决】2026-09-26 心跳第 15 轮**（逐组对账后收口；**RTL／`rtl/vr1/include/*.svh` 生成件／G1-I 冻结端口面／`doc/spec/**`／判据本体 一律未动；无 waiver／exclude／删 bin**——红线 R6/R7）：五组按规范拆两类各自收敛——\n**①组 1（`JALR` `f3≠000`）与组 2（`MRET` `rs1≠0`／`rd≠0`）＝真保留编码**：JALR 只定义 `f3=000`（提取件行 2686–2698 编码表逐字段值）；MRET 的 `rs1`／`rd` 固定 `00000`（行 55952–55964；SRET 55945–55951、WFI 55967–55973 同）；保留译码 UNSPECIFIED ＋ 平台可选非法化（行 2026–2029），本项目取「RES 一律非法化」＝`spec/02` §9.3 依据句 ⇒ 原判定成立（**ISS 缺检查**），已按 R2「验证代码错误直接解决」补两处守卫：`iss/vriss/machine.py` 的 JALR `f3` 守卫与 MRET 保留字段守卫（**均置于一切状态变更之前**；同族先例＝ISS-063 的 SLLI/SRLI funct6 保留位）。\n**②组 3/4/5（MULH/MULHSU/MULHU、OP-32 `f7=1` 族 MULW/DIVW/DIVUW/REMW/REMUW、`SYSTEM f3=011/110/111` 即 CSRRC/CSRRSI/CSRRCI）＝`spec/02` §9.1.6／§9.1.7 在册合法成员**（0x201–0x203／0x210／0x290–0x293／0x302／0x304／0x305；RISC-V 亦定义为 M 扩展与 Zicsr：提取件行 5455–5469／5591）**不是保留段** ⇒ **ISS 侧正确、经裁决不收窄**：收窄＝与 §9.1 成员表相抵 ＋ 把 RTL 首版实现子集（`vr1_decode.sv` 头 53–63 行自述那 30 个成员是「G1-F 后才入面的合法 RV64 指令」）写成 golden（抹掉 DUT 真实缺口）＋ 令 `iss/tests/test_isa_semantics.py:t_mulw` 的「MULW 不再被判非法（Q20）」失去意义；差异归 **RTL 实现面未完成**（G1-F／T-2／T-3）。\n**证据（可重跑）**：探针 `iss/tests/probes/rr_probe16_iss128_reserved.py` ＋ 输出 `rr_out16.txt`（主运行 21 检查 0 失败；自证伪 3 注入 3 红）；`test_isa_semantics.py` 新增 `t_iss128_reserved` 钉住项（全套 **38 断言 0 失败**）＋ `test_smoke.py` 仍 PASS；**两侧一致性端到端**＝`sw/tests/direct/dec_probe.S` 新增 **A19~A22**（JALR f3=001/111、MRET rs1=1/rd=1）同受 `m2-rv64ui` 逐条 ISS↔RTL 比对（**53/53 全过、0 mismatch**，`sim/run_m2_rv64ui/run.log`）。\n**收益与落点**：`vr1_decode.sv` 4 个未命中项（分支 516 条件项／523 else 支／613 的 `(rs1 == 5'd0)`・`(rd == 5'd0)`）**转可达**（零项差集 `sim/run_cover_m3cov_r5/zeros_diff_r4_r5.txt`，机械算不手抄；另一侧 0 项新增）；(a) 四项由 98.27／96.33／86.08／75.00 抬到 **98.56%（1025/1040）／96.54%（447/463）／89.87%（71/79）／75.00%（6/8）**——证据 `doc/verify/07-m3cov_r5.txt`（batch=m3cov_r5，rtl.f md5=10f20a51 == 现盘，**54/54** 用例 PASS）；`doc/verify/02` §7 的 **CC-2／CC-3 由「两侧口径差」转入「已纳入」**，**CC-4／CC-15 改判归属**（新增 §7.1 五组对账表）。**Conditions 的 (i) 类仍为 0 ⇒ 上界 86.08%→89.87%**（余 8 项＋FSM 2 弧仍属 (ii)，裁定项 CC-X1 不变，仍待 R0）。\n**残余（如实，不涉 ISS-128 本体）**：`spec/02` §16.3.1 的 **D-4**（ECALL/EBREAK/WFI 的 `rd`／`rs1` 非零组合）本轮**只闭 MRET 一半**，ECALL/EBREAK/WFI 面**未动**（仍待 `spec/10` T-9 口径；本轮不改 spec 面）；`rr_probe14.py` 对其现状的观察断言**未受影响**。",
+   "ts": "2026-09-26 11:24"
+  },
+  {
+   "id": "R-270",
+   "kind": "R",
+   "text": "心跳第 15 轮（2026-09-26）＝**ISS-128 五组「保留编码/RTL 与 ISS 检查面不对称」逐组对账并消解**（判据本体 `script/flow.py`、覆盖模型 bin/采样条件、`rtl/**`、`rtl/vr1/include/*.svh` 生成件、G1-I 冻结端口面、`doc/spec/**` **均未动**；无 waiver／exclude、未删任何 bin —— 红线 R6/R7）。\n①**逐组对账与裁决（每组给\"规范怎么说／RTL 怎么做／ISS 怎么做\"）**：组 1 `JALR f3≠000`（规范只定义 f3=000：提取件行 2686–2698 编码表逐字段值）与组 2 `MRET 且 rs1≠0／rd≠0`（rs1／rd 固定 00000：行 55952–55964；SRET 55945–55951／WFI 55967–55973 同）＝**真保留编码**——保留译码 UNSPECIFIED ＋ 平台可选非法化（行 2026–2029），本项目取「RES 一律非法化」＝`spec/02` §9.3 依据句 ⇒ **ISS 缺检查（原判定成立）**；组 3 `OP f7=1 且 f3∈{001,010,011}`（MULH/MULHSU/MULHU）、组 4 `OP-32 f7=1`（MULW/DIVW/DIVUW/REMW/REMUW）、组 5 `SYSTEM f3=011/110/111`（CSRRC/CSRRSI/CSRRCI）＝**`spec/02` §9.1.6／§9.1.7 在册合法成员**（0x201–0x203／0x210／0x290–0x293／0x302／0x304／0x305；RISC-V 亦定义为 M 扩展与 Zicsr：行 5455–5469／5591）**不是保留段** ⇒ **ISS 正确、裁决不收窄**（收窄＝与 §9.1 成员表相抵＋把 RTL 首版实现子集写成 golden＋令 `iss/tests/test_isa_semantics.py:t_mulw` 的「MULW 不再被判非法（Q20）」失效），差异归 **RTL 实现面未完成**（G1-F／T-2／T-3）。**组 3/4/5 的 RTL 非法行为自身合规**（规范行 44835–44839：未实现特性的 opcode「become reserved, not necessarily illegal」），只是不构成对 ISS 的口径要求。\n②**修错的一侧（R2：验证代码错误直接解决＋登记）**：`iss/vriss/machine.py` 加 JALR `f3` 守卫 ＋ MRET 保留字段守卫（**均置于一切状态变更之前**：不写 link、不跳转、不碰 mstatus/mepc/priv；同族先例＝ISS-063 的 SLLI/SRLI funct6 保留位）。\n③**可复现证据**：新探针 `iss/tests/probes/rr_probe16_iss128_reserved.py`＋输出 `rr_out16.txt`（主运行 **21 检查 0 失败**；`--self-falsify` **3 注入 3 红**——含\"把保留编码换成在册成员 MULH 亦须合法\"的跨类负控）；语义回归新增 `t_iss128_reserved`（本文件 **32→38 断言，0 失败**）＋ `test_smoke.py` 仍 PASS。\n④**两侧一致性的端到端证据**：`sw/tests/direct/dec_probe.S` 新增 **A19~A22**（JALR f3=001/111、MRET rs1=1／rd=1）⇒ `m2-rv64ui` **53/53 全过、0 mismatch**（`sim/run_m2_rv64ui/run.log`）；覆盖率批 `m3cov_r5` **54/54 PASS**（该批逐例含 ISS↔RTL 比对，A19~A22 另有批级证据）。\n⑤**覆盖收益（旧→新，如实照录）**：(a) 四项＝Statements 98.27→**98.56%（1025/1040）**／Branches 96.33→**96.54%（447/463）**／Conditions 86.08→**89.87%（71/79）**／FSM Transitions **75.00%**（未变）；`vr1_decode.sv` **4 项未命中转可达**（分支 516 条件项／523 else 支／613 的 `(rs1==5'd0)` 与 `(rd==5'd0)`），零项差集由新归档工具 `script/tools/vcover_zeros_diff.py` 机械算出（`sim/run_cover_m3cov_r5/zeros_diff_r4_r5.txt`：CLOSED 4／另一侧 0 新增）。⇒ **Conditions (i) 类仍为 0 ⇒ 上界 86.08%→89.87%**，余 8 项＋FSM 2 弧仍属 (ii)（CC-X1 裁定项不变，仍待 R0）；判据**仍如实 FAIL、阈值一分未放宽**。\n⑥**镜像面复核（防\"改激励面＝改已判过的东西\"）**：重跑 `build_rv64ui.py --gap-all` ⇒ 对 `state/window.json` 基线（700 件）机械复算：**50 条 rv64ui-p-* 的三视图（hex／tb_hex／data.hex）与 .dump 逐条 md5 未变**，只有 `vr1dir-p-dec_probe` 的 dump/hex/tb_hex 变（源改）＋ `MANIFEST.json`（53 条）重生成；`m2-rv64ui` 判定面随之重跑并全过。**新观察（低烈度，登记）**：`*.elf` 视图**不可复现**——同参数两次 gcc 产出的 md5 不同（`531adaa4…` vs `ba39f449…`），根因＝链接器把 gcc **随机临时目标名**（`ccwjBoFv.o` vs `cc8k6yOF.o`）写进 `.strtab` 的 STT_FILE 符号（实测仅 6 字节差，`od -c` 取证）⇒ **.elf／.dump 不得进任何 md5 指纹或判定面**（现 MANIFEST 只记三视图 md5、elf/dump 只记路径 —— 正确）。\n⑦**(d) 登记核对（M3-(d) 16 条 ＋ `pending_subset`）**：16 条补缺指令在 `GAP.json.rtl_supported` **16/16 在册**；52 条 rv64ui-p-* 里 50 条在判定子集、2 条 `kind=缺机制`（`fence_i`／`ma_data`）本有原因＋实测证据，**本轮补写「缺带归属」**（`sw/tests/build_rv64ui.py:MECHANISM_NEEDS`：`fence_i`→`spec/09`／`spec/03` 机制批；`ma_data`→一期 `MISALIGNED_EN=0` 参数口径面，二期改 1 时重评）⇒ 登记完整、不静默跳过。\n⑧**落点**：`doc/verify/02` §7 的 **CC-2／CC-3 转入「已纳入」**（附规范行号与证据），**CC-4／CC-15 改判归属**（原\"两侧口径差\"→\"RTL 实现面未完成／RTL 未实现\"），新增 **§7.1 五组对账表**；AGENTS §1 与 `doc/当前目标卡.md` 同步刷新；ledger ISS-128 **原条目回填【已解决】＋时间＋方案摘要**（原文保留不删）。\n⑨**守卫复核（全绿）**：M1＝`rtl-compile` PASS（12 单元 Errors: 0）／`rtl-vs-iss` PASS（30 条 0 mismatch）；M2＝`m2-rv64ui` PASS（**53/53**）／`m2-regress` PASS（r6↔r7 同配置 0 新 FAIL）／`m2-cov` PASS（读最新批 m3cov_r5）；M3＝`m3-regress-stab` PASS；常驻守卫全 PASS。\n⑩收尾：`flow.py check` 末行＝`---- flow check: FAIL（里程碑 M3 exit 未过；见上列 FAIL 项）----`、rc=1（`m3-code-cov`／`m3-func-cov` 两条**如实 FAIL**，未放宽）；`flow.py window --take` 折入 **705 件**（上一份 700＝新增 3 源件〔探针 1＋输出 1＋工具 1〕＋报告 1＋合并件 1）；`script/tmp/` 清空至仅 `README.md`（`hb12probe/` 为 ModelSim 编译库、`guard-bash` 拦递归删除，沿用第 12 轮登记）。**未解决**：Conditions 89.87%／FSM 75.00%（CC-X1 口径裁定，待 R0）；`priv_u`（裁定②已列缺）；`m3-mutation-audit` 待注册（TODO(M3-3)）；`spec/02` D-4 的 ECALL/EBREAK/WFI 保留字段面仍待 `spec/10` T-9（本轮只闭 MRET 一半）。\n⑪**披露（过程可追溯，R3）**：覆盖率批首跑误用 `cover_rv1.py` 的默认 testlist（`run_cmd/rv64ui_testlist.txt`，50 条 rv64ui）⇒ 以同名批 `m3cov_r5` 重跑（`--testlist run_cmd/cover_m3_testlist.txt`，54 条），**报告／合并件 ucdb／指纹三件一并覆盖**、首跑产物不残留（沙箱同名目录亦覆盖）；批级证据只认最终 54 条那一份（`07-m3cov_r5.txt` 头「用例 54 条／PASS 54」＋指纹 `cases` 清单可核）。",
+   "ts": "2026-09-26 12:22"
+  },
+  {
+   "id": "R-271",
+   "kind": "R",
+   "text": "Spike 调用封装落地 ＋ 首次 ISS-vs-ISS 闭环（2026-09-26）：① 新件 iss/tools/spike_run.py（子命令 check/run/to-csv；--preset {project,upstream}）：固化 --isa（默认取 spec/00 §2 一期串 rv64imac_zicsr_zifencei）／自动备 --dtb=（缓存键含 isa＋spike 名＋内存区域，DTB 生成同样带区域参数）／log→标准 trace CSV（本机解析，复用 vriss.trace.RetireRecord＋TraceWriter ⇒ 与 golden ISS 同列序同格式）／失败给可执行诊断（映射冲突、DTB、ISA 三类）。② 新增 oracle 变体 /d/tools/riscv-isa-sim-vr1/build_vr1/spike（项目映射版）：riscv/platform.h 两处编译期常量 DRAM_BASE 0x80000000→0x1000、DEFAULT_RSTVEC 0x1000→0x90000000（boot ROM 让位），配 -m0x1000:0x4000,0x20000000:0x1000,0x40000000:0x10000（Spike 自带 CLINT 0x2000000 与默认 2048MB DRAM 重叠，必须显式给区域）；上游映射那份原样保留。③ trace 两端裁切（确定性、锚＝规格）：起点跳过 boot ROM 前导至 pc==spec/00 §4.1 RESET_PC(0x1000)；终点＝写 tohost 0x4000_0010 那行（含）即停——Spike 分批执行、批边界才轮询 HTIF，停机后仍多跑一批（实测 5000 条）write_tohost 自旋，属停机后噪声。④ 本机工具侧三处缺陷已修：riscv-dv 的 spike_log_to_trace_csv.py 硬编码假设 trampoline 在 0x1000 并丢弃到 0x1010 ⇒ 对本机 project-preset 的 log 解析出 0 条（故改本机解析，--riscv-dv 路径保留）；内存区域参数漏进 DTB 生成步骤 ⇒ devices overlap；停机写判定用字面量（Spike 地址零填充 16 位）＋ CSR 打印老式名 c773_mtvec（非通用 csr 0x.. 形式）两处漏解析。⑤ 首次 ISS-vs-ISS 结果：rv64ui-p-{simple,add,slti,jalr,ld} 分别 41/470/237/115/435 条 × 列 pc,binary,gpr,csr 全 mismatch=0（比对器 iss/tools/trace_compare.py；一侧＝sim/run_regress_r7/*.iss.csv）。",
+   "ts": "2026-09-26 12:49"
+  },
+  {
+   "id": "ISS-129",
+   "kind": "ISS",
+   "text": "ISS-vs-ISS 的对手方口径待裁（呈 R0，承 R-271）：现用『项目映射版 Spike』＝自建 oracle 的第二次改（riscv/platform.h 两处常量：DRAM_BASE→0x1000、DEFAULT_RSTVEC→0x90000000）——好处＝同一份 ELF 喂两边（守 AGENTS.md §3.4 坑 2 的口径）、pc 直接同址可比、5 用例已 0 mismatch；代价＝oracle 映射与上游 spike 不同（二进制另存一份，上游那份原样保留）。另一条路＝用上游映射那份 ＋ sw/tests/riscv-tests/env/p/link.ld 另出 Spike 版 ELF（地址 0x8000_0000 起）⇒ 但两侧 pc 不同址，逐条比对需地址归一化＝放宽（红线 R6，须白名单＋登记）。未决不影响已完成证据的有效性（探针／可证伪实验性质），但若把 ISS-vs-ISS 正式纳入 §4 签核判据，须先定口径。 【已解决 2026-09-26 心跳第十六轮（按 R0 裁定②执行）】落点＝`doc/verify/02` §8（另一处指针＝`doc/环境搭建.md` §5.5；口径以 §8 为准）。① 先试 R0 的「优先项」——**原版 Spike 实测跑不通**项目 ELF，两条 rc=255 已留证 `sim/run_iss129_upstream/`：带项目内存区域 ⇒ `devices at [1000, 5000) and [1000, 2000) overlap`（boot ROM 恒被 `riscv/sim.cc:485 add_device(DEFAULT_RSTVEC, boot_rom)` 挂在 0x1000，与项目代码窗必然重叠）；不带 `-m` ⇒ `Access exception … Memory address 0x1000 is invalid`（`riscv/devices.h:37 rom_device_t::store` 只读，ELF 段写不进）。两常量皆**编译期**、DTB 与命令行都覆盖不了（`riscv/platform.h:6/:30`；只用于 `riscv/cfg.cc:44` 默认布局与 `spike_main/spike.cc:237` 的 `-m<size>`）⇒ 不改源码无路。② 按裁定②执行：**补丁固化**＝受版本控制的 `iss/tools/patches/spike-vr1-platform-map.patch`（附应用说明与复现命令）；改动面**逐文件核验**＝两树 2104 件对 2104 件、仅上游有 0 件、仅副本有 0 件、**内容不同仅 `riscv/platform.h` 1 件**；两处常量＝`DEFAULT_RSTVEC` 0x00001000→0x90000000（boot ROM 让位）／`DRAM_BASE` 0x80000000→0x00001000（＝`spec/00` §4.1 RESET_PC）。③ **纳入版本指纹**＝`iss/tools/spike_oracles.json`（上游 platform.h md5 7db38c26／改后 2882221f／改后二进制 3be1be0c／patch b9305f38 四件套）；`iss/tools/spike_run.py` 的 `check`/`run` **每次逐次核**，不符即**拒跑**（自证伪 4 注入全拦：二进制/补丁/源码 md5 与缺指纹）。④ **明写「这是改过的 oracle，非原版 Spike」**（判据消息与 §8 表格同文），并约定「两侧不一致**先核补丁本身**（四件套 md5）再判错」。⑤ **口径下重跑确认**：ISS-vs-ISS 五用例 `rv64ui-p-{simple,add,slti,jalr,ld}` 与 vriss 侧逐条比对仍 **mismatch=0**（41/470/237/115/435 条 × 列 pc,binary,gpr,csr；证据 `sim/run_iss_vs_iss/run.log` ＋ `compare_<case>.txt`；首跑 R-271）。⑥ 未采纳「另出 Spike 版 ELF」（破 `AGENTS.md` §3.4 坑 2「一份镜像喂两边」＋ 地址归一化＝放宽红线 R6），理由与锚点写在 §8 ③。",
+   "ts": "2026-09-26 12:49"
+  },
+  {
+   "id": "R-272",
+   "kind": "R",
+   "text": "里程碑 M3 exit 全过（m3-code-cov,m3-func-cov,m3-regress-stab）",
+   "ts": "2026-09-26 13:03"
+  },
+  {
+   "id": "R-273",
+   "kind": "R",
+   "text": "心跳第十六轮（2026-09-26）＝R0 两裁定落地（① 列缺豁免机制改判据本体（已授权）＋ ② ISS-129 Spike 对手方口径按裁定②执行）。① 机制：两条 M3 判据（script/flow.py:chk_m3_code_cov／chk_m3_func_cov）新增'解析 doc/verify/02 列缺清单（§7 机器可读豁免集 §7.2／§6 未纳入节表体）→ 从分母扣除 → 消息逐条回显（含清单位置行号与依据/归属）'通道；四条硬边界写进判据 docstring 与消息：①豁免仅限清单内且依据可查（code 面每条须回指非'已纳入/处置项'的 CC- 主表行＋非空归属＋行号能在 rtl.f 在册单元源码里落到非空行）；②豁免不改任何 bin／采样条件／阈值／检查器逻辑（只改分母口径）；③不得靠新增/改写列缺条目凑达标——判据用**报告现值设反向上界**（同一 单元×面 ≤ 该格 misses、同一面 ≤ 该面 misses ⇒ 报告没报缺的项豁免不了）；④豁免集为空时判据行为与消息**与落地前逐字一致**（已实测核过），而'清单本体解析不到'一律 FAIL（fail-closed）。自证伪：4 种造假注入（超上界／回指已纳入行／凭空行号／对全命中单元灌豁免）全被拦。结果：m3-code-cov＝Statements 98.56%（1025/1040，15 处未命中不在清单内照旧计分母）／Branches 100.00%（447/447，原 447/463 扣豁免 16）／Conditions 100.00%（71/71，原 71/79 扣豁免 8）／FSM Transitions 100.00%（6/6，原 6/8 扣豁免 2）；m3-func-cov＝cg_fetch 8/8／cg_lsu_fsm 12/12／cg_retire 34/34（原 34/35，扣豁免 1＝priv_u）⇒ 两条转 PASS，M3 单轮达成（记账 R-272）。Conditions 差的 1 项按 R0 指示先试对账/激励：8 项逐项源码复核（doc/verify/02 §7.3，含源码行原文）全部为结构性/无产生者/死路径/无中断源，且非 ISA 行为面 ⇒ ISS-128 对账路子构造性不适用，确**啃不掉**，保留在豁免集内并写明。② ISS-129：先试 R0 优先项（原版 Spike 不改源码）——实测两条 rc=255（带项目 -m ⇒ devices at [1000,5000) and [1000,2000) overlap；不带 -m ⇒ Memory address 0x1000 is invalid），两常量皆编译期、DTB/命令行均不可覆盖（riscv/platform.h:6/:30；sim.cc:485；devices.h:37）⇒ 按裁定②执行：补丁固化＝iss/tools/patches/spike-vr1-platform-map.patch（含应用说明；改动面经逐文件核验＝2104 件对 2104 件、内容不同仅 riscv/platform.h 1 件）；纳入版本指纹＝iss/tools/spike_oracles.json（上游/改后 platform.h+改后二进制+patch 四件套 md5；iss/tools/spike_run.py 的 check/run 每次逐次核、不符即拒跑，自证伪 4 注入全拦）；口径明写'改过的 oracle，非原版 Spike'并约定'两侧不一致先核补丁本身'；落点＝doc/verify/02 §8（指针 doc/环境搭建.md §5.5）。口径下重跑确认：ISS-vs-ISS 五用例 rv64ui-p-{simple,add,slti,jalr,ld} 与 vriss 侧逐条比对仍 0 mismatch（41/470/237/115/435 条 × 列 pc,binary,gpr,csr；证据 sim/run_iss_vs_iss/run.log＋compare_<case>.txt）。边界：未改 rtl/**、rtl/vr1/include/*.svh、doc/spec/**、冻结端口面、覆盖模型 bin/采样条件；无 waiver/exclude/删 bin；台账编号脚本自增。",
+   "ts": "2026-09-26 13:04"
+  }
+ ]
+}

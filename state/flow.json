@@ -1,0 +1,431 @@
+{
+ "_note": "方案 A（Runner-in-the-Loop）唯一状态真值。doc/process/03-自动化流程重构-三方案.md。编号禁手写（script/flow.py record 自增）。",
+ "flow": "A",
+ "updated": "2026-09-26",
+ "stop_requests": 0,
+ "milestones": [
+  {
+   "id": "M0.5",
+   "name": "流水线自证 + 参数单源",
+   "state": "met",
+   "why": "不依赖尚缺的 RISC-V 工具链（ISS-002），今天即可证：编译在环、参数与 spec 零漂移、一份镜像喂两边、trace 比对闭环、位宽自洽",
+   "exit": [
+    {
+     "check": "width-check",
+     "desc": "struct 成员位宽实算 vs 文档声明 0 不符（复用 width_check.py）"
+    },
+    {
+     "check": "params-drift",
+     "desc": "spec/00 §4 重算 == 磁盘 rtl/vr1/include/vr1_params.svh（参数零漂移）"
+    },
+    {
+     "check": "params-coverage",
+     "desc": "§4.1~§4.7 表体行全覆盖，无未解析/静默丢弃"
+    },
+    {
+     "check": "params-invariants",
+     "desc": "表内自洽断言（源自 §4 表内文字）全过"
+    },
+    {
+     "check": "params-compile",
+     "desc": "vlog 编译在环：-- Compiling 计数 ≥2 且 Errors: 0"
+    },
+    {
+     "check": "image-hex",
+     "desc": "一份镜像喂两边：m_smoke.hex/.bin + MANIFEST md5，判据比对 md5"
+    },
+    {
+     "check": "trace-self",
+     "desc": "ISS 读 .hex 跑出的 trace 与 golden 逐条 0 mismatch（镜像往返等价）"
+    }
+   ],
+   "env_blocked": [],
+   "met_at": "2026-09-25 15:15"
+  },
+  {
+   "id": "M1a",
+   "name": "接口类型单源（spec/01 §3 → vr1_types.svh，编译在环）",
+   "state": "met",
+   "why": "G1 冻结前 rtl/ 只允许 include/*.svh；把 28 个接口 struct 做成可编译的类型单一真源，是冻结前唯一能对接口定义做的真实工具校验",
+   "exit": [
+    {
+     "check": "types-drift",
+     "desc": "spec/01 §3 重算 == 磁盘 rtl/vr1/include/vr1_types.svh（类型零漂移）"
+    },
+    {
+     "check": "types-coverage",
+     "desc": "成员与源行守恒：327 源成员行 = 327 个 src 行组 + 0 登记（无静默丢弃/无猜测）"
+    },
+    {
+     "check": "types-width-consistency",
+     "desc": "28 struct 生成宽度 == width_check 独立复算，差额期望 0（ADR-P-2 切分表已全量落地）"
+    },
+    {
+     "check": "types-crosscheck",
+     "desc": "每 struct 合计与 width_check.py 独立复算一致（两实现互证）"
+    },
+    {
+     "check": "types-compile",
+     "desc": "vlog 编译 参数包+类型包+接口骨架 0 error（-- Compiling ≥3）"
+    },
+    {
+     "check": "params-elab",
+     "desc": "vsim 展开参数包：证据行 [params_smoke] PASS（$fatal 断言全过）"
+    },
+    {
+     "check": "types-elab",
+     "desc": "vsim 展开 类型包+参数包+接口骨架：证据行 [types_smoke]"
+    }
+   ],
+   "findings": [
+    "spec/01 全篇未规定 struct 字段打包顺序 → ADR-P-1 自决「表中自上而下=MSB→LSB」，进 G1 评审 list",
+    "字段名撞 SV 保留字（如 super）→ 加 _f 后缀并在生成件注明原名",
+    "ADR-P-2（决策 AI 自决）：29 处非标量行按 R1~R4 全量切分落地，414 bit 缺口归零、28/28 差额 0（合计 4442 bit）",
+    "ADR-P-1 打包顺序（表中自上而下=MSB→LSB）仍待 R0 在 G1 确认"
+   ],
+   "met_at": "2026-09-25 15:24"
+  },
+  {
+   "id": "M1-I",
+   "name": "G1-I 机判面（清单 §2 与 spec/ISS/生成件 逐值一致；达成＝机判全过，G1-I 冻签仍归 R0）",
+   "state": "met",
+   "why": "G1-I 呈签（段 0，人签）的前置：清单 §4 的 14 条判据里 10 条「现有判据覆盖不到」——本里程碑把其中可实现者落成判据（gi-pkg-binding/csr-table/code-table/isop-subset/iss-smoke），并保留 GI-1 的 types-* 面做回归复核；不可实现者登记待材料（GI-6/9/10/11/13），M1 两条 exit 注册为 BLOCKED 桩（GI-14）。里程碑达成只代表「机判面全过」，G1-I 冻签仍归 R0。",
+   "exit": [
+    {
+     "check": "types-drift",
+     "desc": "GI-1：spec/01 §3 重算 == 磁盘 vr1_types.svh（类型零漂移）"
+    },
+    {
+     "check": "types-coverage",
+     "desc": "GI-1：成员与源行守恒（无静默丢弃/无猜测）"
+    },
+    {
+     "check": "types-width-consistency",
+     "desc": "GI-1：28 struct 生成宽度 == width_check 独立复算，差额 0"
+    },
+    {
+     "check": "types-crosscheck",
+     "desc": "GI-1：每 struct 合计与 width_check 独立复算一致（两实现互证）"
+    },
+    {
+     "check": "types-compile",
+     "desc": "GI-1：vlog 编译 参数包+类型包+接口骨架 0 error"
+    },
+    {
+     "check": "types-elab",
+     "desc": "GI-1：vsim 展开 类型包+参数包+接口骨架（证据行 [types_smoke]）"
+    },
+    {
+     "check": "gi-pkg-binding",
+     "desc": "GI-2：清单 §2.1 的 23 型 + §2.5 的 40 个参数名逐名在生成件有声明（排除集按清单体例忽略）"
+    },
+    {
+     "check": "csr-table",
+     "desc": "GI-3/GI-4：六 CSR 逐行在册；地址 == ISS Csr 逐值；mstatus 位段名+结构 / mtvec MODE 逐值"
+    },
+    {
+     "check": "code-table",
+     "desc": "GI-5：spec/10 §2.1 码表 与 ISS Exc/Intr 逐值一致（复算「是」集合 == 声明集合）"
+    },
+    {
+     "check": "isop-subset",
+     "desc": "GI-8：G1-I 14 条指令 isop 在册 + ISS 构造器同占位同 opcode；§9.3 例码 14/14"
+    },
+    {
+     "check": "iss-smoke",
+     "desc": "GI-7：python iss/tests/test_smoke.py 退出码 0（行为断言在环）"
+    }
+   ],
+   "findings": [
+    "清单 §4 的 GI-3~GI-8 未覆盖面已落 5 条新判据（本轮）；GI-6/9/10/11/13 登记为待材料（见台账）",
+    "csr-table 的 mstatus「位段」面：spec/10 只有位段**名**（无位号）⇒ 逐值面取 mtvec MODE + 掩码结构；位号值面待 spec 落文",
+    "isop-subset 的 (cls,g) 判定用 §9.3 占位表（cls 按 3 bit 二进制字面量解析）",
+    "state=met 由 check 的里程碑记账自动置位（机判 11 条 exit 全过）；冻签（段 0）与 guard-write 白名单更新仍待人"
+   ],
+   "met_at": "2026-09-25 22:47"
+  },
+  {
+   "id": "M1",
+   "name": "RTL-vs-ISS 首条闭环（vlog 0 error + trace 0 mismatch）",
+   "state": "met",
+   "blocked_by": "① RTL 实现未完成（**仅在 S3/S4**：重命名/分发/发射/执行 M06~M11 与提交/CSR/trap/trace M15~M18，见 doc/design/M1-实现计划.md §5；2026-09-26 01:07 复核：S0/S1/S2 已 done——M01~M03＋M05 已落并经 `rtl-fetch-win`／`rtl-decode-win` 机判 PASS；`rt_valid_o` 仍恒 0 的原因是 S3/S4 未落，**不**是 S1/S2 未做）；② TB 侧**接线**未完成（`rt_t` 写出器/停机判据/watchdog 源已落 tb/unit/rt_t_trace_writer*.sv、`tb-compile` 与 `trace-format-contract` 常跑守卫 PASS，但顶层 TB 未例化写出器、内存桩/时钟复位未接＝GI-13/GD-6）；仿真器已就位（ModelSim R-224／Spike R-235／Verilator 5.050），不再是阻塞项",
+   "exit": [
+    {
+     "check": "rtl-compile",
+     "desc": "vlog 编译 filelist/rtl.f：`-- Compiling` 计数 == 清单条目数 且 Errors: 0（本批真实化，已过）"
+    },
+    {
+     "check": "rtl-vs-iss",
+     "desc": "定向激励下 RTL-vs-ISS trace 0 mismatch：sim/golden/iss_smoke.csv vs RTL 侧 CSV，列 pc,binary,gpr,csr × 30 条（保持 BLOCKED 桩，产出侧未就位）"
+    }
+   ],
+   "met_at": "2026-09-26 02:24"
+  },
+  {
+   "id": "M2",
+   "name": "riscv-tests rv64ui 定向子集闭环（RTL 侧全 PASS ＋ 逐条 RTL-vs-ISS 0 mismatch）",
+   "state": "met",
+   "why": "M1 只证了「一条**自造**镜像 30 条退休 RTL-vs-ISS 0 mismatch」；M2 把证明面换成**第三方合规套件**（riscv-tests rv64ui，上游源码入库 sw/tests/riscv-tests），同时把「可批跑」与「覆盖率机制在环」两条工程面立起来——三者是 M3（覆盖率/回归收敛）的前置。exit 三条口径由 R0 在 2026-09-26 心跳批给出（本里程碑入册批）。",
+   "exit": [
+    {
+     "check": "m2-rv64ui",
+     "desc": "（a）riscv-tests rv64ui 定向子集**在册全量**逐条真跑：ISS `halt_val=0x1` ＋ RTL 侧 `HALT_PASS`（tohost 停机）＋ 逐条 RTL-vs-ISS `trace_compare` 列 pc,binary,gpr,csr 0 mismatch；数据面逐条 `+DATA=` 预载（数据窗＝镜像数据段，md5 复算 ＋ TB 证据行）；fail-closed：三视图 md5 漂移／数据窗常量与 TB 源文不符／解析不到证据行／条数 < `M2_MIN_TESTS` 一律 FAIL（不放宽、不豁免，红线 R6/R8）｜判据本体＝`script/flow.py:chk_m2_rv64ui`（2026-09-26 心跳第 9 轮已实跑，本条 desc 于第 10 轮刷新）"
+    },
+    {
+     "check": "m2-regress",
+     "desc": "（b）回归可批跑（**真判据，已注册**；2026-09-26 心跳第 9 轮由恒 FAIL 桩改为真判据，R0 授权口径 A）：**只核证据、不重跑重活**——判最近一次 `--diff` 产物的两轮：两轮 summary 尾行 `REGRESSION_PASS`（无 FAIL/ABORTED）＋ counts total==pass 且 fail/timeout/fatal/skip=0 ＋ cases.json/config.json 自洽；R10：jobs ≤4 且每 runner 独占沙箱 `sim/run_regress_<id>`；R9：case_timeout=1200s／batch_budget=7200s／watchdog=2000000 拍在环；跨轮 `new_fail=0`＋`same_config=yes`；**时效**：两轮指纹（rtl.f md5 ＋ 逐 RTL 单元 md5）逐条 == 现盘、`changed_since_fingerprint` 为空｜判据本体＝`script/flow.py:chk_m2_regress`"
+    },
+    {
+     "check": "m2-cov",
+     "desc": "（c）覆盖率机制在环（**真判据，已注册**；2026-09-26 心跳第 9 轮由恒 FAIL 桩改为真判据）：**只核证据**——报告在册 `doc/verify/07-*.txt`（非空 ＋ 指纹段要素 ＋ 内嵌 rtl.f md5 == 现盘 ＋ 字节数与指纹一致）＋ 编译指纹 `sim/covdb/FINGERPRINT.json` 在册且 `rtl_filelist.md5` == 现盘（逐单元 md5 复核）＋ 批级合并件在册；**不判阈值**（阈值属 M3）｜判据本体＝`script/flow.py:chk_m2_cov`"
+    }
+   ],
+   "findings": [
+    "M2 的 RTL 前置＝**RV64I 基指令面扩展**：riscv-tests 的 test_macros.h（TEST_CASE/TEST_PASSFAIL）逐条依赖 `bne`，被测指令面另有 `add/sub/auipc/jalr/lb..ld/sb..sd/ori/...` ⇒ G1-I 14 条子集（清单 §1.1 第 1 条）不足；语义面 `spec/02` §10 已有 RV64I 全量 63 条（T-17）",
+    "env 层（`sw/env/`）是平台适配层：上游 `env/p`（lowRISC fork）用 SIGNATURE_ADDR 语义＋PMP/satp/mhartidCSR，与本核一期（6 CSR、无 PMP/无 S）不符 ⇒ 本项目提供适配版，**测试体与 test_macros.h 逐字不改**",
+    "旧编号体系的 M2/M3（doc/verify/04 §① 权威表）与本流程 A 的 M2/M3 同名不同义：04 的 M3（平台 smoke）已改名 **M-B**（人的决策点/基线宣布），04 的 M2（未使用）由本流程 A 的 M2 认领",
+    "2026-09-26 首批实跑（`rv64ui-p-add`／`rv64ui-p-addi`，判据 `m2-rv64ui` 首跑 FAIL）：**两侧前 39/40 条逐条一致**，首个分歧＝`add a4,ra,sp`@0x11c8（add.S）与 `bne a4,t2,fail`@0x11cc（addi.S），RTL 均报 `exc=1 c=2`（非法指令）⇒ 缺口与 `sim/image/rv64ui/GAP.json` 的机械清单一致；ISS 侧两条均 `halt_val=0x1`（PASS）。**addi 只需补 BNE 一条**即可进入逐条比对；RTL 的 trap/mtvec/handler 路径在真测试下已实测工作（异常后正确进 0x1100 handler 并按 env 口径落 `tohost=0x539` 标记）"
+   ],
+   "blocked_by": "已 met（2026-09-26 08:43）；本条为**历史阻塞面留档 ＋ 后续增量清单**（不再是当前阻塞）：① RTL 指令子集（原 G1-I 14 条）已按 `sim/image/rv64ui/GAP.json` 的机械反算分批补齐：M2 增补 27 条（心跳第 5 轮：ALU/AUIPC/BNE）＋ **M3-(d) 增补 16 条**（心跳第 10 轮：分支余 4／JALR／载入余 6／存储余 3／FENCE·FENCE.I，合 57 条合法面）——余 30 成员（A 扩展 11／M 余 10／CSR 余 4／SYSTEM 余 5）随 G1-F 落地；② m2-regress／m2-cov 两条判据已注册并实跑（心跳第 9 轮）",
+   "met_at": "2026-09-26 08:43"
+  },
+  {
+   "id": "M3",
+   "name": "覆盖率与回归收敛（覆盖率阈值 ＋ 回归 0 UVM_ERROR ＋ 错误注入保真度抽检）",
+   "state": "met",
+   "blocked_by": "",
+   "why": "process/03 的 M3 与 doc/verify/04 §① 旧表的 M3（平台 smoke）**同名不同义**；后者已独立命名 M-B（人的决策点/基线宣布）。本里程碑沿 process/03 的覆盖率/回归收敛义。",
+   "exit": [
+    {
+     "check": "m3-code-cov",
+     "desc": "（a）代码覆盖率达 AGENTS.md §4 阈值：Statements／Branches／Conditions／FSM Transitions **四项逐项 ≥90%**（DUT 面＝报告 §C 的 rtl/vr1/** 实例节，Σhits/Σbins 独立复算并与指纹 dut_face_rollup_selfcomputed 互证）；证据时效＝编译指纹与**当前** filelist/rtl.f 同版本。只核证据＋时效、**不重跑重活**；未达标如实 FAIL 并给出四项现值（不得调阈值凑绿）。判据本体＝script/flow.py:chk_m3_code_cov（2026-09-26 心跳第十一轮注册）"
+    },
+    {
+     "check": "m3-func-cov",
+     "desc": "（b）功能覆盖率 100%：**已纳入判定范围的 VP 项**＝覆盖模型件 tb/unit/m1_e2e_cov.sv 头部「覆盖模型清单」声明的 CG→VP 映射，逐 CG 须 covered==total（缺 bin 逐条点名，供补激励）；另核 doc/verify/02 的「未纳入项」是否**显式列缺带归属**（缺列即 FAIL）。证据时效同上。判据本体＝script/flow.py:chk_m3_func_cov（2026-09-26 心跳第十一轮注册）"
+    },
+    {
+     "check": "m3-regress-stab",
+     "desc": "（c）回归 0 UVM_ERROR/0 UVM_FATAL ＋ 稳定性：**同配置 ≥3 轮**（本版本＝指纹与当前 rtl.f 同 md5）每轮 summary 尾行 REGRESSION_PASS、counts total==pass 且 fail/timeout/fatal/skip 全 0、cases/config 自洽、R9/R10 在环，且**轮间 0 新 FAIL**（按 cases.json 的 FAIL 集合独立复算，配对 round_diff 作旁证）。判据本体＝script/flow.py:chk_m3_regress_stab（2026-09-26 心跳第十一轮注册）"
+    }
+   ],
+   "register_before_activate": false,
+   "register_note": "2026-09-26 心跳第十一轮：原三条占位名 m3-cov-threshold／m3-regress-zero-error／m3-mutation-audit 中，(a)(b) 的口径已落成 `m3-code-cov`／`m3-func-cov`（覆盖阈值两面分开判：代码面与功能面各自出缺口清单），(c) 的口径落成 `m3-regress-stab`（同配置 ≥3 轮）；三条判据已**先注册**进 `script/flow.py` 的 CHECKS 再置本里程碑 active。第三条 M3 exit `m3-mutation-audit`（错误注入保真度／VP-X05 变异抽检）**机制尚无落点**，按「未注册判据即 fail-closed」保留待注册，不假落（TODO(M3-3)）。",
+   "activated_at": "2026-09-26 10:05",
+   "findings": [
+    "（a）m3-code-cov 实跑 FAIL（如实，未放宽）：Statements 88.27%（918/1040）、Branches 76.57%（353/461）、Conditions 37.97%（30/79）、FSM Transitions 62.50%（5/8）——四项全欠 90%；证据 doc/verify/07-m2cov_r2.txt（batch=m2cov_r2，rtl.f md5=10f20a51 == 当前，§C 复算与指纹自算逐项一致）",
+    "（b）m3-func-cov 实跑 FAIL：TOTAL COVERGROUP 73.79%；缺 bin —— cg_retire 8 个（csr_mstatus/csr_misa/csr_mscratch/csr_mepc/csr_mcause/csr_mtval/exc/priv_u）、cg_fetch 3 个（cp_req_hs.idle、cp_req_hs.req_wait、cp_rsp_hs.rsp_wait）、cg_lsu_fsm 3 个（t_idle_done/t_req_idle/t_rsp_idle）；另 doc/verify/02 **无「未纳入」节**（缺带归属 ⇒ 该条判据按口径 FAIL）",
+    "（c）m3-regress-stab 实跑 PASS：本轮补跑第三轮 r7（sim/run_regress_r7，103.1 s，total=50 pass=50）＋ `--diff r6 r7`（new_fail=0 same_config=yes）；判据取本版本同配置 r5/r6/r7 三轮",
+    "三条判据**只核证据＋时效**（不重跑重活）；阈值取 AGENTS.md §4 原文，缺口由**补定向激励**闭合（红线 R7：禁删 bin／改采样条件／waiver；禁调阈值）"
+   ],
+   "met_at": "2026-09-26 13:03"
+  }
+ ],
+ "steps": [
+  {
+   "id": "P1",
+   "role": "verifier",
+   "task": "参数单源生成：从 doc/spec/00 §4 生成 rtl/vr1/include/vr1_params.svh",
+   "done": "生成成功且无 UNPARSED 行",
+   "cmd": [
+    [
+     "python",
+     "script/flow.py",
+     "params"
+    ]
+   ],
+   "status": "done",
+   "budget": "≤5 分钟",
+   "evidence": "sim/run_P1/run.log ｜ [flow] params: 生成 rtl/vr1/include/vr1_params.svh（118 行 → 101 条 parameter / 17 条登记 / 0 条未解析） ｜ 2026-09-25 15:15"
+  },
+  {
+   "id": "P2",
+   "role": "verifier",
+   "task": "编译在环：表内自洽断言 + ModelSim vlog 编译参数包",
+   "done": "params-invariants 全过；vlog -- Compiling ≥2 且 Errors: 0",
+   "cmd": [
+    [
+     "python",
+     "script/flow.py",
+     "check-one",
+     "params-invariants"
+    ],
+    [
+     "python",
+     "script/flow.py",
+     "check-one",
+     "params-compile"
+    ]
+   ],
+   "status": "done",
+   "budget": "≤10 分钟",
+   "evidence": "sim/run_P2/run.log ｜ [PASS] params-compile: vlog 编译 2 个单元 ｜ Errors: 0 ｜ sim/run_params/run.log ｜ 2026-09-25 15:15"
+  },
+  {
+   "id": "P3",
+   "role": "verifier",
+   "task": "一份镜像喂两边：生成 m_smoke.hex/.bin + MANIFEST，再用 ISS 读 .hex 跑出 trace",
+   "done": "MANIFEST md5 在册；ISS 退出码 0（halt_val==1）；sim/run_P3/hex_side.csv 落盘",
+   "cmd": [
+    [
+     "python",
+     "sw/tests/gen_smoke_image.py"
+    ],
+    [
+     "python",
+     "iss/run_iss.py",
+     "run",
+     "--hex",
+     "sim/image/m_smoke.hex",
+     "--csv",
+     "sim/run_P3/hex_side.csv",
+     "--tohost",
+     "0x40000010"
+    ]
+   ],
+   "status": "done",
+   "budget": "≤15 分钟",
+   "evidence": "sim/run_P3/run.log ｜ [vriss] retired=30 cycles=30 halted=True halt_val=0x1 trace=sim/run_P3/hex_side.csv ｜ 2026-09-25 15:15"
+  },
+  {
+   "id": "P4",
+   "role": "verifier",
+   "task": "镜像往返等价：hex 侧 trace vs golden 逐条比对",
+   "done": "trace_compare 报 mismatch=0",
+   "cmd": [
+    [
+     "python",
+     "iss/tools/trace_compare.py",
+     "sim/golden/iss_smoke.csv",
+     "sim/run_P3/hex_side.csv"
+    ]
+   ],
+   "status": "done",
+   "budget": "≤10 分钟",
+   "evidence": "sim/run_P4/run.log ｜ [trace_compare] 比对 30 条 × 列 ['pc', 'binary', 'gpr', 'csr']，mismatch=0 ｜ 2026-09-25 15:15"
+  },
+  {
+   "id": "P5",
+   "role": "human",
+   "task": "[需人] G1-F 全量冻结待材料（G1-I 清单 §6.1 段 3：spec/00 过 RR；04~13 余项 T-xx 清零或列缺带归属；spec/10 T-10-1 CSR 全表闭合）；另 ISS-104 残余＝ModelSim license 的 OS 侧 rehost（可选——flow.py 会话内注入已够用）",
+   "done": "G1-F 全量冻结由 R0 签署落 doc/spec/14（清单 §6.1 段 3 材料齐）；环境面已闭（doc/环境搭建.md §8 验收表全过＝R-235/R-236）",
+   "status": "waiting_human",
+   "budget": "-"
+  },
+  {
+   "id": "P6",
+   "role": "verifier",
+   "task": "RTL 编译在环：vlog 编 filelist/rtl.f（vr1_pkg 包裹包 + vr1_core 端口面/取指骨架）",
+   "done": "rtl-compile 判据 PASS：`-- Compiling` 计数 == filelist/rtl.f 条目数 且 Errors: 0",
+   "cmd": [
+    [
+     "python",
+     "script/flow.py",
+     "check-one",
+     "rtl-compile"
+    ]
+   ],
+   "status": "done",
+   "budget": "≤10 分钟",
+   "evidence": "sim/run_P6/run.log ｜ [PASS] rtl-compile: vlog 编译 2 个单元（filelist/rtl.f）｜ Errors: 0 ｜ sim/run_rtl_compile/run.log ｜ 2026-09-25 23:04"
+  },
+  {
+   "id": "S1",
+   "role": "verifier",
+   "task": "M1-S1 取指通路收口：M01~M03（静态预测直连 FTQ ＋ 32 B 窗对齐 ＋ IBUF 16 项；骨架 FSM 迁入 vr1_ifetch）——判据② rtl-fetch-win 本次注册后同批收口",
+   "done": "rtl-compile PASS ＋ rtl-fetch-win PASS：首次请求 VA==RESET_PC、窗基址 32 B 对齐 4/4、连续窗按 FETCH_BYTES 推进、n_fail=0、窗 0 raw32 8 字==镜像常量",
+   "cmd": [
+    [
+     "python",
+     "script/flow.py",
+     "check-one",
+     "rtl-compile"
+    ],
+    [
+     "python",
+     "script/flow.py",
+     "check-one",
+     "rtl-fetch-win"
+    ]
+   ],
+   "status": "done",
+   "budget": "≤15 分钟",
+   "evidence": "阶段证据（判据注册前）＝sim/run_rtl_fetch_smoke/run.log；判据注册后重跑：rtl-fetch-win 判据实跑 sim/run_S1/run.log ｜ [PASS] rtl-fetch-win: n_fail=0；窗基址 4/4 对齐；S1-1 首请求 VA=1000==RESET_PC；stride=32==FETCH_BYTES；raw32 8/8 字==镜像；vlog 6 单元+vo ｜ 2026-09-26 00:50"
+  },
+  {
+   "id": "S2",
+   "role": "verifier",
+   "task": "M1-S2 译码级收口：M05 `vr1_decode`（IBUF 起始槽消费/≤4 lane 打包/逐窗 drain 握手/G1-I 14 条定长译码/非法编码 pre_exc＋cause 2/D→R 反压握手）——判据② 的“S4 之前可判”部分（D 级 pc/raw32/isop 与握手面）本片注册 `rtl-decode-win` 后同批收口；`gpr`/`csr` 面（CSV 全列）仍归 S4/S5",
+   "done": "rtl-compile PASS ＋ rtl-decode-win PASS：逐条 uop 80 条 pc 自 1000 连续 +4、raw32 逐字==镜像字、ISS golden 30/30 条 binary 互证、isop 14/14==清单 §1.1×spec/02 §9.1、一窗一 drain（requests==drains）、件 1 反压 uops=15 drains=4 n_fail=0、vopt×2+vsim×2 全 Errors: 0",
+   "cmd": [
+    [
+     "python",
+     "script/flow.py",
+     "check-one",
+     "rtl-compile"
+    ],
+    [
+     "python",
+     "script/flow.py",
+     "check-one",
+     "rtl-decode-win"
+    ]
+   ],
+   "status": "done",
+   "budget": "≤20 分钟",
+   "evidence": "sim/run_S2/run.log ｜ [PASS] rtl-decode-win: 逐条 uop 80 条：pc 自 1000 连续 +4；raw32 全部 == 镜像字/填充字判定；golden 30/30 条互证（binary 逐字一致）；isop 14/14 == 清单  ｜ 2026-09-26 01:07"
+  },
+  {
+   "id": "P7",
+   "role": "verifier",
+   "task": "RTL-vs-ISS 首条闭环：仿真出 RTL 侧 trace CSV，与 sim/golden/iss_smoke.csv 逐条比对",
+   "done": "rtl-vs-iss 判据 PASS：两侧长度相等且 pc,binary,gpr,csr × 30 条 mismatch=0",
+   "cmd": [
+    [
+     "python",
+     "script/flow.py",
+     "check-one",
+     "rtl-vs-iss"
+    ]
+   ],
+   "status": "done",
+   "blocked_by_cleared": "2026-09-26 04:00 阻塞项两条均已在 S3/S4 批解除（RTL 侧 trace 产出落成、TB 接线完成，`rtl-vs-iss` 实跑 PASS 见 sim/run_rtl_vs_iss/run.log）⇒ 本轮把 `blocked_by` 字段移除，交 `flow.py run` 置 done（脚本机制，不手写 done/编号）",
+   "budget": "≤2 小时",
+   "evidence": "sim/run_P7/run.log ｜ [PASS] rtl-vs-iss: M1 闭环：RTL 侧 30 条退休（tohost 停机 PASS）vs golden 30 条，列 `pc,binary,gpr,csr` **0 mismatch**（`trace_compare` ｜ 2026-09-26 04:05"
+  },
+  {
+   "id": "M2-1",
+   "role": "verifier",
+   "task": "riscv-tests rv64ui 入库与镜像：源码逐字入库（sw/tests/riscv-tests，含 LICENSE/ORIGIN.md）＋ env 适配层（sw/env/riscv_test.h / link.ld）＋ 首批编译并产 $readmemh 镜像与清单＋ 全 52 条测试的缺口清单（GAP.json）",
+   "done": "MANIFEST 在册：逐条 hex/tb.hex md5 ＋ tohost==0x4000_0010 ＋ entry==_start==0x1000 不变式全过；GAP.json 在册（52 条测试 vs RTL 子集的机械缺口）",
+   "cmd": [
+    [
+     "python",
+     "sw/tests/build_rv64ui.py",
+     "--gap-all"
+    ]
+   ],
+   "status": "done",
+   "budget": "≤20 分钟",
+   "evidence": "sim/run_M2-1/run.log ｜ [rv64ui] built=rv64ui-p-add rv64ui-p-addi gap_union=3 种：add bne unimp ｜ 2026-09-26 04:12"
+  },
+  {
+   "id": "M2-2",
+   "role": "verifier",
+   "task": "M2 exit (a) 收口：rv64ui 定向子集 ≥5 条 RTL 侧全 PASS ＋ 逐条 RTL-vs-ISS 0 mismatch（判据 `m2-rv64ui`：真跑 ISS ＋ RTL ＋ trace_compare）",
+   "done": "m2-rv64ui 判据 PASS：≥5 条全过且 0 失败（逐条 ISS halt_val=0x1 ＋ RTL HALT_PASS ＋ mismatch=0）",
+   "cmd": [
+    [
+     "python",
+     "script/flow.py",
+     "check-one",
+     "m2-rv64ui"
+    ]
+   ],
+   "status": "done",
+   "blocked_by": "",
+   "budget": "≤30 分钟",
+   "evidence": "sim/run_M2-2/run.log ｜ [PASS] m2-rv64ui: rv64ui 定向子集 32 条全过（≥5）：逐条 ISS `halt_val=0x1` ＋ RTL `HALT_PASS` （tohost 停机）＋ 逐条比对 `mismatch=0`（列 pc,bin ｜ 2026-09-26 05:19"
+  }
+ ]
+}
